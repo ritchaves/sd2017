@@ -2,7 +2,7 @@
 
 Grupo A57
 
-João Carlos Ferreira Cardoso 64776 *(falta e-mail aqui)*
+João Carlos Ferreira Cardoso 64776 joaocardoso816@gmail.com
 
 Rita Carvalho Chaves Ferreira 69836 *(falta e-mail aqui)*
 
