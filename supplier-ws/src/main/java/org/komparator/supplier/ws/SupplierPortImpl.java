@@ -54,8 +54,14 @@ public class SupplierPortImpl implements SupplierPortType {
 	@Override
 	public List<ProductView> searchProducts(String descText) throws BadText_Exception {
 		// TODO
+		if (descText == null)
+			throwBadText("Search text cannot be null!");
+		descText = descText.trim();
+		if (descText.length() == 0)
+			throwBadText("Seach text cannot be empty or whitespace!");
 		
-		
+		//Supplier supplier = Supplier.getInstance();
+		//Product p = supplier.getProduct();
 		
 		
 		return null;
@@ -64,11 +70,28 @@ public class SupplierPortImpl implements SupplierPortType {
 	@Override
 	public String buyProduct(String productId, int quantity)
 			throws BadProductId_Exception, BadQuantity_Exception, InsufficientQuantity_Exception {
-		// TODO
+
+		if (productId == null)
+			throwBadProductId("Product identifier cannot be null!");
+		productId = productId.trim();
+		if (productId.length() == 0)
+			throwBadProductId("Product identifier cannot be empty or whitespace!");
+		if (quantity <= 0)
+			throwBadQuantity("Quantity must be a positive number!");
 		
-		
-		
-		
+		Supplier supplier = Supplier.getInstance();
+		Product p = supplier.getProduct(productId);
+		if (p != null) {
+			if (p.getQuantity() < quantity)
+				throwInsufficientQuantity("There is not enough quantity in stock");
+			else {
+				try {
+					return supplier.buyProduct(productId, quantity);
+				} catch (QuantityException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		return null;
 	}
 
