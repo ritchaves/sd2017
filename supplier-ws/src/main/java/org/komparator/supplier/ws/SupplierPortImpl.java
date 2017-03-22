@@ -1,6 +1,7 @@
 package org.komparator.supplier.ws;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.jws.WebService;
@@ -53,17 +54,22 @@ public class SupplierPortImpl implements SupplierPortType {
 
 	@Override
 	public List<ProductView> searchProducts(String descText) throws BadText_Exception {
-		// TODO
+		List<ProductView> existingProducts = listProducts();
+		
 		if (descText == null)
 			throwBadText("Search text cannot be null!");
 		descText = descText.trim();
 		if (descText.length() == 0)
 			throwBadText("Seach text cannot be empty or whitespace!");
 		
-		//Supplier supplier = Supplier.getInstance();
-		//Product p = supplier.getProduct();
+		for (Iterator<ProductView> it = existingProducts.iterator(); it.hasNext(); ) {
+			ProductView pv = it.next();
+			if (!(pv.getDesc().equals(descText)))
+				it.remove();
+		}
 		
-		
+		if (existingProducts != null)
+			return existingProducts;
 		return null;
 	}
 

@@ -71,7 +71,7 @@ public class Supplier {
 	public Product getProduct(String productId) {
 		return products.get(productId);
 	}
-
+	
 	public void registerProduct(String productId, String description, int quantity, int price) {
 		if (acceptProduct(productId, description, quantity, price)) {
 			products.put(productId, new Product(productId, description, quantity, price));
