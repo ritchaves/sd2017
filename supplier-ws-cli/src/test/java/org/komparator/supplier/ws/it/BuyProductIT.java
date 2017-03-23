@@ -90,7 +90,7 @@ public class BuyProductIT extends BaseIT {
 	}
 
 	@Test(expected = BadProductId_Exception.class)
-	public void nuyProductWhitespaceTest() throws BadProductId_Exception, BadQuantity_Exception, InsufficientQuantity_Exception {
+	public void buyProductWhitespaceTest() throws BadProductId_Exception, BadQuantity_Exception, InsufficientQuantity_Exception {
 		client.buyProduct(" ", 2);
 	}
 
@@ -104,7 +104,7 @@ public class BuyProductIT extends BaseIT {
 		client.buyProduct("\n", 2);
 	}
 	//FIXME ************************
-	/*
+	
 	@Test(expected = BadProductId_Exception.class)
 	public void buyProductNonAlphaNumericTest() throws BadProductId_Exception, BadQuantity_Exception, InsufficientQuantity_Exception {
 		client.buyProduct("XPTO 2", 2);
@@ -117,7 +117,7 @@ public class BuyProductIT extends BaseIT {
 	public void buyProductYetAnotherNonAlphaNumericTest() throws BadProductId_Exception, BadQuantity_Exception, InsufficientQuantity_Exception {
 		client.buyProduct("XPTO.2", 2);
 	}
-	*/
+	
 	//**************************
 	@Test(expected = BadQuantity_Exception.class)
 	public void buyProductNegativeQuantityTest() throws BadProductId_Exception, BadQuantity_Exception, InsufficientQuantity_Exception {

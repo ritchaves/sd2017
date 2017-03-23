@@ -3,6 +3,7 @@ package org.komparator.supplier.ws;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.jws.WebService;
 
@@ -39,8 +40,12 @@ public class SupplierPortImpl implements SupplierPortType {
 		productId = productId.trim();
 		if (productId.length() == 0)
 			throwBadProductId("Product identifier cannot be empty or whitespace!");
-		/*if (!(productId.matches("^.*[^a-zA-Z0-9 ].*$")))
-			throwBadProductId("Product identifier must be alphanumeric!");*/
+		
+		Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+		boolean hasSpecialChar = pattern.matcher(productId).find();
+		
+		if (hasSpecialChar)
+			throwBadProductId("Product identifier must be alphanumeric!");
 
 		// retrieve product
 		Supplier supplier = Supplier.getInstance();
@@ -82,8 +87,13 @@ public class SupplierPortImpl implements SupplierPortType {
 		productId = productId.trim();
 		if (productId.length() == 0)
 			throwBadProductId("Product identifier cannot be empty or whitespace!");
-		/*if (!(productId.matches("^.*[^a-zA-Z0-9 ].*$")))
-			throwBadProductId("Product identifier must be alphanumeric!");*/
+		
+		Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+		boolean hasSpecialChar = pattern.matcher(productId).find();
+		
+		if (hasSpecialChar)
+			throwBadProductId("Product identifier must be alphanumeric!");
+		
 		if (quantity <= 0)
 			throwBadQuantity("Quantity must be a positive number!");
 		
