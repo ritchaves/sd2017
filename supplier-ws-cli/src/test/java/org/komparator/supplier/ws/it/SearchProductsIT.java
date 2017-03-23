@@ -1,6 +1,7 @@
 package org.komparator.supplier.ws.it;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThat;
@@ -133,18 +134,26 @@ public class SearchProductsIT extends BaseIT {
 	
 	
 
-	// TODO - main tests
+	// main tests
 	@Test
 	public void searchProductExistsTest() throws BadText_Exception {
-		List<ProductView> products = client.searchProducts("Baseball");		
+		List<ProductView> products = client.searchProducts("Baseball");	
+		assertFalse(products.isEmpty());
+		assertEquals(3, products.size());
+		
 		for (ProductView pds : products) {
 			assertThat(pds.getDesc(), containsString("Baseball"));
 		}
+		
 	}
 	
 	@Test
 	public void searchProductAnotherExistsTest() throws BadText_Exception {
-		List<ProductView> products = client.searchProducts("Soccer");		
+		List<ProductView> products = client.searchProducts("Soccer");	
+		assertFalse(products.isEmpty());
+		assertEquals(2, products.size());
+		
+		
 		for (ProductView pds : products) {
 			assertThat(pds.getDesc(), containsString("Soccer"));
 		}
@@ -152,9 +161,24 @@ public class SearchProductsIT extends BaseIT {
 			
 	@Test
 	public void searchProductYetAnotherExistsTest() throws BadText_Exception {
-		List<ProductView> products = client.searchProducts("Tennis");		
+		List<ProductView> products = client.searchProducts("Tennis");	
+		assertFalse(products.isEmpty());
+		assertEquals(1, products.size());
+		
+		
 		for (ProductView pds : products) {
 			assertThat(pds.getDesc(), containsString("Tennis"));
+		}
+	}
+	
+	@Test
+	public void searchProductExactNameWithSpacesTest() throws BadText_Exception {
+		List<ProductView> products = client.searchProducts("Baseball bat");	
+		assertFalse(products.isEmpty());
+		assertEquals(1, products.size());
+		
+		for (ProductView pds : products) {
+			assertThat(pds.getDesc(), containsString("Baseball bat"));
 		}
 	}
 	

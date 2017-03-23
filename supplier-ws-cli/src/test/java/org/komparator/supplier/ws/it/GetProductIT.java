@@ -10,6 +10,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.komparator.supplier.ws.BadProductId_Exception;
 import org.komparator.supplier.ws.BadProduct_Exception;
+import org.komparator.supplier.ws.BadQuantity_Exception;
+import org.komparator.supplier.ws.InsufficientQuantity_Exception;
 import org.komparator.supplier.ws.ProductView;
 
 /**
@@ -103,6 +105,23 @@ public class GetProductIT extends BaseIT {
 	public void getProductNewlineTest() throws BadProductId_Exception {
 		client.getProduct("\n");
 	}
+	
+	//FIXME ************************
+	/*
+		@Test(expected = BadProductId_Exception.class)
+		public void getProductNonAlphaNumericTest() throws BadProductId_Exception, BadQuantity_Exception, InsufficientQuantity_Exception {
+			client.getProduct("XPTO 2");
+		}
+		@Test(expected = BadProductId_Exception.class)
+		public void getProductOtherNonAlphaNumericTest() throws BadProductId_Exception, BadQuantity_Exception, InsufficientQuantity_Exception {
+			client.getProduct("XPTO-2");
+		}
+		@Test(expected = BadProductId_Exception.class)
+		public void getProductYetAnotherNonAlphaNumericTest() throws BadProductId_Exception, BadQuantity_Exception, InsufficientQuantity_Exception {
+			client.getProduct("XPTO.2");
+		}
+		*/
+		//**************************
 
 	// main tests
 

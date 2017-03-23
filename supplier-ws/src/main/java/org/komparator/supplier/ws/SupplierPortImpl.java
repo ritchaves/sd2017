@@ -39,6 +39,8 @@ public class SupplierPortImpl implements SupplierPortType {
 		productId = productId.trim();
 		if (productId.length() == 0)
 			throwBadProductId("Product identifier cannot be empty or whitespace!");
+		/*if (!(productId.matches("^.*[^a-zA-Z0-9 ].*$")))
+			throwBadProductId("Product identifier must be alphanumeric!");*/
 
 		// retrieve product
 		Supplier supplier = Supplier.getInstance();
@@ -64,13 +66,11 @@ public class SupplierPortImpl implements SupplierPortType {
 		
 		for (Iterator<ProductView> it = existingProducts.iterator(); it.hasNext(); ) {
 			ProductView pv = it.next();
-			if (!(pv.getDesc().equals(descText)))
+			if (!(pv.getDesc().contains(descText)))
 				it.remove();
 		}
 		
-		if (existingProducts != null)
-			return existingProducts;
-		return null;
+		return existingProducts;
 	}
 
 	@Override
@@ -82,6 +82,8 @@ public class SupplierPortImpl implements SupplierPortType {
 		productId = productId.trim();
 		if (productId.length() == 0)
 			throwBadProductId("Product identifier cannot be empty or whitespace!");
+		/*if (!(productId.matches("^.*[^a-zA-Z0-9 ].*$")))
+			throwBadProductId("Product identifier must be alphanumeric!");*/
 		if (quantity <= 0)
 			throwBadQuantity("Quantity must be a positive number!");
 		
