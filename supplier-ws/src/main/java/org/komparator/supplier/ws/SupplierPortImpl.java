@@ -100,14 +100,10 @@ public class SupplierPortImpl implements SupplierPortType {
 		Supplier supplier = Supplier.getInstance();
 		Product p = supplier.getProduct(productId);
 		if (p != null) {
-			if (p.getQuantity() < quantity)
+			try {
+				return supplier.buyProduct(productId, quantity);
+			} catch (QuantityException e) {
 				throwInsufficientQuantity("There is not enough quantity in stock");
-			else {
-				try {
-					return supplier.buyProduct(productId, quantity);
-				} catch (QuantityException e) {
-					e.printStackTrace();
-				}
 			}
 		}
 		return null;
