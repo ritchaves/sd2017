@@ -22,10 +22,13 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <mainclass>org.komparator.supplier.ws.SupplierApp</mainclass>
-
+		
+		
+		<ws.i>1</ws.i>
         <ws.host>localhost</ws.host>
-        <ws.port>8081</ws.port>
+        <ws.port>808${ws.i}</ws.port>
         <ws.url>http://${ws.host}:${ws.port}/supplier-ws/endpoint</ws.url>
+		<ws.name>C57_Supplier${ws.i}</ws.name>
     </properties>
 
     <dependencies>
@@ -35,6 +38,12 @@
             <artifactId>jaxws-rt</artifactId>
             <version>2.2.10</version>
         </dependency>
+		 <!-- UDDI Naming -->
+		<dependency>
+			<groupId>pt.ulisboa.tecnico.sdis</groupId>
+			<artifactId>uddi-naming</artifactId>
+			<version>1.2</version>
+		</dependency>
     </dependencies>
 
     <build>

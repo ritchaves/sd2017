@@ -10,15 +10,28 @@ public class SupplierEndpointManager {
 
 	/** Web Service location to publish */
 	private String wsURL = null;
+	
+	/* Web Service name */
+	private String wsName = null;
+	
+	/* UDDI Location */
+	private String uddiURL = null;
 
 	/** Port implementation */
 	private SupplierPortImpl portImpl = new SupplierPortImpl(this);
+	
+
 
 // TODO
 //	/** Obtain Port implementation */
-//	public SupplierPortType getPort() {
-//		return portImpl;
-//	}
+	public SupplierPortType getPort() {
+		return portImpl;
+	}
+	
+	/** Get Web Service UDDI publication name */
+	public String getWsName() {
+		return wsName;
+	}
 
 	/** Web Service end point */
 	private Endpoint endpoint = null;
@@ -33,6 +46,14 @@ public class SupplierEndpointManager {
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
+	
+	/** constructor with provided UDDI location, WS name, and WS URL - 2 deliver */
+	public SupplierEndpointManager(String uddiURL, String wsName, String wsURL) {
+		this.uddiURL = uddiURL;
+		this.wsName = wsName;
+		this.wsURL = wsURL;
+	}
+	
 
 	/** constructor with provided web service URL */
 	public SupplierEndpointManager(String wsURL) {
