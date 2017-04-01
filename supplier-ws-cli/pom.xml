@@ -41,7 +41,7 @@
 			<groupId>pt.ulisboa.tecnico.sdis</groupId>
 			<artifactId>uddi-naming</artifactId>
 			<version>1.2</version>
-    </dependency>
+   		</dependency>
         <!-- JUnit -->
         <dependency>
             <groupId>junit</groupId>
