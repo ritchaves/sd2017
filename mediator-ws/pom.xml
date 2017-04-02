@@ -21,7 +21,7 @@
         <mainclass>org.komparator.mediator.ws.MediatorApp</mainclass>
 
         <uddi.url>http://localhost:9090</uddi.url>
-        <ws.name>C57_Mediator</ws.name>
+        <ws.name>A57_Mediator</ws.name>
         <ws.url>http://localhost:8080/mediator-ws/endpoint</ws.url>
     </properties>
 
@@ -34,7 +34,7 @@
         </dependency>
 		<!-- mvn dependecy -->
 		<dependency>
-            <groupId>org.komparator.C57</groupId>
+            <groupId>org.komparator.A57</groupId>
             <artifactId>supplier-ws-cli</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
