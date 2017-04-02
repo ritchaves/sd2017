@@ -26,7 +26,7 @@
 
         <mainclass>org.komparator.mediator.ws.cli.MediatorClientApp</mainclass>
 
-        <ws.name>CXX_Mediator</ws.name>
+        <ws.name>C57_Mediator</ws.name>
         <uddi.url>http://localhost:9090</uddi.url>
     </properties>
 
