@@ -24,13 +24,13 @@ public class MediatorEndpointManager {
 
 	/** Port implementation */
 // TODO uncomment after port implementation is done
-	//private MediatorPortImpl portImpl = new MediatorPortImpl(this);
+	private MediatorPortImpl portImpl = new MediatorPortImpl(this);
 
 	/** Obtain Port implementation */
 // TODO uncomment after port implementation is done
-//	public MediatorPortType getPort() {
-//        return portImpl;
-//	}
+	public MediatorPortType getPort() {
+        return portImpl;
+	}
 
 	/** Web Service endpoint */
 	private Endpoint endpoint = null;
@@ -73,7 +73,7 @@ public class MediatorEndpointManager {
 		try {
 			// publish end point
 // TODO uncomment after port implementation is done
-//			endpoint = Endpoint.create(this.portImpl);
+			endpoint = Endpoint.create(this.portImpl);
 			if (verbose) {
 				System.out.printf("Starting %s%n", wsURL);
 			}
@@ -118,7 +118,7 @@ public class MediatorEndpointManager {
 			}
 		}
 // TODO uncomment after port implementation is done
-//		this.portImpl = null;
+		this.portImpl = null;
 		unpublishFromUDDI();
 	}
 
