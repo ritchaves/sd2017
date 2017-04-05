@@ -52,7 +52,7 @@ public class BuyCartIT extends BaseIT {
 			ProductView product = new ProductView();
 			product.setId(X1);
 			product.setDesc("Baseball bat");
-			product.setPrice(69);
+			product.setPrice(5);
 			product.setQuantity(20);
 			sp2.createProduct(product);
 		}
@@ -62,7 +62,7 @@ public class BuyCartIT extends BaseIT {
 			ProductView product = new ProductView();
 			product.setId(X1);
 			product.setDesc("Baseball Over 9000");
-			product.setPrice(9000);
+			product.setPrice(10);
 			product.setQuantity(20);
 			sp3.createProduct(product);
 		}		
