@@ -6,9 +6,7 @@ import java.util.regex.Pattern;
 
 import javax.jws.WebService;
 
-import org.komparator.supplier.domain.Product;
-import org.komparator.supplier.domain.Purchase;
-import org.komparator.supplier.domain.Supplier;
+
 import org.komparator.supplier.ws.BadProductId;
 import org.komparator.supplier.ws.BadProductId_Exception;
 import org.komparator.supplier.ws.ProductView;
@@ -48,16 +46,16 @@ public class MediatorPortImpl implements MediatorPortType{
 	public List<ItemView> getItems(String productId) throws InvalidItemId_Exception {
 		// check product id
 		if (productId == null)
-			invalidItemId("Product identifier cannot be null!");
+			throwInvalidItemId("Product identifier cannot be null!");
 		productId = productId.trim();
 		if (productId.length() == 0)
-			invalidItemId("Product identifier cannot be empty or whitespace!");
+			throwInvalidItemId("Product identifier cannot be empty or whitespace!");
 		
 		Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
 		boolean hasSpecialChar = pattern.matcher(productId).find();
 		
 		if (hasSpecialChar)
-			invalidItemId("Product identifier must be alphanumeric!");
+			throwInvalidItemId("Product identifier must be alphanumeric!");
 
 		// retrieve product
 		Supplier supplier = Supplier.getInstance();
@@ -139,16 +137,16 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	// View helpers ----------------------------------------------------------
 
-	private itemView newItemView(Product product) {
-		itemView view = new itemView();
+	private ItemView newItemView(Product product) {
+		ItemView view = new ItemView();
 		view.setId(product.getId());
 		view.setDesc(product.getDescription());
 		view.setPrice(product.getPrice());
 		return view;
 	}
 
-	private itemIdView newItemIdView(Purchase purchase, SupplierClient supplier) {
-		itemIdView view = new itemIdView();
+	private ItemIdView newItemIdView(Purchase purchase, SupplierClient supplier) {
+		ItemIdView view = new ItemIdView();
 		view.setId(purchase.getPurchaseId());
 		view.setSupplierId(supplier.getWsURL());
 		return view;
@@ -157,43 +155,43 @@ public class MediatorPortImpl implements MediatorPortType{
     
 	// Exception helpers -----------------------------------------------------
 
-	private void InvalidItemId_Exception(final String message) throws InvalidItemId_Exception {
+	private void throwInvalidItemId(final String message) throws InvalidItemId_Exception {
 		InvalidItemId faultInfo = new InvalidItemId();
 		faultInfo.message = message;
 		throw new InvalidItemId_Exception(message, faultInfo);
 	}
 
-	private void InvalidCartId_Exception(final String message) throws InvalidCartId_Exception {
+	private void throwInvalidCartId(final String message) throws InvalidCartId_Exception {
 		InvalidCartId faultInfo = new InvalidCartId();
 		faultInfo.message = message;
 		throw new InvalidCartId_Exception(message, faultInfo);
 	}
 	
-	private void InvalidQuantity_Exception(final String message) throws InvalidQuantity_Exception {
-		InvalidQuantityId faultInfo = new InvalidQuantityId();
+	private void throwInvalidQuantity(final String message) throws InvalidQuantity_Exception {
+		InvalidQuantity faultInfo = new InvalidQuantity();
 		faultInfo.message = message;
 		throw new InvalidQuantity_Exception(message, faultInfo);
 	}
 	
-	private void NotEnoughItems_Exception(final String message) throws NotEnoughItems_Exception {
+	private void throwNotEnoughItems(final String message) throws NotEnoughItems_Exception {
 		NotEnoughItems faultInfo = new NotEnoughItems();
 		faultInfo.message = message;
 		throw new NotEnoughItems_Exception(message, faultInfo);
 	}
 
-	private void EmptyCart_Exception(final String message) throws EmptyCart_Exception {
+	private void throwEmptyCart(final String message) throws EmptyCart_Exception {
 		EmptyCart faultInfo = new EmptyCart();
 		faultInfo.message = message;
 		throw new EmptyCart_Exception(message, faultInfo);
 	}
 
-	private void InvalidText_Exception(final String message) throws InvalidText_Exception {
+	private void throwInvalidText(final String message) throws InvalidText_Exception {
 		InvalidText faultInfo = new InvalidText();
 		faultInfo.message = message;
 		throw new InvalidText_Exception(message, faultInfo);
 	}
 	
-	private void InvalidCreditCard_Exception(final String message) throws InvalidCreditCard_Exception {
+	private void throwInvalidCreditCard(final String message) throws InvalidCreditCard_Exception {
 		InvalidCreditCard faultInfo = new InvalidCreditCard();
 		faultInfo.message = message;
 		throw new InvalidCreditCard_Exception(message, faultInfo);
