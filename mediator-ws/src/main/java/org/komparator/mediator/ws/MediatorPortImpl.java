@@ -9,11 +9,7 @@ import java.util.regex.Pattern;
 
 import javax.jws.WebService;
 
-<<<<<<< HEAD
 import org.komparator.supplier.domain.*;
-=======
-
->>>>>>> 9e87bd653ae778e895bf22422cc49d66efa36ede
 import org.komparator.supplier.ws.BadProductId;
 import org.komparator.supplier.ws.BadProductId_Exception;
 import org.komparator.supplier.ws.ProductView;
