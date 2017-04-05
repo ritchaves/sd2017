@@ -99,9 +99,16 @@ public class MediatorPortImpl implements MediatorPortType{
 	}
 
 	@Override
-	public String ping(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public String ping(String name) {
+		if (name == null || name.trim().length() == 0)
+			name = "friend";
+
+		String wsName = "Supplier";
+
+		StringBuilder builder = new StringBuilder();
+		builder.append("Hello ").append(name);
+		builder.append(" from ").append(wsName);
+		return builder.toString();
 	}
 
 	@Override
