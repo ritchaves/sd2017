@@ -7,18 +7,18 @@ import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
 
-import org.komparator.mediator.ws.CartView;
-import org.komparator.mediator.ws.EmptyCart_Exception;
-import org.komparator.mediator.ws.InvalidCartId_Exception;
-import org.komparator.mediator.ws.InvalidCreditCard_Exception;
-import org.komparator.mediator.ws.InvalidItemId_Exception;
-import org.komparator.mediator.ws.InvalidQuantity_Exception;
-import org.komparator.mediator.ws.InvalidText_Exception;
-import org.komparator.mediator.ws.ItemIdView;
-import org.komparator.mediator.ws.ItemView;
-import org.komparator.mediator.ws.MediatorPortType;
-import org.komparator.mediator.ws.NotEnoughItems_Exception;
-import org.komparator.mediator.ws.ShoppingResultView;
+//import org.komparator.mediator.ws.CartView;
+//import org.komparator.mediator.ws.EmptyCart_Exception;
+//import org.komparator.mediator.ws.InvalidCartId_Exception;
+//import org.komparator.mediator.ws.InvalidCreditCard_Exception;
+//import org.komparator.mediator.ws.InvalidItemId_Exception;
+//import org.komparator.mediator.ws.InvalidQuantity_Exception;
+//import org.komparator.mediator.ws.InvalidText_Exception;
+//import org.komparator.mediator.ws.ItemIdView;
+//import org.komparator.mediator.ws.ItemView;
+//import org.komparator.mediator.ws.MediatorPortType;
+//import org.komparator.mediator.ws.NotEnoughItems_Exception;
+//import org.komparator.mediator.ws.ShoppingResultView;
 
 // TODO uncomment after generate-sources
 import org.komparator.mediator.ws.*; //FIXME NÃO SEI SE FOI BATOTA MINHA O_O PLS HELP
