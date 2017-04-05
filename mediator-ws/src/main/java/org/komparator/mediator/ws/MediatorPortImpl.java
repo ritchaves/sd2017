@@ -69,9 +69,10 @@ public class MediatorPortImpl implements MediatorPortType{
 		Supplier supplier = Supplier.getInstance();
 		Product p = supplier.getProduct(productId);
 		if (p != null) {
-			ItemView pv = newItemView(p);
+			
+			List<ItemView> item = listItems();
 			// product found!
-			return pv;
+			return item;
 		}
 		// product not found
 		return null;
@@ -130,7 +131,11 @@ public class MediatorPortImpl implements MediatorPortType{
     
 	// Auxiliary operations --------------------------------------------------	
 	
-
+	@Override
+	public List<Cart> listCarts() {
+		return null;
+	}
+	
 	@Override
 	public List<ItemView> listItems() {
 		Supplier supplier = Supplier.getInstance();
@@ -153,17 +158,28 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	private ItemView newItemView(Product product) {
 		ItemView view = new ItemView();
-		view.setId(product.getId());
+		view.setItemId(product.getId());
 		view.setDesc(product.getDescription());
 		view.setPrice(product.getPrice());
 		return view;
 	}
 
-	private ItemIdView newItemIdView(Purchase purchase, SupplierClient supplier) {
+	private ItemIdView newItemIdView(Product product, SupplierClient supplier) {
 		ItemIdView view = new ItemIdView();
-		view.setId(purchase.getPurchaseId());
+		view.setProductId(product.getId());
 		view.setSupplierId(supplier.getWsURL());
 		return view;
+	}
+	
+	private CartItemView newCartItemView(ItemView item, Product product) {
+		CartItemView view = new CartItemView();
+		view.setItem(item);
+		view.setQuantity(product.getQuantity());
+	}
+	
+	private CartView newCartView(Cart cart) {
+		CartView view = new CartView();
+		view.setCartId(cart.getId());
 	}
 
     
