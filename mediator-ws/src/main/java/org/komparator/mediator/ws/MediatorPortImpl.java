@@ -10,11 +10,13 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import javax.jws.WebService;
 import javax.xml.ws.BindingProvider;
 
+import org.komparator.mediator.domain.Cart;
 import org.komparator.supplier.ws.BadProductId_Exception;
 import org.komparator.supplier.ws.ProductView;
 import org.komparator.supplier.ws.cli.SupplierClient;
@@ -79,16 +81,19 @@ public class MediatorPortImpl implements MediatorPortType{
 	@Override
 	public List<ItemView> getItems(String productId) throws InvalidItemId_Exception {
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
-		for (UDDIRecord url : SuppliersWsURL) {
-			SupplierClient S = null;
-			try {
-				S = new SupplierClient(url.getUrl());
-				ItemIdView itId = newItemIdView(S.getProduct(productId), url.getOrgName());
-				ItemView it = newItemView(S.getProduct(productId), itId);
-				
-			} catch (SupplierClientException | BadProductId_Exception e) {
-				// FIXME
+		TreeMap<Integer, ItemView> pricesPerSupplier = new TreeMap<Integer, ItemView>();;
+		try {		
+			for (UDDIRecord url : SuppliersWsURL) {
+				SupplierClient S = null;
+					S = new SupplierClient(url.getUrl());
+					ItemIdView itId = newItemIdView(S.getProduct(productId), url.getOrgName());
+					ItemView it = newItemView(S.getProduct(productId), itId);
+					pricesPerSupplier.put(it.getPrice(),it);
 			}
+			List<ItemView> listItems = new ArrayList<ItemView>(pricesPerSupplier.values());
+			return listItems;
+		} catch (SupplierClientException | BadProductId_Exception e) {
+			// FIXME
 		}
 		return null;
 	}
@@ -161,15 +166,15 @@ public class MediatorPortImpl implements MediatorPortType{
 		return null;
 	}
 	
-	@Override
 	public List<ItemView> listItems() {
-		Supplier supplier = Supplier.getInstance();
-		List<ItemView> items = new ArrayList<ItemView>();
-		for (String pid : supplier.getProductsIDs()) {
-			Product p = supplier.getProduct(pid);
-			ItemView pv = newItemView(p);
-			items.add(pv);
-		}
+		
+//		Supplier supplier = Supplier.getInstance();
+//		List<ItemView> items = new ArrayList<ItemView>();
+//		for (String pid : supplier.getProductsIDs()) {
+//			Product p = supplier.getProduct(pid);
+//			ItemView pv = newItemView(p);
+//			items.add(pv);
+//		}
 		return null;
 	}
 
