@@ -1,13 +1,18 @@
 package org.komparator.mediator.ws;
 
+import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.jws.WebService;
+import javax.xml.ws.BindingProvider;
 
 import org.komparator.supplier.domain.*;
 import org.komparator.supplier.ws.BadProductId;
@@ -15,6 +20,9 @@ import org.komparator.supplier.ws.BadProductId_Exception;
 import org.komparator.supplier.ws.ProductView;
 import org.komparator.supplier.ws.PurchaseView;
 import org.komparator.supplier.ws.SupplierPortType;
+import org.komparator.supplier.ws.SupplierService;
+
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
 // TODO annotate to bind with WSDL
 
@@ -37,7 +45,34 @@ public class MediatorPortImpl implements MediatorPortType{
 	public MediatorPortImpl(MediatorEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
 	}
+	
+	
+/* SUGESTAO ----------------------------------------------------------	
 
+	UDDINaming uddinn = endpointManager.getUddiNaming();
+	private Collection<String> availableSupplierswsURL = uddinn.list("SupplierService");
+	
+	/** Stub creation and configuration
+	private void createStub(wsURL) {
+			System.out.println("Creating stub ...");
+		Supservice = new SupplierService();
+		Support = service.getSupplierPort();
+
+		if (wsURL != null) {
+			if (verbose)
+				System.out.println("Setting endpoint address ...");
+			BindingProvider bindingProvider = (BindingProvider) port;
+			Map<String, Object> requestContext = bindingProvider.getRequestContext();
+			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
+		}
+	}
+	
+	A ideia é, errada xD, ir buscar todos os suppliers registados no UDDI. Depois, sempre que quisermos
+	aceder a cada supplier, cria-se um "stub" para ele e fazem-se as operações nesse serviço dedicado e porto.
+	Na iteração seguinte, usa-se o url seguinte da lista e fazem-se os mesmos passos
+*/
+	
+	
 	@Override
 	public void clear() {
 		//Supplier.getInstance().reset();
