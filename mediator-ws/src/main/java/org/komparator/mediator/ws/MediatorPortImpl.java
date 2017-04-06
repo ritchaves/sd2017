@@ -42,6 +42,9 @@ public class MediatorPortImpl implements MediatorPortType{
 	// end point manager
 	private MediatorEndpointManager endpointManager;
 	
+	private AtomicInteger cartIdCounter = new AtomicInteger(0);
+	//NOTA: FAZER NEW CART -> Cart exemplo = new Cart(this.cartIdCounter.incrementAndGet());
+	
 	public MediatorPortImpl(MediatorEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
 	}
