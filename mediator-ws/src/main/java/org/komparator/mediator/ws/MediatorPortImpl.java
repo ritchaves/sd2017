@@ -15,13 +15,6 @@ import java.util.regex.Pattern;
 import javax.jws.WebService;
 import javax.xml.ws.BindingProvider;
 
-
-import org.komparator.supplier.ws.BadProductId;
-import org.komparator.supplier.ws.BadProductId_Exception;
-import org.komparator.supplier.ws.ProductView;
-import org.komparator.supplier.ws.PurchaseView;
-import org.komparator.supplier.ws.SupplierPortType;
-import org.komparator.supplier.ws.SupplierService;
 import org.komparator.supplier.ws.cli.SupplierClient;
 import org.komparator.supplier.ws.cli.SupplierClientException;
 
@@ -46,51 +39,10 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	// end point manager
 	private MediatorEndpointManager endpointManager;
-	private SupplierPortType port;
 	
 	public MediatorPortImpl(MediatorEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
-		
-	port = null;
-
 	}
-	
-	
-/* SUGESTAO ----------------------------------------------------------	
-
-	UDDINaming uddinn = endpointManager.getUddiNaming();
-	private Collection<String> availableSupplierswsURL = uddinn.list("SupplierService");
-	
-	/** Stub creation and configuration
-	private void createStub(wsURL) {
-			System.out.println("Creating stub ...");
-		Supservice = new SupplierService();
-		Support = service.getSupplierPort();
-
-		if (wsURL != null) {
-			if (verbose)
-				System.out.println("Setting endpoint address ...");
-			BindingProvider bindingProvider = (BindingProvider) port;
-			Map<String, Object> requestContext = bindingProvider.getRequestContext();
-			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
-		}
-	}
-	
-	A ideia é, errada xD, ir buscar todos os suppliers registados no UDDI. Depois, sempre que quisermos
-	aceder a cada supplier, cria-se um "stub" para ele e fazem-se as operações nesse serviço dedicado e porto.
-	Na iteração seguinte, usa-se o url seguinte da lista e fazem-se os mesmos passos
-*/
-	private void createStub(String wsURL) {
-		System.out.println("Creating stub ...");
-		SupplierService Supservice = new SupplierService();
-		port = Supservice.getSupplierPort();
-
-		if (wsURL != null) {	
-			BindingProvider bindingProvider = (BindingProvider) port;
-			Map<String, Object> requestContext = bindingProvider.getRequestContext();
-			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
-		}
-    }	
 	
 	@Override
 	public void clear() {
@@ -189,12 +141,6 @@ public class MediatorPortImpl implements MediatorPortType{
 			Product p = supplier.getProduct(pid);
 			ItemView pv = newItemView(p);
 			items.add(pv);
-			Collections.sort(items, new Comparator<ItemView>() {
-				@Override
-		        public int compare(ItemView item1, ItemView item2) {
-		            return item2.compareTo(item1);
-		        }
-		    });
 		}
 		return null;
 	}
