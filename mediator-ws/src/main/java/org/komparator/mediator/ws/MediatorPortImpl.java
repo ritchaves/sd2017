@@ -112,7 +112,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	@Override
 	public List<ItemView> searchItems(String descText) throws InvalidText_Exception {
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
-		List<ItemView> save = null;
+		List<ItemView> save = new ArrayList<ItemView>();
 		
 		try {		
 			for (UDDIRecord url : SuppliersWsURL) {
