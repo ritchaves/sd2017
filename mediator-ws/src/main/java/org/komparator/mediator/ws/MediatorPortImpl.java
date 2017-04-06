@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -14,15 +15,19 @@ import java.util.regex.Pattern;
 import javax.jws.WebService;
 import javax.xml.ws.BindingProvider;
 
-import org.komparator.supplier.domain.*;
+
 import org.komparator.supplier.ws.BadProductId;
 import org.komparator.supplier.ws.BadProductId_Exception;
 import org.komparator.supplier.ws.ProductView;
 import org.komparator.supplier.ws.PurchaseView;
 import org.komparator.supplier.ws.SupplierPortType;
 import org.komparator.supplier.ws.SupplierService;
+import org.komparator.supplier.ws.cli.SupplierClient;
+import org.komparator.supplier.ws.cli.SupplierClientException;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
 
 // TODO annotate to bind with WSDL
 
@@ -41,9 +46,13 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	// end point manager
 	private MediatorEndpointManager endpointManager;
-
+	private SupplierPortType port;
+	
 	public MediatorPortImpl(MediatorEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
+		
+	port = null;
+
 	}
 	
 	
@@ -71,7 +80,17 @@ public class MediatorPortImpl implements MediatorPortType{
 	aceder a cada supplier, cria-se um "stub" para ele e fazem-se as operações nesse serviço dedicado e porto.
 	Na iteração seguinte, usa-se o url seguinte da lista e fazem-se os mesmos passos
 */
-	
+	private void createStub(String wsURL) {
+		System.out.println("Creating stub ...");
+		SupplierService Supservice = new SupplierService();
+		port = Supservice.getSupplierPort();
+
+		if (wsURL != null) {	
+			BindingProvider bindingProvider = (BindingProvider) port;
+			Map<String, Object> requestContext = bindingProvider.getRequestContext();
+			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
+		}
+    }	
 	
 	@Override
 	public void clear() {
@@ -82,30 +101,9 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	@Override
 	public List<ItemView> getItems(String productId) throws InvalidItemId_Exception {
-		// check product id
-		if (productId == null)
-			throwInvalidItemId("Product identifier cannot be null!");
-		productId = productId.trim();
-		if (productId.length() == 0)
-			throwInvalidItemId("Product identifier cannot be empty or whitespace!");
-
-		Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
-		boolean hasSpecialChar = pattern.matcher(productId).find();
 		
-		if (hasSpecialChar)
-			throwInvalidItemId("Product identifier must be alphanumeric!");
 
 
-		// retrieve product
-		Supplier supplier = Supplier.getInstance();
-		Product p = supplier.getProduct(productId);
-		if (p != null) {
-			
-			List<ItemView> item = listItems();
-			// product found!
-			return item;
-		}
-		// product not found
 		return null;
 
 	}
@@ -118,6 +116,9 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	@Override
 	public List<ItemView> searchItems(String descText) throws InvalidText_Exception {
+		UDDINaming uddinn = endpointManager.getUddiNaming();
+		private Collection<String> availableSupplierswsURL = uddinn.list("A57_Supplier$");
+
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -138,15 +139,28 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	@Override
 	public String ping(String name) {
-		if (name == null || name.trim().length() == 0)
-			name = "friend";
-
-		String wsName = "Supplier";
-
-		StringBuilder builder = new StringBuilder();
-		builder.append("Hello ").append(name);
-		builder.append(" from ").append(wsName);
-		return builder.toString();
+		UDDINaming uddinn = endpointManager.getUddiNaming();
+		List<String> availableSupplierswsURL = null;
+		try {
+			availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier$");
+		} catch (UDDINamingException e) {
+			//FIXME
+		}
+		
+		for (String url : availableSupplierswsURL) {
+			SupplierClient S = null;
+			try {
+				S = new SupplierClient(url);
+				if (name == null || name.trim().length() == 0)
+					name = "friend";
+				String result = S.ping(name) + " from Mediator.";
+				return result;
+				
+			} catch (SupplierClientException e) {
+				// FIXME
+			}	
+		}
+		return null;
 	}
 
 	@Override
