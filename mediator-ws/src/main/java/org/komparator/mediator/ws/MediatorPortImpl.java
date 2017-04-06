@@ -111,27 +111,32 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	@Override
 	public List<ItemView> searchItems(String descText) throws InvalidText_Exception {
-		List<ItemView> save = new ArrayList<ItemView>();
-		List<String> SuppliersWsURL = myUddiList();
-		try {
-			for (String url : SuppliersWsURL) {
+		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
+		List<ItemView> save = null;
+		
+		try {		
+			for (UDDIRecord url : SuppliersWsURL) {
 				SupplierClient S = null;
-				S = new SupplierClient(url);
-			
-				List<ProductView> existingProducts = null;
-				existingProducts = S.searchProducts(descText);
-				if(existingProducts != null)
-					save.add((ItemView) existingProducts);
+					S = new SupplierClient(url.getUrl());
+					
+					List<ProductView> existingProducts = null;
+					existingProducts = S.searchProducts(descText);
+					if(existingProducts != null)
+						for(ProductView pv : existingProducts) {
+							ItemIdView itID = newItemIdView(pv, url.getOrgName());
+							ItemView it = newItemView(pv, itID);
+							save.add(it);
+						}
 			}
 			return save;
 		} catch (SupplierClientException | BadText_Exception e) {			
 			throwInvalidText("Search text cannot be null, whitespace or empty!");	//CONCORDAM? D: a supplierclientexcep+badtext sao thr
-																						//throw no supplierclient por isso acho que isto
-																						//é o mais logico no? D:
+																					//throw no supplierclient por isso acho que isto
+																							//é o mais logico no? D:
 		}
 		return null;
 	}
-			
+					
 	@Override
 	public ShoppingResultView buyCart(String cartId, String creditCardNr)
 			throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
