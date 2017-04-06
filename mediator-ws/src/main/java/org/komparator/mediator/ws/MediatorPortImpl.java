@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 import javax.jws.WebService;
 import javax.xml.ws.BindingProvider;
 
+import org.komparator.supplier.ws.BadProductId_Exception;
+import org.komparator.supplier.ws.ProductView;
 import org.komparator.supplier.ws.cli.SupplierClient;
 import org.komparator.supplier.ws.cli.SupplierClientException;
 
@@ -81,16 +83,13 @@ public class MediatorPortImpl implements MediatorPortType{
 			SupplierClient S = null;
 			try {
 				S = new SupplierClient(url.getUrl());
-			} catch (SupplierClientException e) {
+				ItemIdView itId = newItemIdView(S.getProduct(productId), url.getOrgName());
+				ItemView it = newItemView(S.getProduct(productId), itId);
+				
+			} catch (SupplierClientException | BadProductId_Exception e) {
 				// FIXME
 			}
 		}
-		return null;
-	}
-
-	@Override
-	public List<CartView> listCarts() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -176,18 +175,18 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	// View helpers ----------------------------------------------------------
 
-	private ItemView newItemView(Product product) {
+	private ItemView newItemView(ProductView product, ItemIdView iid) {
 		ItemView view = new ItemView();
-		view.setItemId(product.getId());
-		view.setDesc(product.getDescription());
+		view.setItemId(iid); //Isto e o item c o id do product e o fornecedor
+		view.setDesc(product.getDesc());
 		view.setPrice(product.getPrice());
 		return view;
 	}
 
-	private ItemIdView newItemIdView(Product product, SupplierClient supplier) {
+	private ItemIdView newItemIdView(ProductView product, String supplier) {
 		ItemIdView view = new ItemIdView();
 		view.setProductId(product.getId());
-		view.setSupplierId(supplier.getWsURL());
+		view.setSupplierId(supplier);
 		return view;
 	}
 	
