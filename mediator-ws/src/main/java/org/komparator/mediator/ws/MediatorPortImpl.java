@@ -86,7 +86,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	@Override
 	public List<ItemView> getItems(String productId) throws InvalidItemId_Exception {
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
-		List<ItemView> pricesPerSupplier = null;
+		List<ItemView> pricesPerSupplier = new ArrayList<ItemView>();
 		try {		
 			for (UDDIRecord url : SuppliersWsURL) {
 				SupplierClient S = null;
