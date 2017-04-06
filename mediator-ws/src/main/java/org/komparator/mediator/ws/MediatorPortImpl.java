@@ -111,6 +111,12 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	@Override
 	public List<ItemView> searchItems(String descText) throws InvalidText_Exception {
+		if (descText == null)
+			throwInvalidText("Search text cannot be null!");
+		descText = descText.trim();
+		if (descText.length() == 0)
+			throwInvalidText("Seach text cannot be empty or whitespace!");
+		
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
 		List<ItemView> save = new ArrayList<ItemView>();
 		
@@ -130,9 +136,7 @@ public class MediatorPortImpl implements MediatorPortType{
 			}
 			return save;
 		} catch (SupplierClientException | BadText_Exception e) {			
-			throwInvalidText("Search text cannot be null, whitespace or empty!");	//CONCORDAM? D: a supplierclientexcep+badtext sao thr
-																					//throw no supplierclient por isso acho que isto
-																							//é o mais logico no? D:
+			throwInvalidText("Search text cannot be null, whitespace or empty!");	//FIXME
 		}
 		return null;
 	}

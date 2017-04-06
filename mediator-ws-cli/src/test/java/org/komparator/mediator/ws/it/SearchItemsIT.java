@@ -31,7 +31,7 @@ public class SearchItemsIT extends BaseIT {
 
 	// one-time initialization and clean-up
 	@BeforeClass
-	public static void oneTimeSetUp() throws InvalidItemId_Exception, SupplierClientException, BadProductId_Exception, BadProduct_Exception {
+	public static void oneTimeSetUp() throws InvalidText_Exception, SupplierClientException, BadProductId_Exception, BadProduct_Exception {
 		
 		mediatorClient.clear();
 		
@@ -110,27 +110,27 @@ public class SearchItemsIT extends BaseIT {
 		assertTrue(iv.isEmpty());
 	}
 	
-	@Test(expected = InvalidItemId_Exception.class)
+	@Test(expected = InvalidText_Exception.class)
 	public void searchItemsNullTest() throws InvalidText_Exception {
 		mediatorClient.searchItems(null);
 	}
 
-	@Test(expected = InvalidItemId_Exception.class)
+	@Test(expected = InvalidText_Exception.class)
 	public void searchItemsEmptyTest() throws InvalidText_Exception {
 		mediatorClient.searchItems("");
 	}
 	
-	@Test(expected = InvalidItemId_Exception.class)
+	@Test(expected = InvalidText_Exception.class)
 	public void searchItemsWhiteSpaceTest() throws InvalidText_Exception {
 		mediatorClient.searchItems(" ");
 	}
 	
-	@Test(expected = InvalidItemId_Exception.class)
+	@Test(expected = InvalidText_Exception.class)
 	public void searchItemsTabTest() throws InvalidText_Exception {
 		mediatorClient.searchItems("\t");
 	}
 	
-	@Test(expected = InvalidItemId_Exception.class)
+	@Test(expected = InvalidText_Exception.class)
 	public void searchItemsNewLineTest() throws InvalidText_Exception {
 		mediatorClient.searchItems("\n");
 	}
