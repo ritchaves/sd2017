@@ -37,32 +37,32 @@ public class GetItemsIT extends BaseIT {
 		mediatorClient.clear();
 		
 		{
-			sp1 = new SupplierClient(mediatorClient.getWsURL());
+			sp1 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
 			product.setId(X1);
 			product.setDesc("Baseball ball");
-			product.setPrice(11);
+			product.setPrice(5);
 			product.setQuantity(10);
 			sp1.createProduct(product);
 		}
 		{
-			sp2 = new SupplierClient(mediatorClient.getWsURL());
+			sp2 = new SupplierClient("http://localhost:8082/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
 			product.setId(X1);
 			product.setDesc("Baseball bat");
-			product.setPrice(69);
+			product.setPrice(15);
 			product.setQuantity(20);
 			sp2.createProduct(product);
 		}
 		{
-			sp3 = new SupplierClient(mediatorClient.getWsURL());
+			sp3 = new SupplierClient("http://localhost:8083/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
 			product.setId(X1);
 			product.setDesc("Baseball Over 9000");
-			product.setPrice(9000);
+			product.setPrice(10);
 			product.setQuantity(20);
 			sp3.createProduct(product);
 		}		
@@ -71,6 +71,9 @@ public class GetItemsIT extends BaseIT {
 	@AfterClass
 	public static void oneTimeTearDown() {
 		mediatorClient.clear();
+		sp1.clear();
+		sp2.clear();
+		sp3.clear();
 	}
 	
 	@Test

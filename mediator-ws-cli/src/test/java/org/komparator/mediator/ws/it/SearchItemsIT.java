@@ -41,7 +41,7 @@ public class SearchItemsIT extends BaseIT {
 			ProductView product = new ProductView();
 			product.setId(X1);
 			product.setDesc("Baseball ball");
-			product.setPrice(11);
+			product.setPrice(5);
 			product.setQuantity(10);
 			sp1.createProduct(product);
 		}
@@ -51,7 +51,7 @@ public class SearchItemsIT extends BaseIT {
 			ProductView product = new ProductView();
 			product.setId(X1);
 			product.setDesc(BASEBALL_BAT);
-			product.setPrice(69);
+			product.setPrice(15);
 			product.setQuantity(20);
 			sp2.createProduct(product);
 		}
@@ -61,7 +61,7 @@ public class SearchItemsIT extends BaseIT {
 			ProductView product = new ProductView();
 			product.setId(X1);
 			product.setDesc("Baseball Over 9000");
-			product.setPrice(9000);
+			product.setPrice(10);
 			product.setQuantity(20);
 			sp3.createProduct(product);
 		}		
@@ -70,6 +70,9 @@ public class SearchItemsIT extends BaseIT {
 	@AfterClass
 	public static void oneTimeTearDown() {
 		mediatorClient.clear();
+		sp1.clear();
+		sp2.clear();
+		sp3.clear();
 	}
 	
 	@Test
