@@ -86,17 +86,23 @@ public class MediatorPortImpl implements MediatorPortType{
 	@Override
 	public List<ItemView> getItems(String productId) throws InvalidItemId_Exception {
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
-		TreeMap<Integer, ItemView> pricesPerSupplier = new TreeMap<Integer, ItemView>();;
+		List<ItemView> pricesPerSupplier = null;
 		try {		
 			for (UDDIRecord url : SuppliersWsURL) {
 				SupplierClient S = null;
 					S = new SupplierClient(url.getUrl());
 					ItemIdView itId = newItemIdView(S.getProduct(productId), url.getOrgName());
 					ItemView it = newItemView(S.getProduct(productId), itId);
-					pricesPerSupplier.put(it.getPrice(),it);
+					pricesPerSupplier.add(it);
 			}
-			List<ItemView> listItems = new ArrayList<ItemView>(pricesPerSupplier.values());
-			return listItems;
+			Collections.sort(pricesPerSupplier, new Comparator<ItemView>() {
+				@Override
+				public int compare(ItemView i1, ItemView i2) {
+					return new Integer(i2.getPrice()).compareTo(new Integer(i1.getPrice()));
+				}
+			});
+			//List<ItemView> listItems = new ArrayList<ItemView>(pricesPerSupplier.values());
+			return pricesPerSupplier;
 		} catch (SupplierClientException | BadProductId_Exception e) {
 			// FIXME
 		}
