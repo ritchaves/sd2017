@@ -85,19 +85,6 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	@Override
 	public List<ItemView> getItems(String productId) throws InvalidItemId_Exception {
-		
-		if (productId == null)
-			throwInvalidItemId("Product identifier cannot be null!");
-		productId = productId.trim();
-		if (productId.length() == 0)
-			throwInvalidItemId("Product identifier cannot be empty or whitespace!");
-		
-		Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
-		boolean hasSpecialChar = pattern.matcher(productId).find();
-		
-		if (hasSpecialChar)
-			throwInvalidItemId("Product identifier must be alphanumeric!");
-
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
 		List<ItemView> pricesPerSupplier = null;
 		try {		
