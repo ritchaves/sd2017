@@ -37,7 +37,7 @@ public class BuyCartIT extends BaseIT {
 		mediatorClient.clear();
 		
 		{
-			sp1 = new SupplierClient(mediatorClient.getWsURL());
+			sp1 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
 			product.setId(X1);
@@ -47,7 +47,7 @@ public class BuyCartIT extends BaseIT {
 			sp1.createProduct(product);
 		}
 		{
-			sp2 = new SupplierClient(mediatorClient.getWsURL());
+			sp2 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
 			product.setId(X1);
@@ -57,7 +57,7 @@ public class BuyCartIT extends BaseIT {
 			sp2.createProduct(product);
 		}
 		{
-			sp3 = new SupplierClient(mediatorClient.getWsURL());
+			sp3 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
 			product.setId(X1);

@@ -26,7 +26,7 @@ public class MediatorApp {
 			endpoint.setVerbose(true);
 		}
 
-		try {
+		try {			
 			endpoint.start();
 			endpoint.awaitConnections();
 		} finally {

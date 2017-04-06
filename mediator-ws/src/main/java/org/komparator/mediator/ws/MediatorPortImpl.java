@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import javax.jws.WebService;
@@ -18,6 +19,7 @@ import javax.xml.ws.BindingProvider;
 
 import org.komparator.mediator.domain.Cart;
 import org.komparator.supplier.ws.BadProductId_Exception;
+import org.komparator.supplier.ws.BadText_Exception;
 import org.komparator.supplier.ws.ProductView;
 import org.komparator.supplier.ws.cli.SupplierClient;
 import org.komparator.supplier.ws.cli.SupplierClientException;
@@ -72,7 +74,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	public Collection<UDDIRecord> myUddiRecordList() {
 		UDDINaming uddinn = endpointManager.getUddiNaming();
 		Collection<UDDIRecord> availableSupplierswsURL = null;
-		try {
+		try { 
 			return availableSupplierswsURL = uddinn.listRecords("A57_Supplier$");
 		} catch (UDDINamingException e) {
 			// FIXME
@@ -103,11 +105,35 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	@Override
 	public List<ItemView> searchItems(String descText) throws InvalidText_Exception {
+		if (descText == null)
+			throwInvalidText("Search text cannot be null!");
+		descText = descText.trim();
+		if (descText.length() == 0)
+			throwInvalidText("Seach text cannot be empty or whitespace!");
+		
+
+		List<ItemView> save = new ArrayList<ItemView>();
 		List<String> SuppliersWsURL = myUddiList();
-		// TODO Auto-generated method stub
+		try {
+			for (String url : SuppliersWsURL) {
+				SupplierClient S = null;
+				S = new SupplierClient(url);
+			
+				List<ProductView> existingProducts = S.listProducts();
+				for(Iterator<ProductView> it = existingProducts.iterator(); it.hasNext(); ) {
+					ProductView pv = it.next();
+					if (!(pv.getDesc().contains(descText)))
+						it.remove();
+				}
+				save.add((ItemView) existingProducts);
+			}
+			return save;
+		} catch (SupplierClientException | BadTextException) {			
+			//TODO- criar um BadtextException e invaliditemid, concordam?
+		}
 		return null;
 	}
-
+			
 	@Override
 	public ShoppingResultView buyCart(String cartId, String creditCardNr)
 			throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
