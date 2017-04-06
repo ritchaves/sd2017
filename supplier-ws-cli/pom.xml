@@ -27,9 +27,6 @@
         <mainclass>org.komparator.supplier.ws.cli.SupplierClientApp</mainclass>
         
         <ws.i>1</ws.i>
-        <ws.host>localhost</ws.host>
-        <ws.port>808${ws.i}</ws.port>
-        <ws.url>http://${ws.host}:${ws.port}/supplier-ws/endpoint</ws.url>
         <ws.name>A57_Supplier${ws.i}</ws.name>
         <uddi.url>http://localhost:9090</uddi.url>
     </properties>
@@ -124,7 +121,7 @@
                     <killAfter>-1</killAfter>
                     <mainClass>${mainclass}</mainClass>
                     <arguments>
-                        <argument>${ws.url}</argument>
+                        <argument>${uddi.url}</argument>
                         <argument>${ws.name}</argument>
                     </arguments>
                 </configuration>
