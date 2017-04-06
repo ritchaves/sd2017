@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 import javax.jws.WebService;
 import javax.xml.ws.BindingProvider;
 
-import org.komparator.mediator.domain.Cart;
+import org.komparator.mediator.domain.*;
 import org.komparator.supplier.ws.BadProductId_Exception;
 import org.komparator.supplier.ws.BadText_Exception;
 import org.komparator.supplier.ws.ProductView;
@@ -189,7 +189,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	// Auxiliary operations --------------------------------------------------	
 	
 	@Override
-	public List<Cart> listCarts() {
+	public List<CartView> listCarts() {
 		return null;
 	}
 	
@@ -222,15 +222,17 @@ public class MediatorPortImpl implements MediatorPortType{
 		return view;
 	}
 	
-	private CartItemView newCartItemView(ItemView item, Product product) {
+	private CartItemView newCartItemView(ItemView item, Item product) {
 		CartItemView view = new CartItemView();
 		view.setItem(item);
 		view.setQuantity(product.getQuantity());
+		return view;
 	}
 	
 	private CartView newCartView(Cart cart) {
 		CartView view = new CartView();
-		view.setCartId(cart.getId());
+		view.setCartId(cart.getcartID());
+		return view;
 	}
 
     
