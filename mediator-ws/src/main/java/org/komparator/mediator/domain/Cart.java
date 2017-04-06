@@ -1,20 +1,15 @@
 package org.komparator.mediator.domain;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+
 
 /** Domain Root. */
 public class Cart {
 
 
 //My attributes
-	private List<Item> products; = new ArrayList<Items>();
+	private List<Item> products = new ArrayList<Item>();
 	
 	private String cartID; //Is SH1 SH2 etc
 		
@@ -25,36 +20,42 @@ public class Cart {
 		String idString = Integer.toString(id);
 		
 		StringBuilder builder = new StringBuilder();
-		builder.append("SH").append(idString);
+		builder.append("SC").append(idString);
 		cartID = builder.toString();
+
 			
 	}
 	
-	public getcartID(){
+	public String getcartID(){
         return this.cartID;
 	}
 	
-	public getProducts(){
+	public List<Item> getProducts(){
         return this.products;
 	}
 
 	
-	public addProduct(Item prod){
-        if (! this.products.contains(prod))
-            this.produtcs.add(prod);
-            
+	public void addProduct(Item prod){
+		
+        if (! this.products.contains(prod)){
+            this.products.add(prod);
+        }    
         else{
-            int newQuantity = this.products.contains(prod).getQuantity() + prod.getQuantity();
-            this.products.contains(prod).setQuantity(newQuantity);
+        	
+        	int aux = products.indexOf(prod);
+        	
+            int newQuantity = this.products.get(aux).getQuantity() + prod.getQuantity();
+            
+            this.products.get(aux).setQuantity(newQuantity);
         }
 	}
 	
-	public isCartEmpty(){
-        this.products.isEmpty();
+	public boolean isCartEmpty(){
+        return this.products.isEmpty();
 	}
 	
-	public cartLength(){
-        this.products.size();
+	public int cartLength(){
+        return this.products.size();
 	}
 	
 	
