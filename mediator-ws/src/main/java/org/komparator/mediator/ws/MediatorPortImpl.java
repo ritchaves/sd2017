@@ -50,14 +50,42 @@ public class MediatorPortImpl implements MediatorPortType{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public List<String> myUddiList() {
+		UDDINaming uddinn = endpointManager.getUddiNaming();
+		List <String> availableSupplierswsURL = null;
+		try {
+			return availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier$");
+		} catch (UDDINamingException e) {
+			// FIXME
+		}
+		return availableSupplierswsURL;
+	}
+	
+	public Collection<UDDIRecord> myUddiRecordList() {
+		UDDINaming uddinn = endpointManager.getUddiNaming();
+		Collection<UDDIRecord> availableSupplierswsURL = null;
+		try {
+			return availableSupplierswsURL = uddinn.listRecords("A57_Supplier$");
+		} catch (UDDINamingException e) {
+			// FIXME
+		}
+		return availableSupplierswsURL;
+	}
 
+	
 	@Override
 	public List<ItemView> getItems(String productId) throws InvalidItemId_Exception {
-		
-
-
+		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
+		for (UDDIRecord url : SuppliersWsURL) {
+			SupplierClient S = null;
+			try {
+				S = new SupplierClient(url.getUrl());
+			} catch (SupplierClientException e) {
+				// FIXME
+			}
+		}
 		return null;
-
 	}
 
 	@Override
@@ -68,9 +96,7 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	@Override
 	public List<ItemView> searchItems(String descText) throws InvalidText_Exception {
-		UDDINaming uddinn = endpointManager.getUddiNaming();
-		private Collection<String> availableSupplierswsURL = uddinn.list("A57_Supplier$");
-
+		List<String> SuppliersWsURL = myUddiList();
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -78,6 +104,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	@Override
 	public ShoppingResultView buyCart(String cartId, String creditCardNr)
 			throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
+		List<String> SuppliersWsURL = myUddiList();
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -85,6 +112,8 @@ public class MediatorPortImpl implements MediatorPortType{
 	@Override
 	public void addToCart(String cartId, ItemIdView itemId, int itemQty) throws InvalidCartId_Exception,
 			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
+
 		// TODO Auto-generated method stub
 		
 	}
