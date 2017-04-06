@@ -64,7 +64,7 @@ public class MediatorPortImpl implements MediatorPortType{
 		UDDINaming uddinn = endpointManager.getUddiNaming();
 		List <String> availableSupplierswsURL = null;
 		try {
-			return availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier$");
+			return availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier%");
 		} catch (UDDINamingException e) {
 			// FIXME
 		}
@@ -75,7 +75,7 @@ public class MediatorPortImpl implements MediatorPortType{
 		UDDINaming uddinn = endpointManager.getUddiNaming();
 		Collection<UDDIRecord> availableSupplierswsURL = null;
 		try { 
-			return availableSupplierswsURL = uddinn.listRecords("A57_Supplier$");
+			return availableSupplierswsURL = uddinn.listRecords("A57_Supplier%");
 		} catch (UDDINamingException e) {
 			// FIXME
 		}
@@ -119,6 +119,7 @@ public class MediatorPortImpl implements MediatorPortType{
 		
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
 		List<ItemView> save = new ArrayList<ItemView>();
+		System.out.println(SuppliersWsURL);
 		
 		try {		
 			for (UDDIRecord url : SuppliersWsURL) {
@@ -163,7 +164,7 @@ public class MediatorPortImpl implements MediatorPortType{
 		UDDINaming uddinn = endpointManager.getUddiNaming();
 		List<String> availableSupplierswsURL = null;
 		try {
-			availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier$");
+			availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier%");
 		} catch (UDDINamingException e) {
 			//FIXME
 		}
