@@ -1,21 +1,13 @@
 package org.komparator.mediator.ws;
 
-import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 
 import javax.jws.WebService;
-import javax.xml.ws.BindingProvider;
 
 import org.komparator.mediator.domain.*;
 import org.komparator.supplier.ws.BadProductId_Exception;
@@ -28,7 +20,6 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
 
-// TODO annotate to bind with WSDL
 
 @WebService(
 		endpointInterface = "org.komparator.mediator.ws.MediatorPortType", 
@@ -39,26 +30,16 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
 		serviceName = "MediatorService"
 )
 
-
-// TODO implement port type interface
 public class MediatorPortImpl implements MediatorPortType{
 
 	// end point manager
 	private MediatorEndpointManager endpointManager;
 	
-	private AtomicInteger cartIdCounter = new AtomicInteger(0);
-	//NOTA: FAZER NEW CART -> Cart exemplo = new Cart(this.cartIdCounter.incrementAndGet());
 	
 	public MediatorPortImpl(MediatorEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
 	}
 	
-	@Override
-	public void clear() {
-		//Supplier.getInstance().reset();
-		// TODO Auto-generated method stub
-		
-	}
 	
 	public List<String> myUddiList() {
 		UDDINaming uddinn = endpointManager.getUddiNaming();
@@ -66,22 +47,32 @@ public class MediatorPortImpl implements MediatorPortType{
 		try {
 			return availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier%");
 		} catch (UDDINamingException e) {
-			// FIXME
+			// TODO Excepcao!!!!!! ********************************************
 		}
 		return availableSupplierswsURL;
 	}
 	
 	public Collection<UDDIRecord> myUddiRecordList() {
+		
 		UDDINaming uddinn = endpointManager.getUddiNaming();
+		System.out.println(uddinn.getUDDIUrl());
+		try {
+			System.out.println(uddinn.lookup("A57_Supplier%"));
+		} catch (UDDINamingException e1) {
+			// TODO Excepcao!!!!!! ********************************************
+			
+		}
+		
 		Collection<UDDIRecord> availableSupplierswsURL = new ArrayList<UDDIRecord>();
 		try { 
 			return availableSupplierswsURL = uddinn.listRecords("A57_Supplier%");
 		} catch (UDDINamingException e) {
-			// FIXME
+			// TODO Excepcao!!!!!! ********************************************
 		}
 		return availableSupplierswsURL;
 	}
 
+	// Main operations -------------------------------------------------------
 	
 	@Override
 	public List<ItemView> getItems(String productId) throws InvalidItemId_Exception {
@@ -105,7 +96,7 @@ public class MediatorPortImpl implements MediatorPortType{
 		
 			return pricesPerSupplier;
 		} catch (SupplierClientException | BadProductId_Exception e) {
-			// FIXME
+			// TODO Excepcao!!!!!! ***********************************************************
 		}
 		return null;
 	}
@@ -138,28 +129,74 @@ public class MediatorPortImpl implements MediatorPortType{
 			}
 			return save;
 		} catch (SupplierClientException | BadText_Exception e) {			
-			throwInvalidText("Search text cannot be null, whitespace or empty!");	//FIXME
+			throwInvalidText("Search text cannot be null, whitespace or empty!");	// TODO Excepcao!!!!!! ********************************************
 		}
 		return null;
 	}
 					
 	@Override
+	//TODO INCOMPLETE!!! 
+	//Issues with prices!! ask supplier??
+	public void addToCart(String cartId, ItemIdView itemId, int itemQty) throws InvalidCartId_Exception,
+			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+		//Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
+
+		
+		Cart c = Mediator.getInstance().getCart(cartId);
+		if (c == null)
+			c = Mediator.getInstance().addNewCart();
+		
+		c.addProduct(itemId.getProductId(), itemId.getSupplierId(), itemQty);
+		
+		//TODO find itemId.getSupplierId() in UDDII
+		//SupplierClient S = null;
+		//S = new SupplierClient(url.getUrl());
+		//if c.getProduct(itemId.getProductId()).getQuantity >= supplier - throw exception!
+	}
+	
+	@Override
+	//Estrutura que me pareceu correcta! TODO
+	//TODO INCOMPLETE!!! 
+	//Issues with prices!! ask supplier??
 	public ShoppingResultView buyCart(String cartId, String creditCardNr)
 			throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
-		List<String> SuppliersWsURL = myUddiList();
-		// TODO Auto-generated method stub
+		
+		//Validação do cartão de credito CreditCard
+		UDDINaming uddinn = endpointManager.getUddiNaming();
+		
+		ShoppingResultView view = new ShoppingResultView();
+		
+		try {
+			String CCwsURL = uddinn.lookup("CreditCard");
+			/*CreditCardClient ccc = new CreditCardClient(CCwsURL);
+			if (ccc.validateNumber(creditCardNr)){
+			
+				Cart c = Mediator.getInstance().getCartList().getCart(cartId);
+			
+				for(Item i: c){
+					//TODO find itemId.getSupplierId() in UDDII
+					//SupplierClient S = null;
+					//S = new SupplierClient(url.getUrl());
+					//s.buyProduct(i)
+					//Tratar Excepçoes
+				}
+				c.setPurchased(true);
+				//view.setId(ID de compra);
+				 * List<CartItemView> getDroppedItems
+				 * List<CartItemView> getPurchasedItems
+				
+			}*/
+		} catch (UDDINamingException e) {
+			// TODO Excepcao!!!!!! ********************************************
+		}
+		
+		
 		return null;
 	}
 
-	@Override
-	public void addToCart(String cartId, ItemIdView itemId, int itemQty) throws InvalidCartId_Exception,
-			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
-		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
-
-		// TODO Auto-generated method stub
-		
-	}
-
+	    
+	// Auxiliary operations --------------------------------------------------	
+	
 	@Override
 	public String ping(String name) {
 		UDDINaming uddinn = endpointManager.getUddiNaming();
@@ -167,7 +204,7 @@ public class MediatorPortImpl implements MediatorPortType{
 		try {
 			availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier%");
 		} catch (UDDINamingException e) {
-			//FIXME
+			// TODO Excepcao!!!!!! ********************************************
 		}
 		
 		for (String url : availableSupplierswsURL) {
@@ -180,29 +217,59 @@ public class MediatorPortImpl implements MediatorPortType{
 				return result;
 				
 			} catch (SupplierClientException e) {
-				// FIXME
+				// TODO Excepcao!!!!!! ********************************************
 			}	
 		}
 		return null;
 	}
-
+	
+	@Override
+	public void clear() {
+		Mediator.getInstance().reset();
+		//get every Supplier! TODO!!
+		List<String> availableSupplierswsURL = new ArrayList<String>();
+		
+		for (String url : availableSupplierswsURL) {
+			SupplierClient S = null;
+			try {
+				S = new SupplierClient(url);
+				S.clear();
+				
+			} catch (SupplierClientException e) {
+				// TODO Excepcao!!!!!! ********************************************
+			}	
+		
+		}
+	}
+	
+	@Override
+	public List<CartView> listCarts() {
+		List<CartView> listView = new ArrayList<CartView>();
+		CartView view = new CartView();
+		for (Cart c: Mediator.getInstance().getCartList()){
+			view.setCartId(c.getcartID());
+			// TODO finish me!!!! ********************************* FALTA O CONTEUDO DO CARRINHO
+			listView.add(view);
+		}	
+		return null;
+	}
+	
+	
 	@Override
 	public List<ShoppingResultView> shopHistory() {
+		
+		List<ShoppingResultView> lSRV = new ArrayList<ShoppingResultView>();
+		ShoppingResultView view = new ShoppingResultView();
+		
+		for (Cart c: Mediator.getInstance().getCartList()){
+			if (c.wasPurchased()){
+				//FIXME TODO ************************************************************ ???? nem sei se é isto!!
+			}
+		}
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	// Main operations -------------------------------------------------------
-
-    // TODO
-	
-    
-	// Auxiliary operations --------------------------------------------------	
-	
-	@Override
-	public List<CartView> listCarts() {
-		return null;
-	}
 	
 	public List<ItemView> listItems() {
 		
@@ -215,6 +282,7 @@ public class MediatorPortImpl implements MediatorPortType{
 //		}
 		return null;
 	}
+
 
 	// View helpers ----------------------------------------------------------
 
