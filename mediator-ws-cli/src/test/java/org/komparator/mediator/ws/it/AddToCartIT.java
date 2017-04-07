@@ -194,7 +194,7 @@ public class AddToCartIT extends BaseIT {
 	/***/
 	//Function tests
 	@Test
-	public void addCartNewCartSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+	public void addToCartNewCartSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		
 		mediatorClient.addToCart("SC1", itemidview, 1);
 		
@@ -228,7 +228,7 @@ public class AddToCartIT extends BaseIT {
 	}
 	
 	@Test
-	public void addCartTwoProductsSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+	public void addToCartTwoProductsSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		mediatorClient.addToCart("SC2", itemidview3, 1);
 		mediatorClient.addToCart("SC2", itemidview2, 1);
 	
@@ -253,7 +253,7 @@ public class AddToCartIT extends BaseIT {
 	}
 	
 	@Test
-	public void addCartSameProductTwiceSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+	public void addToCartSameProductTwiceSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		mediatorClient.addToCart("SC3", itemidview2, 3);
 		mediatorClient.addToCart("SC3", itemidview2, 5);
 		
@@ -283,7 +283,7 @@ public class AddToCartIT extends BaseIT {
 	
 	/***/
 	@Test(expected = NotEnoughItems_Exception.class)
-	public void addCartSameProductTwiceNotEnoughInStockFailure() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+	public void addToCartSameProductTwiceNotEnoughInStockFailure() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		mediatorClient.addToCart("SC4", itemidview, 4);
 		mediatorClient.addToCart("SC4", itemidview, 7);
 		
