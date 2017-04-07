@@ -114,7 +114,7 @@ public class MediatorPortImpl implements MediatorPortType{
 		} catch (SupplierClientException | BadProductId_Exception e) {
 			System.err.println("Caught exception in" + e);
 		}
-		pricesPerSupplier = Collections.emptyList();
+		//pricesPerSupplier = Collections.emptyList();
 		return pricesPerSupplier;
 	}
 
