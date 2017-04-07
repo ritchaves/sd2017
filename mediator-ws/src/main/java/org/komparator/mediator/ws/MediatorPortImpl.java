@@ -168,8 +168,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	}
 					
 	@Override
-	//TODO INCOMPLETE!!! 
-	//Issues with prices!! ask supplier??
+	//TODO Test me!!
 	public void addToCart(String cartId, ItemIdView itemId, int itemQty) throws InvalidCartId_Exception,
 			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		
