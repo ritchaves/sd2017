@@ -19,7 +19,7 @@ import org.komparator.supplier.ws.ProductView;
 import org.komparator.supplier.ws.cli.SupplierClient;
 import org.komparator.supplier.ws.cli.SupplierClientException;
 
-import pt.ulisboa.tecnico.sdis.ws.cli.*;
+//import pt.ulisboa.tecnico.sdis.ws.cli.*;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
@@ -236,42 +236,67 @@ public class MediatorPortImpl implements MediatorPortType{
 	public ShoppingResultView buyCart(String cartId, String creditCardNr)
 			throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
 		
-		System.out.println("OI1");
+		//Cart Check:
+		if (cartId == null)
+			throwInvalidCartId("Cart Identifier cannot be null!");
+		cartId = cartId.trim();
+		if (cartId.length() == 0)
+			throwInvalidCartId("Cart identifier cannot be empty or whitespace!");
+			
+		Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+		boolean hasSpecialChar = pattern.matcher(cartId).find();
+		if (hasSpecialChar)
+			throwInvalidCartId("Cart identifier must be alphanumeric!");
+		
+		//Card Check
+		if (creditCardNr == null)
+			throwInvalidCreditCard("Cart Identifier cannot be null!");
+		creditCardNr = cartId.trim();
+		if (creditCardNr.length() == 0)
+			throwInvalidCreditCard("Cart identifier cannot be empty or whitespace!");
+				
+		hasSpecialChar = pattern.matcher(creditCardNr).find();
+		if (hasSpecialChar)
+			throwInvalidCreditCard("Cart identifier must be alphanumeric!");
+		
+		
 		//Validação do cartão de credito CreditCard
 		//UDDINaming uddinn = endpointManager.getUddiNaming();
 		//String CCwsURL = uddinn.lookup("CreditCard");
 			
-			CreditCardClient ccc;
-			try {
-				ccc = new CreditCardClient(cccURL);
-				System.out.println(ccc.validateNumber(creditCardNr));
+			//CreditCardClient ccc;
+			//try {
+				//ccc = new CreditCardClient(cccURL);
+				//System.out.println(ccc.validateNumber(creditCardNr));
 
-			} catch (CreditCardClientException e) {
-				System.err.println("Caught exception:" + e);
+			//} catch (CreditCardClientException e) {
+				//System.err.println("Caught exception:" + e);
 				
-			}
-			/*CreditCardClient ccc = new CreditCardClient(CCwsURL);
-			if (ccc.validateNumber(creditCardNr)){
+			//}
+			//CreditCardClient ccc = new CreditCardClient(CCwsURL);
+			//if (ccc.validateNumber(creditCardNr)){
 			
-				Cart buyCart = Mediator.getInstance().getCartList().getCart(cartId).getProducts();
-			    Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
-				List<ItemView> listItemsToBuy = new ArrayList<ItemView>();
+		if (Mediator.getInstance().getCart(cartId).isCartEmpty())
+			throwEmptyCart("This cart is empty!");
 		
-				for(Item i: buyCart){
-					
-					try {		
-						for (UDDIRecord urlSupp : SuppliersWsURL) {
-							SupplierClient S = null;
-							S = new SupplierClient(urlSupp.getUrl());
-						 	if (S.getProduct(i.getId()) != null)
-						 		S.buyProduct(i.getId(), i.getQuantity());		 	
-						}
-		
-				buyCart.setPurchased(true);
+		List<Item> buyCart = Mediator.getInstance().getCart(cartId).getProducts();
 				
+		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
+		List<ItemView> listItemsToBuy = new ArrayList<ItemView>();
+		
+		for(Item i: buyCart){
+					
+			try {		
+				for (UDDIRecord urlSupp : SuppliersWsURL) {
+					SupplierClient S = null;
+					S = new SupplierClient(urlSupp.getUrl());
+				 	if (S.getProduct(i.getId()) != null)
+				 		S.buyProduct(i.getId(), i.getQuantity());		 	
+					}
+		
 				//view.setId(ID de compra);
-				 * List<CartItemView> getDroppedItems
-				 * List<CartItemView> getPurchasedItems
+				 List<CartItemView> getDroppedItems
+				 List<CartItemView> getPurchasedItems
 				if (getDroppedItems.isEmpty()) 
 					ShoppingResultView ShopView = newShoppingResultView(String idBuy, COMPLETA, int price);
 				else if (getPurchasedItems.isEmpty())
@@ -279,7 +304,7 @@ public class MediatorPortImpl implements MediatorPortType{
 				else
 					ShoppingResultView ShopView = newShoppingResultView(String idBuy, PARCIAL, int price);
 				return shopView;
-			}*/
+			}
 		return null;
 	}
 
