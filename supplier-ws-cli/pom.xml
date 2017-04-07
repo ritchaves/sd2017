@@ -28,7 +28,7 @@
         
         <ws.i>1</ws.i>
         <ws.name>A57_Supplier${ws.i}</ws.name>
-        <uddi.url>http://localhost:9090</uddi.url>
+        <uddi.url>http://a57:k1fFNszN@uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url>
     </properties>
 
     <dependencies>
