@@ -12,6 +12,8 @@ public class Cart {
 	private List<Item> products = new ArrayList<Item>();
 	
 	private String cartID; //Is SH1 SH2 etc
+	
+	private boolean purchased;
 		
     
 	public Cart(int id) {
@@ -22,6 +24,8 @@ public class Cart {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SC").append(idString);
 		cartID = builder.toString();
+		
+		setPurchased(false);
 
 			
 	}
@@ -32,6 +36,15 @@ public class Cart {
 	
 	public List<Item> getProducts(){
         return this.products;
+	}
+	
+	public Item getProduct(String prod){
+		for (Item i: products){
+			if (i.getId() == prod)
+				return i;
+		}
+		return null;
+			
 	}
 
 	
@@ -50,12 +63,25 @@ public class Cart {
         }
 	}
 	
+	public void addProduct(String prodId, String supId, int quant){
+		Item i = new Item(prodId, null, quant, -1, supId);
+		addProduct(i);
+	}
+	
 	public boolean isCartEmpty(){
         return this.products.isEmpty();
 	}
 	
 	public int cartLength(){
         return this.products.size();
+	}
+
+	public boolean wasPurchased() {
+		return purchased;
+	}
+
+	public void setPurchased(boolean purchased) {
+		this.purchased = purchased;
 	}
 	
 	
