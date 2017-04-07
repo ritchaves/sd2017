@@ -114,10 +114,11 @@ public class Mediator {
 		return idsList;
 	}
 	
-	public void addPurchase(String result, List<Item> purchasedItems, List<Item> droppedItems){
+	public String addPurchase(String result, List<Item> purchasedItems, List<Item> droppedItems){
 		String purchaseId = generatePurchaseId();
 		Purchase purchase = new Purchase(purchaseId, result, purchasedItems, droppedItems);
 		purchases.put(purchaseId, purchase);
+		return purchaseId;
 	}
 
 }

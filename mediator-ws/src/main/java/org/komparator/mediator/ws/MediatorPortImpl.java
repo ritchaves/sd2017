@@ -14,7 +14,9 @@ import javax.jws.WebService;
 
 import org.komparator.mediator.domain.*;
 import org.komparator.supplier.ws.BadProductId_Exception;
+import org.komparator.supplier.ws.BadQuantity_Exception;
 import org.komparator.supplier.ws.BadText_Exception;
+import org.komparator.supplier.ws.InsufficientQuantity_Exception;
 import org.komparator.supplier.ws.ProductView;
 import org.komparator.supplier.ws.cli.SupplierClient;
 import org.komparator.supplier.ws.cli.SupplierClientException;
@@ -254,13 +256,14 @@ public class MediatorPortImpl implements MediatorPortType{
 		creditCardNr = cartId.trim();
 		if (creditCardNr.length() == 0)
 			throwInvalidCreditCard("Cart identifier cannot be empty or whitespace!");
-				
-		hasSpecialChar = pattern.matcher(creditCardNr).find();
-		if (hasSpecialChar)
-			throwInvalidCreditCard("Cart identifier must be alphanumeric!");
+		
+		Pattern cardpattern = Pattern.compile("[^0-9]");
+		hasSpecialChar = cardpattern.matcher(creditCardNr).find();
+		if (hasSpecialChar || creditCardNr.length() != 16)
+			throwInvalidCreditCard("Cart identifier must have only 16 numbers!");
 		
 		
-		//Validação do cartão de credito CreditCard
+		//Validação do cartão de credito CreditCard **************************************************
 		//UDDINaming uddinn = endpointManager.getUddiNaming();
 		//String CCwsURL = uddinn.lookup("CreditCard");
 			
@@ -276,36 +279,64 @@ public class MediatorPortImpl implements MediatorPortType{
 			//CreditCardClient ccc = new CreditCardClient(CCwsURL);
 			//if (ccc.validateNumber(creditCardNr)){
 			
+		
+		if (Mediator.getInstance().getCart(cartId) == null)
+			throwEmptyCart("This cart is empty!");
 		if (Mediator.getInstance().getCart(cartId).isCartEmpty())
 			throwEmptyCart("This cart is empty!");
 		
 		List<Item> buyCart = Mediator.getInstance().getCart(cartId).getProducts();
-				
-		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
-		List<ItemView> listItemsToBuy = new ArrayList<ItemView>();
+		
+		SupplierClient S = null;
+		UDDINaming uddinn = endpointManager.getUddiNaming();
+		
+		List<Item> dropped = new ArrayList<Item>();
+		List<Item> purchased = new ArrayList<Item>();
 		
 		for(Item i: buyCart){
+			
+			String supId = i.getSupplierId();
+						
+			String url;
+			try {
+				url = uddinn.lookup(supId);
+				S = new SupplierClient(url);
+				
+				try {
 					
-			try {		
-				for (UDDIRecord urlSupp : SuppliersWsURL) {
-					SupplierClient S = null;
-					S = new SupplierClient(urlSupp.getUrl());
-				 	if (S.getProduct(i.getId()) != null)
-				 		S.buyProduct(i.getId(), i.getQuantity());		 	
+					if (S.getProduct(i.getId()) != null){	
+						String pId = S.buyProduct(i.getId(), i.getQuantity());	
+						if (pId == null)
+							dropped.add(i);
+						else
+							purchased.add(i);
+						
 					}
-		
-				//view.setId(ID de compra);
-				 List<CartItemView> getDroppedItems
-				 List<CartItemView> getPurchasedItems
-				if (getDroppedItems.isEmpty()) 
-					ShoppingResultView ShopView = newShoppingResultView(String idBuy, COMPLETA, int price);
-				else if (getPurchasedItems.isEmpty())
-					ShoppingResultView ShopView = newShoppingResultView(String idBuy, VAZIA, int price);
-				else
-					ShoppingResultView ShopView = newShoppingResultView(String idBuy, PARCIAL, int price);
-				return shopView;
+				} catch (BadProductId_Exception | BadQuantity_Exception | InsufficientQuantity_Exception e) {
+					System.err.println("Caught exception from Supplier :: " + e);
+				}
+				
+			} catch (UDDINamingException | SupplierClientException e) {
+				System.err.println("Caught exception:" + e);
 			}
-		return null;
+			
+		}
+		
+		String result;
+		if (dropped.isEmpty())
+			result = "COMPLETA";
+		
+		else if (purchased.isEmpty())
+			result = "VAZIA";
+		
+		else
+			result = "PARCIAL";
+		
+		String finalId = Mediator.getInstance().addPurchase(result, purchased, dropped);
+		
+		ShoppingResultView view = newShoppingResultView(finalId);
+		
+		return view;
 	}
 
 	    
@@ -406,26 +437,7 @@ public class MediatorPortImpl implements MediatorPortType{
 			drop.clear();
 			purc.clear();
 			
-			ShoppingResultView view = new ShoppingResultView();
-			view.setId(id);
-			
-			Purchase pp = Mediator.getInstance().getPurchase(id);
-			
-			view.setResult(Result.fromValue(pp.getResult()));
-			view.setTotalPrice(pp.getFinalPrice());
-			
-			drop = view.getDroppedItems();
-			purc = view.getPurchasedItems();
-			
-			for (Item i: pp.getDroppedItemList()){
-				CartItemView cartItemView = newCartItemView(i);
-				drop.add(cartItemView);
-			}
-			
-			for (Item j: pp.getPurchasedItemList()){
-				CartItemView cartItemView = newCartItemView(j);
-				purc.add(cartItemView);
-			}	
+			ShoppingResultView view = newShoppingResultView(id);
 			
 			lSRV.add(view);
 		}
@@ -483,13 +495,28 @@ public class MediatorPortImpl implements MediatorPortType{
 		return view;
 	}
 	
-	private ShoppingResultView newShoppingResultView(String idBuy, Result resultado, int price) {
+	private ShoppingResultView newShoppingResultView(String id) {
+		
 		ShoppingResultView view = new ShoppingResultView();
-		view.setId(idBuy); 
-		view.setResult(resultado);
-		view.setTotalPrice(price);
-		view.getDroppedItems();
-		view.getPurchasedItems();
+		view.setId(id);
+		
+		Purchase pp = Mediator.getInstance().getPurchase(id);
+		
+		view.setResult(Result.fromValue(pp.getResult()));
+		view.setTotalPrice(pp.getFinalPrice());
+		
+		List<CartItemView> drop = view.getDroppedItems();
+		List<CartItemView> purc = view.getPurchasedItems();
+		
+		for (Item i: pp.getDroppedItemList()){
+			CartItemView cartItemView = newCartItemView(i);
+			drop.add(cartItemView);
+		}
+		
+		for (Item j: pp.getPurchasedItemList()){
+			CartItemView cartItemView = newCartItemView(j);
+			purc.add(cartItemView);
+		}	
 		return view;
 	}
 
