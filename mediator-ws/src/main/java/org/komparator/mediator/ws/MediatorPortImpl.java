@@ -73,9 +73,21 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	public Collection<UDDIRecord> myUddiRecordList() {
 		UDDINaming uddinn = endpointManager.getUddiNaming();
+		System.out.println(uddinn.getUDDIUrl());
+		try {
+			System.out.println(uddinn.lookup("A57_Supplier%"));
+		} catch (UDDINamingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		Collection<UDDIRecord> availableSupplierswsURL = new ArrayList<UDDIRecord>();
+		
+		
 		try { 
-			return availableSupplierswsURL = uddinn.listRecords("A57_Supplier%");
+			availableSupplierswsURL = uddinn.listRecords("A57_Supplier%");
+			System.out.println(availableSupplierswsURL);
+			return availableSupplierswsURL;
 		} catch (UDDINamingException e) {
 			// FIXME
 		}
