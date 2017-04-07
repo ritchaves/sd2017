@@ -172,19 +172,78 @@ public class MediatorPortImpl implements MediatorPortType{
 	//Issues with prices!! ask supplier??
 	public void addToCart(String cartId, ItemIdView itemId, int itemQty) throws InvalidCartId_Exception,
 			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
-		//Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
-
+		
+		//Cart Check:
+		if (cartId == null)
+			throwInvalidCartId("Cart Identifier cannot be null!");
+		cartId = cartId.trim();
+		if (cartId.length() == 0)
+			throwInvalidCartId("Cart identifier cannot be empty or whitespace!");
+		
+		Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+		boolean hasSpecialChar = pattern.matcher(cartId).find();
+		if (hasSpecialChar)
+			throwInvalidCartId("Cart identifier must be alphanumeric!");
 		
 		Cart c = Mediator.getInstance().getCart(cartId);
 		if (c == null)
 			c = Mediator.getInstance().addNewCart();
 		
-		c.addProduct(itemId.getProductId(), itemId.getSupplierId(), itemQty);
+		//Product Check
+		String productId = itemId.getProductId();
+		if (productId == null)
+			throwInvalidItemId("Product identifier cannot be null!");
+		String newProductId = productId.trim();
+		if (newProductId.length() == 0)
+			throwInvalidItemId("Product identifier cannot be empty or whitespace!");
 		
-		//TODO find itemId.getSupplierId() in UDDII
-		//SupplierClient S = null;
-		//S = new SupplierClient(url.getUrl());
-		//if c.getProduct(itemId.getProductId()).getQuantity >= supplier - throw exception!
+		hasSpecialChar = pattern.matcher(newProductId).find();
+		if (hasSpecialChar)
+			throwInvalidItemId("Product identifier must be alphanumeric!");
+		
+		//Quantity Check:
+		if (itemQty <= 0)
+			throwInvalidQuantity("Product quantity must be positive number!");
+		
+		//Get supplier!!
+		String supId = itemId.getSupplierId();
+		UDDINaming uddinn = endpointManager.getUddiNaming();
+		try {
+			
+			String url = uddinn.lookup(supId);
+			SupplierClient S = null;
+			S = new SupplierClient(url);
+			
+			try {
+				ProductView supProd = S.getProduct(productId);
+				int supQuantity = supProd.getQuantity();
+				
+				//Check final total quantity
+				int totalQ;
+				if (c.getProduct(productId) == null)
+					totalQ = itemQty;
+				else
+					totalQ = c.getProduct(productId).getQuantity() + itemQty;
+				if (totalQ > supQuantity){
+					throwNotEnoughItems("Supplier does not have that many items in stock!");
+				}
+				
+				//Setup product for cart!
+				int supPrice = supProd.getPrice();
+				String desc = supProd.getDesc();
+				Item item = new Item(productId, desc, itemQty, supPrice, supId);
+				
+				//Add to Cart
+				c.addProduct(item);
+				
+				
+			} catch (BadProductId_Exception e) {
+				//EXCEPÇAAAAO ******************************************************
+			}
+		} catch (UDDINamingException | SupplierClientException e) {
+			// TODO EXCEPÇAO!!!!! **********************************************************************
+		}
+		
 	}
 	
 	@Override
