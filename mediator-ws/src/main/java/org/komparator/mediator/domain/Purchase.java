@@ -20,7 +20,7 @@ public class Purchase {
 	
 	private List<Item> purchased = new ArrayList<Item>();
 	
-	private List<Item> dropped = new ArrayList<Item>();;
+	private List<Item> dropped = new ArrayList<Item>();
 
 	/** Create a new purchase. */
 	public Purchase(String pid, int unitPrice, List<Item> purch, List<Item> drop, String res) {
