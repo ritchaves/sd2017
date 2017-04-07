@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.komparator.mediator.domain.*;
+
 /** Domain Root. */
 public class Mediator {
 
@@ -17,6 +19,10 @@ public class Mediator {
 	private AtomicInteger cartIdCounter = new AtomicInteger(0);
 	
 	private List<Cart> cartList = new ArrayList<Cart>();
+	
+	private AtomicInteger purchaseIdCounter = new AtomicInteger(0);
+	
+	private Map<String, Purchase> purchases = new ConcurrentHashMap<>();
 	
 	// Singleton -------------------------------------------------------------
 
@@ -42,6 +48,8 @@ public class Mediator {
 	public void reset() {
 		cartList.clear();
 		cartIdCounter.set(0);
+		purchases.clear();
+		purchaseIdCounter.set(0);
 	}
 
 	public Boolean cartExists(Cart c){
@@ -78,5 +86,38 @@ public class Mediator {
 		
 	}
 	
+	
+	//Purchase 
+	
+	public Purchase getPurchase(String purchaseId) {
+		return purchases.get(purchaseId);
+	}
+
+	private String generatePurchaseId() {
+		// relying on AtomicInteger to make sure assigned number is unique
+		int purchaseId = purchaseIdCounter.incrementAndGet();
+		return Integer.toString(purchaseId);
+	}
+
+	public List<String> getPurchasesIDs() {
+		List<Purchase> purchasesList = new ArrayList<>(purchases.values());
+		// using comparator to sort result list
+		Collections.sort(purchasesList, new Comparator<Purchase>() {
+			public int compare(Purchase p1, Purchase p2) {
+				return p1.getTimestamp().compareTo(p2.getTimestamp());
+			}
+		});
+		List<String> idsList = new ArrayList<String>();
+		for (Purchase p : purchasesList) {
+			idsList.add(p.getPurchaseId());
+		}
+		return idsList;
+	}
+	
+	public void addPurchase(String result, List<Item> purchasedItems, List<Item> droppedItems){
+		String purchaseId = generatePurchaseId();
+		Purchase purchase = new Purchase(purchaseId, result, purchasedItems, droppedItems);
+		purchases.put(purchaseId, purchase);
+	}
 
 }
