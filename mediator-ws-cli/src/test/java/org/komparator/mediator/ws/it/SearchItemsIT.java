@@ -97,13 +97,17 @@ public class SearchItemsIT extends BaseIT {
 		assertEquals(X1, firstitem.getItemId().getProductId());
 		assertEquals(20, firstitem.getPrice());
 		
-		ItemView seconditem = Itemviewlist.get(0);
+		ItemView seconditem = Itemviewlist.get(1);
 		assertEquals("X3", seconditem.getItemId().getProductId());
 		assertEquals(10, seconditem.getPrice());
 		
-		ItemView thirditem = Itemviewlist.get(0);
+		ItemView thirditem = Itemviewlist.get(2);
 		assertEquals(X69, thirditem.getItemId().getProductId());
-		assertEquals(15, thirditem.getPrice());
+		assertEquals(1, thirditem.getPrice());
+		
+		ItemView lastitem = Itemviewlist.get(3);
+		assertEquals(X69, lastitem.getItemId().getProductId());
+		assertEquals(15, lastitem.getPrice());
 		
 	
 	}
