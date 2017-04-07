@@ -54,19 +54,16 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	public Collection<UDDIRecord> myUddiRecordList() {		
 		UDDINaming uddinn = endpointManager.getUddiNaming();
-		System.out.println(uddinn.getUDDIUrl());
-		try {
-			System.out.println(uddinn.lookup("A57_Supplier%"));
-		} catch (UDDINamingException e1) {
-			e1.printStackTrace();
-		}
-		
+//		System.out.println(uddinn.getUDDIUrl());              testing my biche uddi
+//		try {
+//			System.out.println(uddinn.lookup("A57_Supplier%"));
+//		} catch (UDDINamingException e1) {
+//			e1.printStackTrace();
+//		}
 		Collection<UDDIRecord> availableSupplierswsURL = new ArrayList<UDDIRecord>();
-		
-		
 		try { 
 			availableSupplierswsURL = uddinn.listRecords("A57_Supplier%");
-			System.out.println(availableSupplierswsURL);
+			//System.out.println(availableSupplierswsURL);
 			return availableSupplierswsURL;
 		} catch (UDDINamingException e) {
 			// TODO Excepcao!!!!!! ********************************************
@@ -78,6 +75,12 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	@Override
 	public List<ItemView> getItems(String productId) throws InvalidItemId_Exception {
+		if (productId == null)
+			throwInvalidItemId("Product identifier cannot be null!");
+		productId = productId.trim();
+		if (productId.length() == 0)
+			throwInvalidItemId("Product identifier cannot be empty or whitespace!");
+		
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
 		List<ItemView> pricesPerSupplier = new ArrayList<ItemView>();
 		try {		
