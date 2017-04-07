@@ -152,13 +152,11 @@ public class MediatorPortImpl implements MediatorPortType{
 			return sortedSave;
 		} catch (SupplierClientException | BadText_Exception e) {			
 			System.err.println("Caught exception:" + e);
-			//throwInvalidText("Search text cannot be null, whitespace or empty!");	// TODO Excepcao!!!!!! ********************************************
 		}
 		return null;
 	}
 					
 	@Override
-	//TODO Test me!!
 	public void addToCart(String cartId, ItemIdView itemId, int itemQty) throws InvalidCartId_Exception,
 			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		
@@ -173,10 +171,6 @@ public class MediatorPortImpl implements MediatorPortType{
 		boolean hasSpecialChar = pattern.matcher(cartId).find();
 		if (hasSpecialChar)
 			throwInvalidCartId("Cart identifier must be alphanumeric!");
-		
-		Cart c = Mediator.getInstance().getCart(cartId);
-		if (c == null)
-			c = Mediator.getInstance().addNewCart();
 		
 		//Product Check
 		if (itemId == null)
@@ -206,6 +200,12 @@ public class MediatorPortImpl implements MediatorPortType{
 			S = new SupplierClient(url);
 			
 			try {
+				
+				Cart c = Mediator.getInstance().getCart(cartId);
+				if (c == null)
+					c = Mediator.getInstance().addNewCart(cartId);
+				
+				
 				ProductView supProd = S.getProduct(productId);
 				int supQuantity = supProd.getQuantity();
 				
@@ -216,6 +216,7 @@ public class MediatorPortImpl implements MediatorPortType{
 				else
 					totalQ = c.getProduct(productId).getQuantity() + itemQty;
 				if (totalQ > supQuantity){
+					Mediator.getInstance().removeCart(c);
 					throwNotEnoughItems("Supplier does not have that many items in stock!");
 				}
 				
@@ -335,15 +336,22 @@ public class MediatorPortImpl implements MediatorPortType{
 	public List<CartView> listCarts() {
 		
 		List<CartView> listView = new ArrayList<CartView>();
-		CartView cartView = new CartView();
-		CartItemView cartItemView = new CartItemView();
-		ItemView itemView = new ItemView();
-		ItemIdView itemIdView = new ItemIdView();
+		
 		
 		for (Cart c: Mediator.getInstance().getCartList()){
+			
+			//Limpar variaveis antigas para nao repetir informacao
+			
+			CartView cartView = new CartView();
 			cartView.setCartId(c.getcartID());
+			List<CartItemView> itemList = cartView.getItems();
+			itemList.clear();
 			
 			for (Item i: c.getProducts()){
+				
+				CartItemView cartItemView = new CartItemView();
+				ItemView itemView = new ItemView();
+				ItemIdView itemIdView = new ItemIdView();
 				
 				itemIdView.setProductId(i.getId());
 				itemIdView.setSupplierId(i.getSupplierId());
@@ -355,10 +363,9 @@ public class MediatorPortImpl implements MediatorPortType{
 				cartItemView.setItem(itemView);
 				cartItemView.setQuantity(i.getQuantity());
 				
-				//TODO Como colocar o cartItemView no CartView????
-				List<CartItemView> itemList = cartView.getItems();
 				itemList.add(cartItemView);
 			}
+			
 			listView.add(cartView);
 		}	
 		return listView;

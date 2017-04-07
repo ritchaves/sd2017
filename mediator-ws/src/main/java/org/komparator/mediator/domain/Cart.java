@@ -26,8 +26,15 @@ public class Cart {
 		cartID = builder.toString();
 		
 		setPurchased(false);
-
-			
+	
+	}
+	
+	public Cart(String id) {
+		
+		cartID = id;
+		
+		setPurchased(false);
+	
 	}
 	
 	public String getcartID(){
@@ -50,17 +57,15 @@ public class Cart {
 	
 	public void addProduct(Item prod){
 		
-        if (! this.products.contains(prod)){
-            this.products.add(prod);
-        }    
-        else{
-        	
-        	int aux = products.indexOf(prod);
-        	
-            int newQuantity = this.products.get(aux).getQuantity() + prod.getQuantity();
-            
-            this.products.get(aux).setQuantity(newQuantity);
+		for(Item i :products){
+        	if (i.getId().equals(prod.getId()) && i.getSupplierId().equals(prod.getSupplierId())){
+        		int newQuantity = i.getQuantity() + prod.getQuantity();
+        		i.setQuantity(newQuantity);
+        		return;
+        	}
         }
+		
+		products.add(prod);
 	}
 	
 	public void addProduct(String prodId, String supId, int quant){

@@ -67,5 +67,16 @@ public class Mediator {
 		return c;
 	}
 	
+	public Cart addNewCart(String id){
+		Cart c = new Cart(id);
+		cartList.add(c);
+		return c;
+	}
+
+	public void removeCart(Cart c) {
+		this.cartList.remove(c);
+		
+	}
+	
 
 }
