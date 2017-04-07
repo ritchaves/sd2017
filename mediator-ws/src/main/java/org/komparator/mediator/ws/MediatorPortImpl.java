@@ -317,8 +317,15 @@ public class MediatorPortImpl implements MediatorPortType{
 	@Override
 	public void clear() {
 		Mediator.getInstance().reset();
-		//get every Supplier! TODO!!
-		List<String> availableSupplierswsURL = new ArrayList<String>();
+		
+
+		UDDINaming uddinn = endpointManager.getUddiNaming();
+		List<String> availableSupplierswsURL = null;
+		try {
+			availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier%");
+		} catch (UDDINamingException e) {
+			// TODO Excepcao!!!!!! ********************************************
+		}
 		
 		for (String url : availableSupplierswsURL) {
 			SupplierClient S = null;
@@ -329,7 +336,6 @@ public class MediatorPortImpl implements MediatorPortType{
 			} catch (SupplierClientException e) {
 				// TODO Excepcao!!!!!! ********************************************
 			}	
-		
 		}
 	}
 	
