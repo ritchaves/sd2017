@@ -42,7 +42,7 @@ public class BuyCartIT extends BaseIT {
 	private static String ValidCCN = "4024007102923926";
 
 	// one-time initialization and clean-up
-	@BeforeClass
+	@Before
 	public static void oneTimeSetUp() throws InvalidItemId_Exception, SupplierClientException, BadProductId_Exception, BadProduct_Exception {
 		
 		mediatorClient.clear();
