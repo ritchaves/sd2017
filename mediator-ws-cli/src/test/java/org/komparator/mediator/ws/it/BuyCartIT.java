@@ -27,6 +27,8 @@ import org.komparator.supplier.ws.cli.SupplierClientException;
  */
 public class BuyCartIT extends BaseIT {
 
+	private static final String DUCKY_MUCH_WOW = "Ducky much wow";
+	private static final String DUCKYWOW = "Duckywow";
 	private static final String DUCKY = "Ducky";
 	private static final String CS3 = "CS3";
 	private static final String X2 = "X2";
@@ -64,7 +66,7 @@ public class BuyCartIT extends BaseIT {
 			
 			ProductView product = new ProductView();
 			product.setId(X2);
-			product.setDesc("Duckywow");
+			product.setDesc(DUCKYWOW);
 			product.setPrice(5);
 			product.setQuantity(20);
 			sp2.createProduct(product);
@@ -78,7 +80,7 @@ public class BuyCartIT extends BaseIT {
 			
 			ProductView product = new ProductView();
 			product.setId(X1);
-			product.setDesc("Ducky much wow");
+			product.setDesc(DUCKY_MUCH_WOW);
 			product.setPrice(10);
 			product.setQuantity(20);
 			sp3.createProduct(product);
@@ -96,17 +98,18 @@ public class BuyCartIT extends BaseIT {
 	
 	@Test
 	public void BuyCartSucess() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
-		mediatorClient.addToCart("SC3", itemidview, 1);		//price in order: 11 5 10 (* 1 3 2)
+		mediatorClient.addToCart(CS3, itemidview, 1);		//price in order: 11 5 10 (* 1 3 2)
 		mediatorClient.addToCart(CS3, itemidview2, 3);
 		mediatorClient.addToCart(CS3, itemidview3, 2);
 		
 		ShoppingResultView toTest = mediatorClient.buyCart(CS3, ValidCCN);
 		assertEquals(36,toTest.getTotalPrice());
 		assertTrue(toTest.getDroppedItems().isEmpty());
+		assertEquals(Result.COMPLETE, toTest.getResult());
 		
 		List<CartItemView> purchaseditems = toTest.getPurchasedItems();
-		
 		List<CartItemView> expecteditems = new ArrayList<CartItemView>();
+		
 		CartItemView toAdd = new CartItemView();
 		ItemView iv1 = new ItemView();
 		iv1.setDesc(DUCKY);
@@ -115,7 +118,27 @@ public class BuyCartIT extends BaseIT {
 		toAdd.setItem(iv1);
 		toAdd.setQuantity(1);
 		
-		//assertEquals();
+		CartItemView toAdd2 = new CartItemView();
+		ItemView iv2 = new ItemView();
+		iv2.setDesc(DUCKYWOW);
+		iv2.setPrice(5);
+		iv2.setItemId(itemidview2);
+		toAdd2.setItem(iv2);
+		toAdd2.setQuantity(3);
+		
+		CartItemView toAdd3 = new CartItemView();
+		ItemView iv3 = new ItemView();
+		iv3.setDesc(DUCKY_MUCH_WOW);
+		iv3.setPrice(10);
+		iv3.setItemId(itemidview3);
+		toAdd3.setItem(iv3);
+		toAdd3.setQuantity(2);
+		
+		expecteditems.add(toAdd);
+		expecteditems.add(toAdd2);
+		expecteditems.add(toAdd3);
+		
+		assertEquals(expecteditems, purchaseditems);
 	}
 	
 	@Test
