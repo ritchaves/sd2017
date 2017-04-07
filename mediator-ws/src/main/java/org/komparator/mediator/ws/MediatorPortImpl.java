@@ -341,14 +341,34 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	@Override
 	public List<CartView> listCarts() {
+		
 		List<CartView> listView = new ArrayList<CartView>();
-		CartView view = new CartView();
+		CartView cartView = new CartView();
+		CartItemView cartItemView = new CartItemView();
+		ItemView itemView = new ItemView();
+		ItemIdView itemIdView = new ItemIdView();
+		
 		for (Cart c: Mediator.getInstance().getCartList()){
-			view.setCartId(c.getcartID());
-			// TODO finish me!!!! ********************************* FALTA O CONTEUDO DO CARRINHO
-			listView.add(view);
+			cartView.setCartId(c.getcartID());
+			
+			for (Item i: c.getProducts()){
+				
+				itemIdView.setProductId(i.getId());
+				itemIdView.setSupplierId(i.getSupplierId());
+				
+				itemView.setItemId(itemIdView); //Isto e o item c o id do product e o fornecedor
+				itemView.setDesc(i.getDescription());
+				itemView.setPrice(i.getPrice());
+				
+				cartItemView.setItem(itemView);
+				cartItemView.setQuantity(i.getQuantity());
+				
+				//TODO Como colocar o cartItemView no CartView????
+				cartView.items.add(cartItemView);
+			}
+			listView.add(cartView);
 		}	
-		return null;
+		return listView;
 	}
 	
 	
@@ -357,6 +377,7 @@ public class MediatorPortImpl implements MediatorPortType{
 		
 		List<ShoppingResultView> lSRV = new ArrayList<ShoppingResultView>();
 		ShoppingResultView view = new ShoppingResultView();
+		
 		
 		for (Cart c: Mediator.getInstance().getCartList()){
 			if (c.wasPurchased()){
