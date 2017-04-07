@@ -5,10 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,6 +19,7 @@ import org.komparator.supplier.ws.ProductView;
 import org.komparator.supplier.ws.cli.SupplierClient;
 import org.komparator.supplier.ws.cli.SupplierClientException;
 
+import pt.ulisboa.tecnico.sdis.ws.cli.*;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
@@ -41,6 +39,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	// end point manager
 	private MediatorEndpointManager endpointManager;
 	
+	private String cccURL = "http://ws.sd.rnl.tecnico.ulisboa.pt:8080/cc";
 	
 	public MediatorPortImpl(MediatorEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
@@ -234,20 +233,23 @@ public class MediatorPortImpl implements MediatorPortType{
 	}
 	
 	@Override
-	//Estrutura que me pareceu correcta! TODO
-	//TODO INCOMPLETE!!! 
-	//Issues with prices!! ask supplier??
 	public ShoppingResultView buyCart(String cartId, String creditCardNr)
 			throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
 		
 		System.out.println("OI1");
 		//Validação do cartão de credito CreditCard
-		UDDINaming uddinn = endpointManager.getUddiNaming();
-		
-		System.out.println("OI");
-		try {
-			String CCwsURL = uddinn.lookup("CreditCard");
-			System.out.println(CCwsURL);
+		//UDDINaming uddinn = endpointManager.getUddiNaming();
+		//String CCwsURL = uddinn.lookup("CreditCard");
+			
+			CreditCardClient ccc;
+			try {
+				ccc = new CreditCardClient(cccURL);
+				System.out.println(ccc.validateNumber(creditCardNr));
+
+			} catch (CreditCardClientException e) {
+				System.err.println("Caught exception:" + e);
+				
+			}
 			/*CreditCardClient ccc = new CreditCardClient(CCwsURL);
 			if (ccc.validateNumber(creditCardNr)){
 			
@@ -278,11 +280,6 @@ public class MediatorPortImpl implements MediatorPortType{
 					ShoppingResultView ShopView = newShoppingResultView(String idBuy, PARCIAL, int price);
 				return shopView;
 			}*/
-		} catch (UDDINamingException e) {
-			System.err.println("Caught exception:" + e);
-		}
-		
-		
 		return null;
 	}
 
@@ -463,7 +460,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	private ShoppingResultView newShoppingResultView(String idBuy, Result resultado, int price) {
 		ShoppingResultView view = new ShoppingResultView();
-		view.setId(idBuy); // Identificador da compra gerado pelo buyProducts
+		view.setId(idBuy); 
 		view.setResult(resultado);
 		view.setTotalPrice(price);
 		view.getDroppedItems();

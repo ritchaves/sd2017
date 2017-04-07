@@ -120,8 +120,7 @@
                     <killAfter>-1</killAfter>
                     <mainClass>${mainclass}</mainClass>
                     <arguments>
-                        <argument>${uddi.url}</argument>
-                        <argument>${ws.name}</argument>
+                        <argument>${ws.url}</argument>
                     </arguments>
                 </configuration>
             </plugin>
