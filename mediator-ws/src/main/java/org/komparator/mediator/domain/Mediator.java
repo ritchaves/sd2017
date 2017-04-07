@@ -50,7 +50,7 @@ public class Mediator {
 	
 	public Cart getCart(String cId){
 		for (Cart c: cartList){
-			if (c.getcartID() == cId)
+			if (c.getcartID().equals(cId))
 					return c;
 		}
 		return null;

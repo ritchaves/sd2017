@@ -40,7 +40,7 @@ public class Cart {
 	
 	public Item getProduct(String prod){
 		for (Item i: products){
-			if (i.getId() == prod)
+			if (i.getId().equals(prod))
 				return i;
 		}
 		return null;
