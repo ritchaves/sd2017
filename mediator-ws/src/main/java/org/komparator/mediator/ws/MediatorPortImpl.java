@@ -357,19 +357,7 @@ public class MediatorPortImpl implements MediatorPortType{
 			
 			for (Item i: c.getProducts()){
 				
-				CartItemView cartItemView = new CartItemView();
-				ItemView itemView = new ItemView();
-				ItemIdView itemIdView = new ItemIdView();
-				
-				itemIdView.setProductId(i.getId());
-				itemIdView.setSupplierId(i.getSupplierId());
-				
-				itemView.setItemId(itemIdView); //Isto e o item c o id do product e o fornecedor
-				itemView.setDesc(i.getDescription());
-				itemView.setPrice(i.getPrice());
-				
-				cartItemView.setItem(itemView);
-				cartItemView.setQuantity(i.getQuantity());
+				CartItemView cartItemView = newCartItemView(i);
 				
 				itemList.add(cartItemView);
 			}
@@ -384,16 +372,44 @@ public class MediatorPortImpl implements MediatorPortType{
 	public List<ShoppingResultView> shopHistory() {
 		
 		List<ShoppingResultView> lSRV = new ArrayList<ShoppingResultView>();
-		ShoppingResultView view = new ShoppingResultView();
 		
 		
-		for (Cart c: Mediator.getInstance().getCartList()){
-			if (c.wasPurchased()){
-				//FIXME TODO ************************************************************ ???? nem sei se é isto!!
+		List<String> orderedPurchaseIds = Mediator.getInstance().getPurchasesIDs();
+		
+		List<CartItemView> drop = new ArrayList<CartItemView>();
+		List<CartItemView> purc = new ArrayList<CartItemView>();
+		
+		for (String id: orderedPurchaseIds){
+			
+			drop.clear();
+			purc.clear();
+			
+			ShoppingResultView view = new ShoppingResultView();
+			view.setId(id);
+			
+			Purchase pp = Mediator.getInstance().getPurchase(id);
+			
+			view.setResult(Result.fromValue(pp.getResult()));
+			view.setTotalPrice(pp.getFinalPrice());
+			
+			drop = view.getDroppedItems();
+			purc = view.getPurchasedItems();
+			
+			for (Item i: pp.getDroppedItemList()){
+				CartItemView cartItemView = newCartItemView(i);
+				drop.add(cartItemView);
 			}
+			
+			for (Item j: pp.getPurchasedItemList()){
+				CartItemView cartItemView = newCartItemView(j);
+				purc.add(cartItemView);
+			}	
+			
+			lSRV.add(view);
 		}
-		// TODO Auto-generated method stub
-		return null;
+		
+		
+		return lSRV;
 	}
 
 	
@@ -419,11 +435,22 @@ public class MediatorPortImpl implements MediatorPortType{
 		return view;
 	}
 	
-	private CartItemView newCartItemView(ItemView item, Item product) {
-		CartItemView view = new CartItemView();
-		view.setItem(item);
-		view.setQuantity(product.getQuantity());
-		return view;
+	private CartItemView newCartItemView(Item i) {
+		CartItemView cartItemView = new CartItemView();
+		ItemView itemView = new ItemView();
+		ItemIdView itemIdView = new ItemIdView();
+		
+		itemIdView.setProductId(i.getId());
+		itemIdView.setSupplierId(i.getSupplierId());
+		
+		itemView.setItemId(itemIdView); //Isto e o item c o id do product e o fornecedor
+		itemView.setDesc(i.getDescription());
+		itemView.setPrice(i.getPrice());
+		
+		cartItemView.setItem(itemView);
+		cartItemView.setQuantity(i.getQuantity());
+		
+		return cartItemView;
 	}
 	
 
