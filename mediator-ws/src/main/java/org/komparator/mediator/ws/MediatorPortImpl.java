@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.jws.WebService;
 
@@ -51,7 +53,7 @@ public class MediatorPortImpl implements MediatorPortType{
 		try {
 			return availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier%");
 		} catch (UDDINamingException e) {
-			// TODO Excepcao!!!!!! ********************************************
+			System.err.println("Caught exception from UDDINaming" + e);
 		}
 		return availableSupplierswsURL;
 	}
@@ -67,10 +69,9 @@ public class MediatorPortImpl implements MediatorPortType{
 		Collection<UDDIRecord> availableSupplierswsURL = new ArrayList<UDDIRecord>();
 		try { 
 			availableSupplierswsURL = uddinn.listRecords("A57_Supplier%");
-			//System.out.println(availableSupplierswsURL);
 			return availableSupplierswsURL;
 		} catch (UDDINamingException e) {
-			// TODO Excepcao!!!!!! ********************************************
+			System.err.println("Caught exception from UDDINaming" + e);
 		}
 		return availableSupplierswsURL;
 	}
@@ -102,18 +103,15 @@ public class MediatorPortImpl implements MediatorPortType{
 					ItemIdView itId = newItemIdView(S.getProduct(productId), url.getOrgName());
 					ItemView it = newItemView(S.getProduct(productId), itId);
 					pricesPerSupplier.add(it);
+					}
+					Collections.sort(pricesPerSupplier, new Comparator<ItemView>() {
+						@Override
+						public int compare(ItemView i1, ItemView i2) {
+							return new Integer(i1.getPrice()).compareTo(new Integer(i2.getPrice()));
+						}
+					});
 			}
-			Collections.sort(pricesPerSupplier, new Comparator<ItemView>() {
-				@Override
-				public int compare(ItemView i1, ItemView i2) {
-					return new Integer(i1.getPrice()).compareTo(new Integer(i2.getPrice()));
-				}
-			});
-			
-			}
-		 
 			return pricesPerSupplier;
-			
 		} catch (SupplierClientException | BadProductId_Exception e) {
 			System.err.println("Caught exception in" + e);
 		}
@@ -147,22 +145,14 @@ public class MediatorPortImpl implements MediatorPortType{
 							save.add(it);
 						}
 			}
-			//FIXME BUG ON Sorting, loses one product when id is duplicated
-			Map<String,ItemView> map = new HashMap<String,ItemView>();
-			for (ItemView i : save) map.put(i.getItemId().getProductId(),i);
-			Map<String, ItemView> treeMap = new TreeMap<String, ItemView>(map);
-			List<ItemView> SortedList = new ArrayList<ItemView>(treeMap.values());
-			Collections.sort(SortedList, new Comparator<ItemView>() {
-				@Override
-				public int compare(ItemView i1, ItemView i2) {
-					return new Integer(i1.getPrice()).compareTo(new Integer(i2.getPrice()));
-				}
-			});
-			
-			
-			return SortedList;
+			Comparator<ItemView> comparator = Comparator.comparing(ItemView -> ItemView.getItemId().getProductId());
+		    comparator = comparator.thenComparing(Comparator.comparing(ItemView -> ItemView.getPrice()));
+		    Stream<ItemView> saveStream = save.stream().sorted(comparator);
+		    List<ItemView> sortedSave = saveStream.collect(Collectors.toList());
+			return sortedSave;
 		} catch (SupplierClientException | BadText_Exception e) {			
-			throwInvalidText("Search text cannot be null, whitespace or empty!");	// TODO Excepcao!!!!!! ********************************************
+			System.err.println("Caught exception:" + e);
+			//throwInvalidText("Search text cannot be null, whitespace or empty!");	// TODO Excepcao!!!!!! ********************************************
 		}
 		return null;
 	}
@@ -237,10 +227,10 @@ public class MediatorPortImpl implements MediatorPortType{
 				
 				
 			} catch (BadProductId_Exception e) {
-				//EXCEPÇAAAAO ******************************************************
+				System.err.println("Caught exception:" + e);
 			}
 		} catch (UDDINamingException | SupplierClientException e) {
-			// TODO EXCEPÇAO!!!!! **********************************************************************
+			System.err.println("Caught exception:" + e);
 		}
 		
 	}
@@ -278,7 +268,7 @@ public class MediatorPortImpl implements MediatorPortType{
 				
 			}*/
 		} catch (UDDINamingException e) {
-			// TODO Excepcao!!!!!! ********************************************
+			System.err.println("Caught exception:" + e);
 		}
 		
 		
@@ -295,7 +285,7 @@ public class MediatorPortImpl implements MediatorPortType{
 		try {
 			availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier%");
 		} catch (UDDINamingException e) {
-			// TODO Excepcao!!!!!! ********************************************
+			System.err.println("Caught exception in UDDINaming:" + e);
 		}
 		
 		for (String url : availableSupplierswsURL) {
@@ -308,7 +298,7 @@ public class MediatorPortImpl implements MediatorPortType{
 				return result;
 				
 			} catch (SupplierClientException e) {
-				// TODO Excepcao!!!!!! ********************************************
+				System.err.println("Caught exception:" + e);
 			}	
 		}
 		return null;
@@ -324,7 +314,7 @@ public class MediatorPortImpl implements MediatorPortType{
 		try {
 			availableSupplierswsURL = (List<String>) uddinn.list("A57_Supplier%");
 		} catch (UDDINamingException e) {
-			// TODO Excepcao!!!!!! ********************************************
+			System.err.println("Caught exception in UDDINaming:" + e);
 		}
 		
 		for (String url : availableSupplierswsURL) {
@@ -334,7 +324,7 @@ public class MediatorPortImpl implements MediatorPortType{
 				S.clear();
 				
 			} catch (SupplierClientException e) {
-				// TODO Excepcao!!!!!! ********************************************
+				System.err.println("Caught exception:" + e);
 			}	
 		}
 	}
@@ -390,14 +380,6 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	
 	public List<ItemView> listItems() {
-		
-//		Supplier supplier = Supplier.getInstance();
-//		List<ItemView> items = new ArrayList<ItemView>();
-//		for (String pid : supplier.getProductsIDs()) {
-//			Product p = supplier.getProduct(pid);
-//			ItemView pv = newItemView(p);
-//			items.add(pv);
-//		}
 		return null;
 	}
 
@@ -476,12 +458,5 @@ public class MediatorPortImpl implements MediatorPortType{
 		faultInfo.message = message;
 		throw new InvalidCreditCard_Exception(message, faultInfo);
 	}
-	
-	private void throwBadProductId(final String message) throws BadProductId_Exception {
-		//BadProductId faultInfo = new BadProductId();
-		//faultInfo.message = message;
-		//throw new BadProductId_Exception(message, faultInfo);
-	}
-	
 	
 }
