@@ -22,6 +22,7 @@ import org.komparator.supplier.ws.cli.SupplierClientException;
  */
 public class SearchItemsIT extends BaseIT {
 
+	private static final String X69 = "X69";
 	private static final String BASEBALL_BAT = "Baseball bat";
 	private static final String BASEBALL = "Baseball";
 	private static final String X1 = "X1";
@@ -41,7 +42,7 @@ public class SearchItemsIT extends BaseIT {
 			ProductView product = new ProductView();
 			product.setId(X1);
 			product.setDesc("Baseball ball");
-			product.setPrice(5);
+			product.setPrice(20);
 			product.setQuantity(10);
 			sp1.createProduct(product);
 		}
@@ -49,7 +50,7 @@ public class SearchItemsIT extends BaseIT {
 			sp2 = new SupplierClient("http://localhost:8082/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
-			product.setId(X1);
+			product.setId(X69);
 			product.setDesc(BASEBALL_BAT);
 			product.setPrice(15);
 			product.setQuantity(20);
@@ -59,7 +60,7 @@ public class SearchItemsIT extends BaseIT {
 			sp3 = new SupplierClient("http://localhost:8083/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
-			product.setId(X1);
+			product.setId(X69);
 			product.setDesc("Baseball Over 9000");
 			product.setPrice(10);
 			product.setQuantity(20);
@@ -84,6 +85,19 @@ public class SearchItemsIT extends BaseIT {
 		for (ItemView iv : Itemviewlist) {
 			assertThat(iv.getDesc(), containsString(BASEBALL));
 		}
+		
+		ItemView firstitem = Itemviewlist.get(0);
+		assertEquals(X1, firstitem.getItemId());
+		assertEquals(20, firstitem.getPrice());
+		
+		ItemView seconditem = Itemviewlist.get(0);
+		assertEquals(X69, seconditem.getItemId());
+		assertEquals(10, seconditem.getPrice());
+		
+		ItemView thirditem = Itemviewlist.get(0);
+		assertEquals(X69, thirditem.getItemId());
+		assertEquals(15, thirditem.getPrice());
+		
 	
 	}
 	
