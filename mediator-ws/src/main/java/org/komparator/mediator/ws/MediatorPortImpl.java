@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import javax.jws.WebService;
@@ -107,7 +110,6 @@ public class MediatorPortImpl implements MediatorPortType{
 				}
 			});
 			
-			//System.out.println(pricesPerSupplier);
 			}
 		 
 			return pricesPerSupplier;
@@ -145,7 +147,20 @@ public class MediatorPortImpl implements MediatorPortType{
 							save.add(it);
 						}
 			}
-			return save;
+			
+			Map<String,ItemView> map = new HashMap<String,ItemView>();
+			for (ItemView i : save) map.put(i.getItemId().getProductId(),i);
+			Map<String, ItemView> treeMap = new TreeMap<String, ItemView>(map);
+			List<ItemView> SortedList = new ArrayList<ItemView>(treeMap.values());
+			Collections.sort(SortedList, new Comparator<ItemView>() {
+				@Override
+				public int compare(ItemView i1, ItemView i2) {
+					return new Integer(i1.getPrice()).compareTo(new Integer(i2.getPrice()));
+				}
+			});
+			
+			
+			return SortedList;
 		} catch (SupplierClientException | BadText_Exception e) {			
 			throwInvalidText("Search text cannot be null, whitespace or empty!");	// TODO Excepcao!!!!!! ********************************************
 		}
