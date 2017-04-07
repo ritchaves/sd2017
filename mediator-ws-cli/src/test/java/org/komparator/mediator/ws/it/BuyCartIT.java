@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
+
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -25,10 +27,17 @@ import org.komparator.supplier.ws.cli.SupplierClientException;
  */
 public class BuyCartIT extends BaseIT {
 
+	private static final String DUCKY = "Ducky";
+	private static final String CS3 = "CS3";
+	private static final String X2 = "X2";
 	private static final String X1 = "X1";
 	private static SupplierClient sp1;
 	private static SupplierClient sp2;
 	private static SupplierClient sp3;
+	private static ItemIdView itemidview = null;
+	private static ItemIdView itemidview2 = null;
+	private static ItemIdView itemidview3 = null;
+	private static String ValidCCN = "4024007102923926";
 
 	// one-time initialization and clean-up
 	@BeforeClass
@@ -41,30 +50,42 @@ public class BuyCartIT extends BaseIT {
 			
 			ProductView product = new ProductView();
 			product.setId(X1);
-			product.setDesc("Baseball ball");
+			product.setDesc(DUCKY);
 			product.setPrice(11);
 			product.setQuantity(10);
 			sp1.createProduct(product);
+			
+			itemidview = new ItemIdView();
+			itemidview.setProductId(X1);
+			itemidview.setSupplierId("A57_Supplier1");	
 		}
 		{
 			sp2 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
-			product.setId(X1);
-			product.setDesc("Baseball bat");
+			product.setId(X2);
+			product.setDesc("Duckywow");
 			product.setPrice(5);
 			product.setQuantity(20);
 			sp2.createProduct(product);
+			
+			itemidview2 = new ItemIdView();
+			itemidview2.setProductId(X2);
+			itemidview2.setSupplierId("A57_Supplier2");
 		}
 		{
 			sp3 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
 			product.setId(X1);
-			product.setDesc("Baseball Over 9000");
+			product.setDesc("Ducky much wow");
 			product.setPrice(10);
 			product.setQuantity(20);
 			sp3.createProduct(product);
+			
+			itemidview3 = new ItemIdView();
+			itemidview3.setProductId(X1);
+			itemidview3.setSupplierId("A57_Supplier3");
 		}		
 	}
 	
@@ -74,27 +95,27 @@ public class BuyCartIT extends BaseIT {
 	}
 	
 	@Test
-	public void BuyCartSucess() throws InvalidItemId_Exception {
-		//TODOList<ItemView> Itemviewlist = mediatorClient.buyCart(X1);
-		/*assertFalse(Itemviewlist.isEmpty());
-		assertEquals(3, Itemviewlist.size());
+	public void BuyCartSucess() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
+		mediatorClient.addToCart("SC3", itemidview, 1);		//price in order: 11 5 10 (* 1 3 2)
+		mediatorClient.addToCart(CS3, itemidview2, 3);
+		mediatorClient.addToCart(CS3, itemidview3, 2);
 		
-		for (ItemView iv : Itemviewlist) {
-			assertEquals(X1, iv.getItemId().getProductId());
-			assertThat(iv.getDesc(), containsString("Baseball"));
-		}
+		ShoppingResultView toTest = mediatorClient.buyCart(CS3, ValidCCN);
+		assertEquals(36,toTest.getTotalPrice());
+		assertTrue(toTest.getDroppedItems().isEmpty());
 		
-		ItemView firstitem = Itemviewlist.get(0);
-		assertEquals("sp1", firstitem.getItemId().getSupplierId());
-		assertEquals(10, firstitem.getPrice());
+		List<CartItemView> purchaseditems = toTest.getPurchasedItems();
 		
-		ItemView seconditem = Itemviewlist.get(1);
-		assertEquals("sp2", seconditem.getItemId().getSupplierId());
-		assertEquals(69, seconditem.getPrice());
+		List<CartItemView> expecteditems = new ArrayList<CartItemView>();
+		CartItemView toAdd = new CartItemView();
+		ItemView iv1 = new ItemView();
+		iv1.setDesc(DUCKY);
+		iv1.setPrice(11);
+		iv1.setItemId(itemidview);
+		toAdd.setItem(iv1);
+		toAdd.setQuantity(1);
 		
-		ItemView thirditem = Itemviewlist.get(2);
-		assertEquals("sp3", thirditem.getItemId().getSupplierId());
-		assertEquals(9000, thirditem.getPrice());		*/
+		//assertEquals();
 	}
 	
 	@Test

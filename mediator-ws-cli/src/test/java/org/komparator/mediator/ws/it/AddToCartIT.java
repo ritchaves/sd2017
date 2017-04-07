@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.komparator.mediator.ws.CartItemView;
 import org.komparator.mediator.ws.CartView;
 import org.komparator.mediator.ws.InvalidCartId_Exception;
 import org.komparator.mediator.ws.InvalidItemId_Exception;
@@ -193,7 +194,7 @@ public class AddToCartIT extends BaseIT {
 	/***/
 	//Function tests
 	@Test
-	public void addCartNewCartSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+	public void addToCartNewCartSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		
 		mediatorClient.addToCart("SC1", itemidview, 1);
 		
@@ -216,14 +217,18 @@ public class AddToCartIT extends BaseIT {
 				
 		assertEquals(1, theone.getItems().size());
 		
-		int q = theone.getItems().get(0).getQuantity();
-		assertEquals(1,q);
+		List<CartItemView> store = theone.getItems();
+		CartItemView civ = store.get(0);
 		
-	
+		
+		assertEquals(1,civ.getQuantity());
+		assertEquals(5, civ.getItem().getPrice());
+		assertEquals(X1, civ.getItem().getItemId().getProductId());
+		assertEquals("A57_Supplier1", civ.getItem().getItemId().getSupplierId());
 	}
 	
 	@Test
-	public void addCartTwoProductsSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+	public void addToCartTwoProductsSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		mediatorClient.addToCart("SC2", itemidview3, 1);
 		mediatorClient.addToCart("SC2", itemidview2, 1);
 	
@@ -248,7 +253,7 @@ public class AddToCartIT extends BaseIT {
 	}
 	
 	@Test
-	public void addCartSameProductTwiceSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+	public void addToCartSameProductTwiceSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		mediatorClient.addToCart("SC3", itemidview2, 3);
 		mediatorClient.addToCart("SC3", itemidview2, 5);
 		
@@ -278,7 +283,7 @@ public class AddToCartIT extends BaseIT {
 	
 	/***/
 	@Test(expected = NotEnoughItems_Exception.class)
-	public void addCartSameProductTwiceNotEnoughInStockFailure() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+	public void addToCartSameProductTwiceNotEnoughInStockFailure() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		mediatorClient.addToCart("SC4", itemidview, 4);
 		mediatorClient.addToCart("SC4", itemidview, 7);
 		
