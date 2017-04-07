@@ -95,7 +95,7 @@ public class MediatorPortImpl implements MediatorPortType{
 			for (UDDIRecord url : SuppliersWsURL) {
 				SupplierClient S = null;
 					S = new SupplierClient(url.getUrl());
-					System.out.println(url.getUrl());
+					if (S.getProduct(productId) != null) {
 					ItemIdView itId = newItemIdView(S.getProduct(productId), url.getOrgName());
 					ItemView it = newItemView(S.getProduct(productId), itId);
 					pricesPerSupplier.add(it);
@@ -107,9 +107,11 @@ public class MediatorPortImpl implements MediatorPortType{
 				}
 			});
 			
-			System.out.println(pricesPerSupplier);
-		
+			//System.out.println(pricesPerSupplier);
+			}
+		 
 			return pricesPerSupplier;
+			
 		} catch (SupplierClientException | BadProductId_Exception e) {
 			System.err.println("Caught exception in" + e);
 		}
@@ -376,9 +378,9 @@ public class MediatorPortImpl implements MediatorPortType{
 	}
 	
 	private void throwBadProductId(final String message) throws BadProductId_Exception {
-		BadProductId faultInfo = new BadProductId();
-		faultInfo.message = message;
-		throw new BadProductId_Exception(message, faultInfo);
+		//BadProductId faultInfo = new BadProductId();
+		//faultInfo.message = message;
+		//throw new BadProductId_Exception(message, faultInfo);
 	}
 	
 	
