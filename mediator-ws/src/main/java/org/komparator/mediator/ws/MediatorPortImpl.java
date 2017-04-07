@@ -323,7 +323,7 @@ public class MediatorPortImpl implements MediatorPortType{
 				ShoppingResultView view = newShoppingResultView(finalId);
 				
 				return view;
-			}
+			} else throwInvalidCreditCard("Card doesn't exist");
 		} catch (CreditCardClientException e) {
 			System.err.println("Caught exception:" + e);
 			
