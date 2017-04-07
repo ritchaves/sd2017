@@ -28,7 +28,7 @@
         <ws.host>localhost</ws.host>
         <ws.port>808${ws.i}</ws.port>
         <ws.url>http://${ws.host}:${ws.port}/supplier-ws/endpoint</ws.url>
-        <uddi.url>http://localhost:9090</uddi.url>
+        <uddi.url>http://a57:k1fFNszN@uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url> 
         <ws.name>A57_Supplier${ws.i}</ws.name>
     </properties>
 
