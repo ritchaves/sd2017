@@ -25,7 +25,6 @@ public class SupplierApp {
 			uddiURL = args[0];
 			wsName = args[1];
 			wsURL = args[2];
-			System.out.println(uddiURL);
 			endpoint = new SupplierEndpointManager(uddiURL, wsName, wsURL);
 			endpoint.setVerbose(true);
 		}
