@@ -356,7 +356,8 @@ public class MediatorPortImpl implements MediatorPortType{
 				cartItemView.setQuantity(i.getQuantity());
 				
 				//TODO Como colocar o cartItemView no CartView????
-				cartView.items.add(cartItemView);
+				List<CartItemView> itemList = cartView.getItems();
+				itemList.add(cartItemView);
 			}
 			listView.add(cartView);
 		}	
