@@ -241,8 +241,8 @@ public class MediatorPortImpl implements MediatorPortType{
 		//Cart Check:
 		if (cartId == null)
 			throwInvalidCartId("Cart Identifier cannot be null!");
-		cartId = cartId.trim();
-		if (cartId.length() == 0)
+		String cartIdtrim = cartId.trim();
+		if (cartIdtrim.length() == 0)
 			throwInvalidCartId("Cart identifier cannot be empty or whitespace!");
 			
 		Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
@@ -253,14 +253,14 @@ public class MediatorPortImpl implements MediatorPortType{
 		//Card Check
 		if (creditCardNr == null)
 			throwInvalidCreditCard("Cart Identifier cannot be null!");
-		creditCardNr = cartId.trim();
-		if (creditCardNr.length() == 0)
+		String creditCardNrtrim = cartId.trim();
+		if (creditCardNrtrim.length() == 0)
 			throwInvalidCreditCard("Cart identifier cannot be empty or whitespace!");
 		
 		Pattern cardpattern = Pattern.compile("[^0-9]");
 		hasSpecialChar = cardpattern.matcher(creditCardNr).find();
 		if (hasSpecialChar || creditCardNr.length() != 16)
-			throwInvalidCreditCard("Cart identifier must have only 16 numbers!");
+			throwInvalidCreditCard("Card identifier must have only 16 numbers!");
 		
 		
 		//Validação do cartão de credito CreditCard **************************************************
