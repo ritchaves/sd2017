@@ -212,7 +212,8 @@ public class MediatorPortImpl implements MediatorPortType{
 				else
 					totalQ = c.getProduct(productId).getQuantity() + itemQty;
 				if (totalQ > supQuantity){
-					Mediator.getInstance().removeCart(c);
+					if (c.isCartEmpty())
+						Mediator.getInstance().removeCart(c);
 					throwNotEnoughItems("Supplier does not have that many items in stock!");
 				}
 				

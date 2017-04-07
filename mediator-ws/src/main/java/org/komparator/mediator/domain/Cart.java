@@ -89,6 +89,9 @@ public class Cart {
 		this.purchased = purchased;
 	}
 	
+	public void removeFromCart(Item i){
+		products.remove(i);
+	}
 	
 
 }
