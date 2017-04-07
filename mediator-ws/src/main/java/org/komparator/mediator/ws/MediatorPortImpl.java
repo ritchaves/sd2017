@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.jws.WebService;
 
@@ -81,6 +82,13 @@ public class MediatorPortImpl implements MediatorPortType{
 		if (productId.length() == 0)
 			throwInvalidItemId("Product identifier cannot be empty or whitespace!");
 		
+		Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+		boolean hasSpecialChar = pattern.matcher(productId).find();
+		
+		if (hasSpecialChar)
+			throwInvalidItemId("Product identifier must be alphanumeric!");
+		
+		
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
 		List<ItemView> pricesPerSupplier = new ArrayList<ItemView>();
 		try {		
@@ -98,12 +106,15 @@ public class MediatorPortImpl implements MediatorPortType{
 					return new Integer(i2.getPrice()).compareTo(new Integer(i1.getPrice()));
 				}
 			});
+			
+			System.out.println(pricesPerSupplier);
 		
 			return pricesPerSupplier;
 		} catch (SupplierClientException | BadProductId_Exception e) {
-			// TODO Excepcao!!!!!! ***********************************************************
+			System.err.println("Caught exception in" + e);
 		}
-		return null;
+		pricesPerSupplier = Collections.emptyList();
+		return pricesPerSupplier;
 	}
 
 	@Override
@@ -362,6 +373,12 @@ public class MediatorPortImpl implements MediatorPortType{
 		InvalidCreditCard faultInfo = new InvalidCreditCard();
 		faultInfo.message = message;
 		throw new InvalidCreditCard_Exception(message, faultInfo);
+	}
+	
+	private void throwBadProductId(final String message) throws BadProductId_Exception {
+		BadProductId faultInfo = new BadProductId();
+		faultInfo.message = message;
+		throw new BadProductId_Exception(message, faultInfo);
 	}
 	
 	
