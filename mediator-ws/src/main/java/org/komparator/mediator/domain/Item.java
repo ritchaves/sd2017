@@ -6,7 +6,7 @@ package org.komparator.mediator.domain;
  */
 public class Item {
 
-	/** Product identifie
+	/** Product identifier
 	r. */
 	private String productId;
 	/** Product description. */
