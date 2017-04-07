@@ -89,15 +89,15 @@ public class GetItemsIT extends BaseIT {
 		
 		ItemView firstitem = Itemviewlist.get(0);
 		//assertEquals("sp1", firstitem.getItemId().getSupplierId());
-		assertEquals(10, firstitem.getPrice());
+		assertEquals(5, firstitem.getPrice());
 		
 		ItemView seconditem = Itemviewlist.get(1);
 		//assertEquals("sp2", seconditem.getItemId().getSupplierId());
-		assertEquals(69, seconditem.getPrice());
+		assertEquals(10, seconditem.getPrice());
 		
 		ItemView thirditem = Itemviewlist.get(2);
 		//assertEquals("sp3", thirditem.getItemId().getSupplierId());
-		assertEquals(9000, thirditem.getPrice());		
+		assertEquals(15, thirditem.getPrice());		
 	}
 	
 	@Test
