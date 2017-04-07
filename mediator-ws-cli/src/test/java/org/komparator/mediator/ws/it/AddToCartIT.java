@@ -1,8 +1,12 @@
 package org.komparator.mediator.ws.it;
 
+import static org.junit.Assert.*;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.komparator.mediator.ws.CartItemView;
+import org.komparator.mediator.ws.CartView;
 import org.komparator.mediator.ws.InvalidCartId_Exception;
 import org.komparator.mediator.ws.InvalidItemId_Exception;
 import org.komparator.mediator.ws.InvalidQuantity_Exception;
@@ -20,6 +24,7 @@ import org.komparator.supplier.ws.cli.SupplierClientException;
  */
 public class AddToCartIT extends BaseIT {
 
+	private static final String PRETTY_CART = "Prettycart69";
 	private static final String X1 = "X1";
 	private static final String X2 = "X2";
 	private static SupplierClient sp1;
@@ -33,16 +38,14 @@ public class AddToCartIT extends BaseIT {
 	static ItemIdView baditemidview3 = null;
 	static ItemIdView baditemidview4 = null;
 	static ItemIdView baditemidview5 = null;
-
+	static CartView cart = new CartView();
 
 	// one-time initialization and clean-up
 	@BeforeClass
 	public static void oneTimeSetUp() throws InvalidItemId_Exception, SupplierClientException, BadProductId_Exception, BadProduct_Exception {
 		
 		mediatorClient.clear();
-		sp1.clear();
-		sp2.clear();
-		sp3.clear();
+		cart.setCartId(PRETTY_CART);
 		
 		
 		{
@@ -57,7 +60,7 @@ public class AddToCartIT extends BaseIT {
 			
 			itemidview = new ItemIdView();
 			itemidview.setProductId(X1);
-			itemidview.setSupplierId("81");
+			itemidview.setSupplierId("A57_Supplier1");			
 		}
 		{
 			sp2 = new SupplierClient("http://localhost:8082/supplier-ws/endpoint");
@@ -71,7 +74,7 @@ public class AddToCartIT extends BaseIT {
 			
 			itemidview2 = new ItemIdView();
 			itemidview2.setProductId(X2);
-			itemidview2.setSupplierId("82");
+			itemidview2.setSupplierId("A57_Supplier2");
 		}
 		{
 			sp3 = new SupplierClient("http://localhost:8083/supplier-ws/endpoint");
@@ -85,7 +88,7 @@ public class AddToCartIT extends BaseIT {
 			
 			itemidview3 = new ItemIdView();
 			itemidview3.setProductId(X1);
-			itemidview3.setSupplierId("83");
+			itemidview3.setSupplierId("A57_Supplier3");
 		}	
 		
 		//BAD Item ID:
@@ -148,32 +151,32 @@ public class AddToCartIT extends BaseIT {
 	//Product Id tests
 	@Test(expected = InvalidItemId_Exception.class)
 	public void addToCartNullTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
-		mediatorClient.addToCart("SC1", null, 5);
+		mediatorClient.addToCart(PRETTY_CART, null, 5);
 	}
 	
 	@Test(expected = InvalidItemId_Exception.class)
 	public void addToCartOtherKindOfNullTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
-		mediatorClient.addToCart("SC1", baditemidview1, 5);
+		mediatorClient.addToCart(PRETTY_CART, baditemidview1, 5);
 	}
 	
 	@Test(expected = InvalidItemId_Exception.class)
 	public void addToCartEmptyNameTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
-		mediatorClient.addToCart("SC1", baditemidview2, 5);
+		mediatorClient.addToCart(PRETTY_CART, baditemidview2, 5);
 	}
 	
 	@Test(expected = InvalidItemId_Exception.class)
 	public void addToCartWhiteSpaceNameTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
-		mediatorClient.addToCart("SC1", baditemidview3, 5);
+		mediatorClient.addToCart(PRETTY_CART, baditemidview3, 5);
 	}
 	
 	@Test(expected = InvalidItemId_Exception.class)
 	public void addToCartTabNameTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
-		mediatorClient.addToCart("SC1", baditemidview4, 5);
+		mediatorClient.addToCart(PRETTY_CART, baditemidview4, 5);
 	}
 	
 	@Test(expected = InvalidItemId_Exception.class)
 	public void addToCartNewLineNameTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
-		mediatorClient.addToCart("SC1", baditemidview5, 5);
+		mediatorClient.addToCart(PRETTY_CART, baditemidview5, 5);
 	}
 	
 	/***/
@@ -194,18 +197,28 @@ public class AddToCartIT extends BaseIT {
 	public void addCartNewCartSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		mediatorClient.addToCart("SC1", itemidview, 1);
 		
-		//TODO Assert me!
+
 		
 	
 	}
 	
 	@Test
 	public void addCartExistentCartSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
-		mediatorClient.addToCart("SC1", itemidview, 1);
+		mediatorClient.addToCart(PRETTY_CART, itemidview, 1);  //x1 81
 		
-		//TODO Assert me!
+		//assertFalse(cart.getItems().isEmpty()); cart nao é o cart... é o cartview ou w/e
+		//assertEquals(1, cart.getItems().size());
+		assertEquals(cart.getCartId(), PRETTY_CART);
 		
-	
+		CartItemView cartviews = cart.getItems().get(0);	//falha aqui, diz que o cart getitems nao tem nada e da OutOfBounds
+		assertEquals(X1, cartviews.getItem().getItemId().getProductId());
+		assertEquals("A57_Supplier", cartviews.getItem().getItemId().getSupplierId());
+		assertEquals(5, cartviews.getItem().getPrice());
+		assertEquals("Puppy", cartviews.getItem().getDesc());
+			
+		
+		
+		
 	}
 	
 	@Test

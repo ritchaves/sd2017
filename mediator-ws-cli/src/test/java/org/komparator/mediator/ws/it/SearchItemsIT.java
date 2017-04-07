@@ -36,6 +36,7 @@ public class SearchItemsIT extends BaseIT {
 		
 		mediatorClient.clear();
 		
+		
 		{
 			sp1 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
 			
