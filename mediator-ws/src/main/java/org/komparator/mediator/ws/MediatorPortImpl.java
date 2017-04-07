@@ -103,7 +103,7 @@ public class MediatorPortImpl implements MediatorPortType{
 			Collections.sort(pricesPerSupplier, new Comparator<ItemView>() {
 				@Override
 				public int compare(ItemView i1, ItemView i2) {
-					return new Integer(i2.getPrice()).compareTo(new Integer(i1.getPrice()));
+					return new Integer(i1.getPrice()).compareTo(new Integer(i2.getPrice()));
 				}
 			});
 			
