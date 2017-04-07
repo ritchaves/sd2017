@@ -21,7 +21,7 @@ import org.komparator.supplier.ws.ProductView;
 import org.komparator.supplier.ws.cli.SupplierClient;
 import org.komparator.supplier.ws.cli.SupplierClientException;
 
-//import pt.ulisboa.tecnico.sdis.ws.cli.*;
+import pt.ulisboa.tecnico.sdis.ws.cli.*;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
@@ -262,6 +262,11 @@ public class MediatorPortImpl implements MediatorPortType{
 		if (hasSpecialChar || creditCardNr.length() != 16)
 			throwInvalidCreditCard("Cart identifier must have only 16 numbers!");
 		
+
+		try {
+			CreditCardClient ccc = new CreditCardClient(cccURL);
+			System.out.println(ccc.validateNumber(creditCardNr));
+
 		
 		//Validação do cartão de credito CreditCard **************************************************
 		//UDDINaming uddinn = endpointManager.getUddiNaming();
@@ -337,6 +342,11 @@ public class MediatorPortImpl implements MediatorPortType{
 		ShoppingResultView view = newShoppingResultView(finalId);
 		
 		return view;
+		} catch (CreditCardClientException e) {
+			System.err.println("Caught exception:" + e);
+			
+		}
+		return null;
 	}
 
 	    
