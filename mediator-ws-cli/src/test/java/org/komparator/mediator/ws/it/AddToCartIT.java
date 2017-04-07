@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.komparator.mediator.ws.CartItemView;
 import org.komparator.mediator.ws.CartView;
 import org.komparator.mediator.ws.InvalidCartId_Exception;
 import org.komparator.mediator.ws.InvalidItemId_Exception;
@@ -216,10 +217,14 @@ public class AddToCartIT extends BaseIT {
 				
 		assertEquals(1, theone.getItems().size());
 		
-		int q = theone.getItems().get(0).getQuantity();
-		assertEquals(1,q);
+		List<CartItemView> store = theone.getItems();
+		CartItemView civ = store.get(0);
 		
-	
+		
+		assertEquals(1,civ.getQuantity());
+		assertEquals(5, civ.getItem().getPrice());
+		assertEquals(X1, civ.getItem().getItemId().getProductId());
+		assertEquals("A57_Supplier1", civ.getItem().getItemId().getSupplierId());
 	}
 	
 	@Test
