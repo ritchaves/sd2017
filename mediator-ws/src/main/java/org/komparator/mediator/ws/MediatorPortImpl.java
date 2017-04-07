@@ -88,28 +88,26 @@ public class MediatorPortImpl implements MediatorPortType{
 		
 		Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
 		boolean hasSpecialChar = pattern.matcher(productId).find();
-		
 		if (hasSpecialChar)
 			throwInvalidItemId("Product identifier must be alphanumeric!");
-		
 		
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
 		List<ItemView> pricesPerSupplier = new ArrayList<ItemView>();
 		try {		
 			for (UDDIRecord url : SuppliersWsURL) {
 				SupplierClient S = null;
-					S = new SupplierClient(url.getUrl());
-					if (S.getProduct(productId) != null) {
+				S = new SupplierClient(url.getUrl());
+				if (S.getProduct(productId) != null) {
 					ItemIdView itId = newItemIdView(S.getProduct(productId), url.getOrgName());
 					ItemView it = newItemView(S.getProduct(productId), itId);
 					pricesPerSupplier.add(it);
+				}
+				Collections.sort(pricesPerSupplier, new Comparator<ItemView>() {
+					@Override
+					public int compare(ItemView i1, ItemView i2) {
+						return new Integer(i1.getPrice()).compareTo(new Integer(i2.getPrice()));
 					}
-					Collections.sort(pricesPerSupplier, new Comparator<ItemView>() {
-						@Override
-						public int compare(ItemView i1, ItemView i2) {
-							return new Integer(i1.getPrice()).compareTo(new Integer(i2.getPrice()));
-						}
-					});
+				});
 			}
 			return pricesPerSupplier;
 		} catch (SupplierClientException | BadProductId_Exception e) {
@@ -128,22 +126,19 @@ public class MediatorPortImpl implements MediatorPortType{
 			throwInvalidText("Seach text cannot be empty or whitespace!");
 		
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
-		List<ItemView> save = new ArrayList<ItemView>();
-		System.out.println(SuppliersWsURL);
-		
+		List<ItemView> save = new ArrayList<ItemView>();		
 		try {		
 			for (UDDIRecord url : SuppliersWsURL) {
 				SupplierClient S = null;
-					S = new SupplierClient(url.getUrl());
-					
-					List<ProductView> existingProducts = null;
-					existingProducts = S.searchProducts(descText);
-					if(existingProducts != null)
-						for(ProductView pv : existingProducts) {
-							ItemIdView itID = newItemIdView(pv, url.getOrgName());
-							ItemView it = newItemView(pv, itID);
-							save.add(it);
-						}
+				S = new SupplierClient(url.getUrl());
+				List<ProductView> existingProducts = null;
+				existingProducts = S.searchProducts(descText);
+				if(existingProducts != null)
+					for(ProductView pv : existingProducts) {
+						ItemIdView itID = newItemIdView(pv, url.getOrgName());
+						ItemView it = newItemView(pv, itID);
+						save.add(it);
+					}
 			}
 			Comparator<ItemView> comparator = Comparator.comparing(ItemView -> ItemView.getItemId().getProductId());
 		    comparator = comparator.thenComparing(Comparator.comparing(ItemView -> ItemView.getPrice()));
@@ -245,30 +240,43 @@ public class MediatorPortImpl implements MediatorPortType{
 	public ShoppingResultView buyCart(String cartId, String creditCardNr)
 			throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
 		
+		System.out.println("OI1");
 		//Validação do cartão de credito CreditCard
 		UDDINaming uddinn = endpointManager.getUddiNaming();
 		
-		ShoppingResultView view = new ShoppingResultView();
-		
+		System.out.println("OI");
 		try {
 			String CCwsURL = uddinn.lookup("CreditCard");
+			System.out.println(CCwsURL);
 			/*CreditCardClient ccc = new CreditCardClient(CCwsURL);
 			if (ccc.validateNumber(creditCardNr)){
 			
-				Cart c = Mediator.getInstance().getCartList().getCart(cartId);
-			
-				for(Item i: c){
-					//TODO find itemId.getSupplierId() in UDDII
-					//SupplierClient S = null;
-					//S = new SupplierClient(url.getUrl());
-					//s.buyProduct(i)
-					//Tratar Excepçoes
-				}
-				c.setPurchased(true);
+				Cart buyCart = Mediator.getInstance().getCartList().getCart(cartId).getProducts();
+			    Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
+				List<ItemView> listItemsToBuy = new ArrayList<ItemView>();
+		
+				for(Item i: buyCart){
+					
+					try {		
+						for (UDDIRecord urlSupp : SuppliersWsURL) {
+							SupplierClient S = null;
+							S = new SupplierClient(urlSupp.getUrl());
+						 	if (S.getProduct(i.getId()) != null)
+						 		S.buyProduct(i.getId(), i.getQuantity());		 	
+						}
+		
+				buyCart.setPurchased(true);
+				
 				//view.setId(ID de compra);
 				 * List<CartItemView> getDroppedItems
 				 * List<CartItemView> getPurchasedItems
-				
+				if (getDroppedItems.isEmpty()) 
+					ShoppingResultView ShopView = newShoppingResultView(String idBuy, COMPLETA, int price);
+				else if (getPurchasedItems.isEmpty())
+					ShoppingResultView ShopView = newShoppingResultView(String idBuy, VAZIA, int price);
+				else
+					ShoppingResultView ShopView = newShoppingResultView(String idBuy, PARCIAL, int price);
+				return shopView;
 			}*/
 		} catch (UDDINamingException e) {
 			System.err.println("Caught exception:" + e);
@@ -418,9 +426,21 @@ public class MediatorPortImpl implements MediatorPortType{
 		return view;
 	}
 	
+
 	private CartView newCartView(Cart cart) {
 		CartView view = new CartView();
 		view.setCartId(cart.getcartID());
+		view.getItems();
+		return view;
+	}
+	
+	private ShoppingResultView newShoppingResultView(String idBuy, Result resultado, int price) {
+		ShoppingResultView view = new ShoppingResultView();
+		view.setId(idBuy); // Identificador da compra gerado pelo buyProducts
+		view.setResult(resultado);
+		view.setTotalPrice(price);
+		view.getDroppedItems();
+		view.getPurchasedItems();
 		return view;
 	}
 
