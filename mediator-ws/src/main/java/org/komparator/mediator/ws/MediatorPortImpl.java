@@ -147,7 +147,7 @@ public class MediatorPortImpl implements MediatorPortType{
 							save.add(it);
 						}
 			}
-			
+			//FIXME BUG ON Sorting, loses one product when id is duplicated
 			Map<String,ItemView> map = new HashMap<String,ItemView>();
 			for (ItemView i : save) map.put(i.getItemId().getProductId(),i);
 			Map<String, ItemView> treeMap = new TreeMap<String, ItemView>(map);

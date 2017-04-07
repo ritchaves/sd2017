@@ -60,11 +60,18 @@ public class SearchItemsIT extends BaseIT {
 			sp3 = new SupplierClient("http://localhost:8083/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
-			product.setId(X69);
+			product.setId("X3");
 			product.setDesc("Baseball Over 9000");
 			product.setPrice(10);
 			product.setQuantity(20);
 			sp3.createProduct(product);
+			
+			ProductView product2 = new ProductView();
+			product2.setId(X69);
+			product2.setDesc("Baseball all the way");
+			product2.setPrice(1);
+			product2.setQuantity(20);
+			sp3.createProduct(product2);
 		}		
 	}
 	
@@ -80,22 +87,22 @@ public class SearchItemsIT extends BaseIT {
 	public void searchItemsSucess() throws InvalidText_Exception {
 		List<ItemView> Itemviewlist = mediatorClient.searchItems(BASEBALL);
 		assertFalse(Itemviewlist.isEmpty());
-		assertEquals(3, Itemviewlist.size());
+		assertEquals(4, Itemviewlist.size());
 		
 		for (ItemView iv : Itemviewlist) {
 			assertThat(iv.getDesc(), containsString(BASEBALL));
 		}
 		
 		ItemView firstitem = Itemviewlist.get(0);
-		assertEquals(X1, firstitem.getItemId());
+		assertEquals(X1, firstitem.getItemId().getProductId());
 		assertEquals(20, firstitem.getPrice());
 		
 		ItemView seconditem = Itemviewlist.get(0);
-		assertEquals(X69, seconditem.getItemId());
+		assertEquals("X3", seconditem.getItemId().getProductId());
 		assertEquals(10, seconditem.getPrice());
 		
 		ItemView thirditem = Itemviewlist.get(0);
-		assertEquals(X69, thirditem.getItemId());
+		assertEquals(X69, thirditem.getItemId().getProductId());
 		assertEquals(15, thirditem.getPrice());
 		
 	
