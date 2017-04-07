@@ -179,6 +179,8 @@ public class MediatorPortImpl implements MediatorPortType{
 			c = Mediator.getInstance().addNewCart();
 		
 		//Product Check
+		if (itemId == null)
+			throwInvalidItemId("Product identifier cannot be null!");
 		String productId = itemId.getProductId();
 		if (productId == null)
 			throwInvalidItemId("Product identifier cannot be null!");

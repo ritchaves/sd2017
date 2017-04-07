@@ -63,6 +63,7 @@ public class Mediator {
 	
 	public Cart addNewCart(){
 		Cart c = new Cart(this.cartIdCounter.incrementAndGet());
+		cartList.add(c);
 		return c;
 	}
 	

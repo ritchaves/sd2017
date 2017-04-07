@@ -2,6 +2,8 @@ package org.komparator.mediator.ws.it;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -197,7 +199,13 @@ public class AddToCartIT extends BaseIT {
 	public void addCartNewCartSuccess() throws InvalidCartId_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
 		mediatorClient.addToCart("SC1", itemidview, 1);
 		
-
+		List<CartView> cv = mediatorClient.listCarts();
+		System.out.print(cv);
+		assertEquals(1, cv.size()); //So ha um carrinho no mediator!
+		assertEquals("SC1", cv.get(0).getCartId());
+		
+		int q = cv.get(0).getItems().get(0).getQuantity();
+		assertEquals(1,q);
 		
 	
 	}
