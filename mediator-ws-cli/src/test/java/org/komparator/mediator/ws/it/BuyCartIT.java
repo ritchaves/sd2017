@@ -62,7 +62,7 @@ public class BuyCartIT extends BaseIT {
 			itemidview.setSupplierId("A57_Supplier1");	
 		}
 		{
-			sp2 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
+			sp2 = new SupplierClient("http://localhost:8082/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
 			product.setId(X2);
@@ -76,7 +76,7 @@ public class BuyCartIT extends BaseIT {
 			itemidview2.setSupplierId("A57_Supplier2");
 		}
 		{
-			sp3 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
+			sp3 = new SupplierClient("http://localhost:8083/supplier-ws/endpoint");
 			
 			ProductView product = new ProductView();
 			product.setId(X1);
@@ -94,16 +94,19 @@ public class BuyCartIT extends BaseIT {
 	@AfterClass
 	public static void oneTimeTearDown() {
 		mediatorClient.clear();
+		sp1.clear();
+		sp2.clear();
+		sp3.clear();
 	}
 	
 	@Test
-	public void BuyCartSucess() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
-		mediatorClient.addToCart(CS3, itemidview, 1);		//price in order: 11 5 10 (* 1 3 2)
+	public void BuyCartCompleteSucess() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
+		mediatorClient.addToCart(CS3, itemidview, 1);		//price in order: 11 5 10 (* 1 3 2)  11 15 20
 		mediatorClient.addToCart(CS3, itemidview2, 3);
 		mediatorClient.addToCart(CS3, itemidview3, 2);
 		
 		ShoppingResultView toTest = mediatorClient.buyCart(CS3, ValidCCN);
-		assertEquals(36,toTest.getTotalPrice());
+		assertEquals(46,toTest.getTotalPrice());
 		assertTrue(toTest.getDroppedItems().isEmpty());
 		assertEquals(Result.COMPLETE, toTest.getResult());
 		
@@ -142,40 +145,146 @@ public class BuyCartIT extends BaseIT {
 	}
 	
 	@Test
-	public void BuyCartCaseSensitiveTest() throws InvalidItemId_Exception {
-		//TODOList<ItemView> iv = mediatorClient.buyCart("x1");
-		//assertTrue(iv.isEmpty());
+	public void BuyCartPartialSucess() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
+		mediatorClient.addToCart(CS3, itemidview, 1);		//price in order: 11 5 10 (* 1 3 2)
+		mediatorClient.addToCart(CS3, itemidview2, 200);
+		mediatorClient.addToCart(CS3, itemidview3, 2);
+		
+		ShoppingResultView toTest = mediatorClient.buyCart(CS3, ValidCCN);
+		assertEquals(31,toTest.getTotalPrice());
+		assertTrue(!toTest.getDroppedItems().isEmpty());
+		assertEquals(Result.PARTIAL, toTest.getResult());
+		
+		List<CartItemView> purchaseditems = toTest.getPurchasedItems();
+		List<CartItemView> expecteditems = new ArrayList<CartItemView>();
+		List<CartItemView> droppeditems = new ArrayList<CartItemView>();
+		
+		CartItemView toAdd = new CartItemView();
+		ItemView iv1 = new ItemView();
+		iv1.setDesc(DUCKY);
+		iv1.setPrice(11);
+		iv1.setItemId(itemidview);
+		toAdd.setItem(iv1);
+		toAdd.setQuantity(1);
+		
+		CartItemView toDrop2 = new CartItemView();
+		ItemView iv2 = new ItemView();
+		iv2.setDesc(DUCKYWOW);
+		iv2.setPrice(5);
+		iv2.setItemId(itemidview2);
+		toDrop2.setItem(iv2);
+		toDrop2.setQuantity(200);
+		
+		CartItemView toAdd3 = new CartItemView();
+		ItemView iv3 = new ItemView();
+		iv3.setDesc(DUCKY_MUCH_WOW);
+		iv3.setPrice(10);
+		iv3.setItemId(itemidview3);
+		toAdd3.setItem(iv3);
+		toAdd3.setQuantity(2);
+		
+		expecteditems.add(toAdd);
+		expecteditems.add(toAdd3);
+		droppeditems.add(toDrop2);
+	
+		assertEquals(expecteditems, purchaseditems);
+		assertEquals(droppeditems, toTest.getDroppedItems());
 	}
 	
 	@Test
-	public void BuyCartDontExist() throws InvalidItemId_Exception {
-		//TODOList<ItemView> iv = mediatorClient.buyCart("YOLO");
-		//assertTrue(iv.isEmpty());
+	public void BuyCartEmptySucess() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
+		mediatorClient.addToCart(CS3, itemidview, 500);		//price in order: 11 5 10 (* 1 3 2)
+		mediatorClient.addToCart(CS3, itemidview2, 200);
+		mediatorClient.addToCart(CS3, itemidview3, 500);
+		
+		ShoppingResultView toTest = mediatorClient.buyCart(CS3, ValidCCN);
+		assertEquals(0,toTest.getTotalPrice());
+		assertTrue(!toTest.getDroppedItems().isEmpty());
+		assertTrue(toTest.getPurchasedItems().isEmpty());
+		assertEquals(Result.EMPTY, toTest.getResult());
+		
+		List<CartItemView> expecteditems = new ArrayList<CartItemView>();
+		
+		CartItemView toAdd = new CartItemView();
+		ItemView iv1 = new ItemView();
+		iv1.setDesc(DUCKY);
+		iv1.setPrice(11);
+		iv1.setItemId(itemidview);
+		toAdd.setItem(iv1);
+		toAdd.setQuantity(500);
+		
+		CartItemView toAdd2 = new CartItemView();
+		ItemView iv2 = new ItemView();
+		iv2.setDesc(DUCKYWOW);
+		iv2.setPrice(5);
+		iv2.setItemId(itemidview2);
+		toAdd2.setItem(iv2);
+		toAdd2.setQuantity(200);
+		
+		CartItemView toAdd3 = new CartItemView();
+		ItemView iv3 = new ItemView();
+		iv3.setDesc(DUCKY_MUCH_WOW);
+		iv3.setPrice(10);
+		iv3.setItemId(itemidview3);
+		toAdd3.setItem(iv3);
+		toAdd3.setQuantity(500);
+		
+		expecteditems.add(toAdd);
+		expecteditems.add(toAdd2);
+		expecteditems.add(toAdd3);
+		
+		assertEquals(expecteditems, toTest.getDroppedItems());
 	}
 	
-	@Test(expected = InvalidItemId_Exception.class)
-	public void BuyCartNullTest() throws InvalidItemId_Exception {
-		//TODOmediatorClient.buyCart(null);
+		
+	@Test(expected = EmptyCart_Exception.class)
+	public void BuyCartCaseSensitiveTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
+		mediatorClient.addToCart(CS3, itemidview, 1);
+		mediatorClient.buyCart("cs3", ValidCCN);
+	}
+	
+	@Test(expected = EmptyCart_Exception.class)
+	public void BuyCartEmptyCartTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
+		mediatorClient.addToCart(CS3, itemidview, 1);
+		mediatorClient.buyCart("CS4", ValidCCN);
+	}
+	
+	@Test(expected = InvalidCreditCard_Exception.class)
+	public void BuyCartInvalidCCTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
+		mediatorClient.addToCart(CS3, itemidview, 1);
+		mediatorClient.buyCart(CS3, "5555555555555555");
+	}
+	
+		
+	//invalid cart id tests
+	@Test(expected = InvalidCartId_Exception.class)
+	public void BuyCartInvalidCart() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
+		mediatorClient.buyCart("HA A", ValidCCN);
+	}
+	
+	@Test(expected = InvalidCartId_Exception.class)
+	public void BuyCartNullTest() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
+		mediatorClient.buyCart(null, ValidCCN);
 	}
 
-	@Test(expected = InvalidItemId_Exception.class)
-	public void BuyCartEmptyTest() throws InvalidItemId_Exception {
-		//TODOmediatorClient.buyCart("");
+	@Test(expected = InvalidCartId_Exception.class)
+	public void BuyCartEmptyTest() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
+		mediatorClient.buyCart("", ValidCCN);
 	}
 	
-	@Test(expected = InvalidItemId_Exception.class)
-	public void BuyCartWhiteSpaceTest() throws InvalidItemId_Exception {
-		//TODOmediatorClient.buyCart(" ");
+	@Test(expected = InvalidCartId_Exception.class)
+	public void BuyCartWhiteSpaceTest() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
+		mediatorClient.buyCart(" ", ValidCCN);
 	}
 	
-	@Test(expected = InvalidItemId_Exception.class)
-	public void BuyCartTabTest() throws InvalidItemId_Exception {
-		//TODOmediatorClient.buyCart("\t");
+	@Test(expected = InvalidCartId_Exception.class)
+	public void BuyCartTabTest() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
+		mediatorClient.buyCart("\t", ValidCCN);
 	}
 	
-	@Test(expected = InvalidItemId_Exception.class)
-	public void BuyCartNewLineTest() throws InvalidItemId_Exception {
-		//TODOmediatorClient.buyCart("\n");
+	@Test(expected = InvalidCartId_Exception.class)
+	public void BuyCartNewLineTest() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
+		mediatorClient.buyCart("\n", ValidCCN);
 	}
 }
 	
