@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.jws.HandlerChain;
 import javax.jws.WebService;
 
 import org.komparator.supplier.domain.Product;
@@ -21,6 +22,7 @@ import org.komparator.supplier.domain.Supplier;
 		targetNamespace = "http://ws.supplier.komparator.org/", 
 		serviceName = "SupplierService"
 )
+@HandlerChain(file = "/supplier-ws_handler-chain.xml")
 public class SupplierPortImpl implements SupplierPortType {
 
 	// end point manager
