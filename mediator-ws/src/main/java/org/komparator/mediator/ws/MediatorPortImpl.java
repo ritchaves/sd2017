@@ -61,12 +61,6 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	public Collection<UDDIRecord> myUddiRecordList() {		
 		UDDINaming uddinn = endpointManager.getUddiNaming();
-//		System.out.println(uddinn.getUDDIUrl());              testing my biche uddi
-//		try {
-//			System.out.println(uddinn.lookup("A57_Supplier%"));
-//		} catch (UDDINamingException e1) {
-//			e1.printStackTrace();
-//		}
 		Collection<UDDIRecord> availableSupplierswsURL = new ArrayList<UDDIRecord>();
 		try { 
 			availableSupplierswsURL = uddinn.listRecords("A57_Supplier%");
@@ -81,6 +75,8 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	@Override
 	public List<ItemView> getItems(String productId) throws InvalidItemId_Exception {
+		
+		//Check prod ID
 		if (productId == null)
 			throwInvalidItemId("Product identifier cannot be null!");
 		productId = productId.trim();
@@ -92,29 +88,36 @@ public class MediatorPortImpl implements MediatorPortType{
 		if (hasSpecialChar)
 			throwInvalidItemId("Product identifier must be alphanumeric!");
 		
+		//Get list of sups
 		Collection<UDDIRecord> SuppliersWsURL = myUddiRecordList();
+		
 		List<ItemView> pricesPerSupplier = new ArrayList<ItemView>();
 		try {		
 			for (UDDIRecord url : SuppliersWsURL) {
 				SupplierClient S = null;
 				S = new SupplierClient(url.getUrl());
-				if (S.getProduct(productId) != null) {
-					ItemIdView itId = newItemIdView(S.getProduct(productId), url.getOrgName());
-					ItemView it = newItemView(S.getProduct(productId), itId);
+				
+				ProductView pv = S.getProduct(productId);
+				if (pv != null) {
+					ItemIdView itId = newItemIdView(pv, url.getOrgName());
+					ItemView it = newItemView(pv, itId);
+					
 					pricesPerSupplier.add(it);
 				}
-				Collections.sort(pricesPerSupplier, new Comparator<ItemView>() {
-					@Override
-					public int compare(ItemView i1, ItemView i2) {
-						return new Integer(i1.getPrice()).compareTo(new Integer(i2.getPrice()));
-					}
-				});
 			}
+			
+			//Mudei para o sort ser só depois de a lista estar toda preenchida.
+			Collections.sort(pricesPerSupplier, new Comparator<ItemView>() {
+				@Override
+				public int compare(ItemView i1, ItemView i2) {
+					return (new Integer(i1.getPrice())).compareTo(new Integer(i2.getPrice()));
+				}
+			});
+
 			return pricesPerSupplier;
 		} catch (SupplierClientException | BadProductId_Exception e) {
 			System.err.println("Caught exception in" + e);
 		}
-		//pricesPerSupplier = Collections.emptyList();
 		return pricesPerSupplier;
 	}
 
@@ -182,12 +185,19 @@ public class MediatorPortImpl implements MediatorPortType{
 		if (hasSpecialChar)
 			throwInvalidItemId("Product identifier must be alphanumeric!");
 		
+		//Get supplier!!
+		String supId = itemId.getSupplierId();
+		if (supId == null)
+			throwInvalidItemId("Supplier identifier cannot be null!");
+		String trimSupId = supId.trim();
+		if (trimSupId.length() == 0)
+			throwInvalidItemId("Supplier identifier cannot be empty or whitespace!");
+		
 		//Quantity Check:
 		if (itemQty <= 0)
 			throwInvalidQuantity("Product quantity must be positive number!");
 		
-		//Get supplier!!
-		String supId = itemId.getSupplierId();
+		
 		UDDINaming uddinn = endpointManager.getUddiNaming();
 		try {
 			
@@ -203,6 +213,9 @@ public class MediatorPortImpl implements MediatorPortType{
 				
 				
 				ProductView supProd = S.getProduct(productId);
+				if(supProd == null)
+					throwInvalidItemId("This product does not exist in this supplier!");
+				
 				int supQuantity = supProd.getQuantity();
 				
 				//Check final total quantity
@@ -251,12 +264,17 @@ public class MediatorPortImpl implements MediatorPortType{
 		if (hasSpecialChar)
 			throwInvalidCartId("Cart identifier must be alphanumeric!");
 		
+		if (Mediator.getInstance().getCart(cartId) == null)
+			throwInvalidCartId("This cart does not exist!");
+		if (Mediator.getInstance().getCart(cartId).isCartEmpty())
+			throwEmptyCart("This cart is empty!");
+		
 		//Card Check
 		if (creditCardNr == null)
-			throwInvalidCreditCard("Cart Identifier cannot be null!");
+			throwInvalidCreditCard("Card Identifier cannot be null!");
 		String creditCardNrtrim = cartId.trim();
 		if (creditCardNrtrim.length() == 0)
-			throwInvalidCreditCard("Cart identifier cannot be empty or whitespace!");
+			throwInvalidCreditCard("Card identifier cannot be empty or whitespace!");
 		
 		Pattern cardpattern = Pattern.compile("[^0-9]");
 		hasSpecialChar = cardpattern.matcher(creditCardNr).find();
@@ -266,12 +284,8 @@ public class MediatorPortImpl implements MediatorPortType{
 
 		try {
 			CreditCardClient ccc = new CreditCardClient(cccURL);
-			System.out.println(ccc.validateNumber(creditCardNr));
-			if (ccc.validateNumber(creditCardNr)){		
-				if (Mediator.getInstance().getCart(cartId) == null)
-					throwEmptyCart("This cart is empty!");
-				if (Mediator.getInstance().getCart(cartId).isCartEmpty())
-					throwEmptyCart("This cart is empty!");
+
+			if (ccc.validateNumber(creditCardNr)){	
 				
 				List<Item> buyCart = Mediator.getInstance().getCart(cartId).getProducts();
 				
@@ -310,13 +324,13 @@ public class MediatorPortImpl implements MediatorPortType{
 				}
 				String result;
 				if (dropped.isEmpty())
-					result = "COMPLETA";
+					result = "COMPLETE";
 				
 				else if (purchased.isEmpty())
-					result = "VAZIA";
+					result = "EMPTY";
 				
 				else
-					result = "PARCIAL";
+					result = "PARTIAL";
 				
 				String finalId = Mediator.getInstance().addPurchase(result, purchased, dropped);
 				
@@ -479,13 +493,6 @@ public class MediatorPortImpl implements MediatorPortType{
 		return cartItemView;
 	}
 	
-
-	private CartView newCartView(Cart cart) {
-		CartView view = new CartView();
-		view.setCartId(cart.getcartID());
-		view.getItems();
-		return view;
-	}
 	
 	private ShoppingResultView newShoppingResultView(String id) {
 		
