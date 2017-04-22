@@ -16,8 +16,10 @@ import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 /**
  * This SOAPHandler shows how to set/get values from headers in inbound/outbound
@@ -113,6 +115,15 @@ public class HeaderTimeHandler implements SOAPHandler<SOAPMessageContext> {
 				//int value = Integer.parseInt(valueString);
 				LocalDateTime value = LocalDateTime.parse(valueString, dtf);
 
+				//check if time is OK
+				LocalDateTime endDate = LocalDateTime.now();
+				long secondsInDay = ChronoUnit.SECONDS.between(value, endDate);
+				    
+    			if (secondsInDay > 3){
+    				//NAO SEI FAZER ISTO: SEND HELP --- TEM DE LANÇAR javax.xml.ws.soap.SOAPFaultException
+    				//handleFault(); ??
+    				return true;
+    			}
 
 				// print received header
 				System.out.println("Header value (with time) is " + value);
@@ -136,7 +147,7 @@ public class HeaderTimeHandler implements SOAPHandler<SOAPMessageContext> {
 	/** The handleFault method is invoked for fault message processing. */
 	@Override
 	public boolean handleFault(SOAPMessageContext smc) {
-		System.out.println("Ignoring fault message...");
+		//rejeitar a mensagem???
 		return true;
 	}
 
