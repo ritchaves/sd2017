@@ -7,6 +7,7 @@ import javax.xml.namespace.QName;
 import javax.xml.soap.Name;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
@@ -15,6 +16,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import javax.xml.ws.soap.SOAPFaultException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -119,26 +121,31 @@ public class HeaderTimeHandler implements SOAPHandler<SOAPMessageContext> {
 				LocalDateTime endDate = LocalDateTime.now();
 				long secondsInDay = ChronoUnit.SECONDS.between(value, endDate);
 				    
-    			if (secondsInDay > 3){
-    				//NAO SEI FAZER ISTO: SEND HELP --- TEM DE LANÇAR javax.xml.ws.soap.SOAPFaultException
-    				//handleFault(); ??
-    				return true;
-    			}
+	    			if (secondsInDay < 3){
+	    				// print received header
+						System.out.println("Header value (with time) is " + value);
 
-				// print received header
-				System.out.println("Header value (with time) is " + value);
-
-				// put header in a property context
-				smc.put(CONTEXT_PROPERTY, value);
-				// set property scope to application client/server class can
-				// access it
-				smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);
-
+						// put header in a property context
+						smc.put(CONTEXT_PROPERTY, value);
+						// set property scope to application client/server class can
+						// access it
+						smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);
+	    			}
+	    			else{
+	    				System.out.println("The received message is too old to be accepted.");
+	    				throw new RuntimeException();
+	    			}
+    			
+/*
+ * deve lançar uma RuntimeException, que vai fazer com que a mensagem  - DONE
+ * seja substituída por uma SOAP Fault e que a mensagem volte para o cliente. - Automatic
+   O cliente vai depois receber uma SOAPFaultException. - E o erro que ele lanca e exactamente esse!
+ * 
+ * */			
+			
 			}
-		} catch (Exception e) {
-			System.out.print("Caught exception in handleMessage: ");
-			System.out.println(e);
-			System.out.println("Continue normal processing...");
+		}  catch (SOAPException se) {
+			System.out.println(se);
 		}
 
 		return true;
@@ -147,7 +154,7 @@ public class HeaderTimeHandler implements SOAPHandler<SOAPMessageContext> {
 	/** The handleFault method is invoked for fault message processing. */
 	@Override
 	public boolean handleFault(SOAPMessageContext smc) {
-		//rejeitar a mensagem???
+		
 		return true;
 	}
 
