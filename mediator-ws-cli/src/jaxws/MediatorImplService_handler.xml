@@ -4,7 +4,7 @@
 			<handler-class>example.ws.handler.LoggingHandler</handler-class>
 		</handler>
 		<handler>
-			<handler-class>example.ws.handler.HeaderTimeHandler</handler-class>
+			<handler-class>example.ws.handler.ConfidentialHandler</handler-class>
 		</handler>
 		<handler>
 			<handler-class>example.ws.handler.LoggingHandler</handler-class>

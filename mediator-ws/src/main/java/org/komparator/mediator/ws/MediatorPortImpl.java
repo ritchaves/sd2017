@@ -242,6 +242,7 @@ public class MediatorPortImpl implements MediatorPortType{
 				
 			} catch (BadProductId_Exception e) {
 				System.err.println("Caught exception:" + e);
+				throwInvalidItemId("This supplier does not exist!");
 			}
 		} catch (UDDINamingException | SupplierClientException e) {
 			System.err.println("Caught exception:" + e);

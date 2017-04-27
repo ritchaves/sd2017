@@ -3,16 +3,16 @@
 <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
     <handler-chain>
         <handler>
-            <handler-class>example.ws.handler.LoggingHandler</handler-class>
-        </handler>
-        <!--handler>
-            <handler-class>example.ws.handler.MessageContextHandler</handler-class>
-        </handler-->
-        <handler>
-            <handler-class>example.ws.handler.HeaderTimeHandler</handler-class>
+            <handler-class>security.LoggingHandler</handler-class>
         </handler>
         <handler>
-            <handler-class>example.ws.handler.LoggingHandler</handler-class>
+            <handler-class>security.AutenticityIntegrityHandler</handler-class>
+        </handler>
+        <handler>
+            <handler-class>security.FreshHandler</handler-class>
+        </handler>
+        <handler>
+            <handler-class>security.LoggingHandler</handler-class>
         </handler>
     </handler-chain>
 </handler-chains>

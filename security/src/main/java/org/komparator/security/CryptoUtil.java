@@ -49,4 +49,12 @@ public class CryptoUtil {
 		return sig.verify(signature);
 	}	
 	
+	//RANDOM NUMBER GEN
+	/*
+	 * Garante frescura. - gerar tokens para garantir que a mensagem não está a ser reenviada por um atacante.
+	 * 
+	 * 
+	 * Para testar, temos que fazer ataques - 1 handler por ataques - um handler que envia a mesma msg 100x p.e.
+	 * */
+	
 }
