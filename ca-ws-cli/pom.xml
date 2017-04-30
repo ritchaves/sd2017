@@ -21,14 +21,15 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <!-- WSDL is required for client code generation -->
-        <ws.url>http://sec.sd.rnl.tecnico.ulisboa.pt:8081/ca</ws.url>
-        <wsdl.url>${ws.url}?WSDL</wsdl.url>
-    	    
-		<mainclass>pt.ulisboa.tecnico.sdis.ws.cli.CAClientApp</mainclass>
+        <mainclass>pt.ulisboa.tecnico.sdis.ws.cli.CAClientApp</mainclass>
+        
 
+        <uddi.url>http://a57:k1fFNszN@uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url>
         <ws.name>CA</ws.name>
-        <uddi.url>http://localhost:9090</uddi.url>
+        <ws.url>http://sec.sd.rnl.tecnico.ulisboa.pt:8081/ca</ws.url>
+        
+        <!-- WSDL is required for client code generation -->
+        <wsdl.url>${ws.url}?WSDL</wsdl.url>
     </properties>
 
     <dependencies>
