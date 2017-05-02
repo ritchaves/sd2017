@@ -4,9 +4,15 @@ import java.io.*;
 import java.security.*;
 import javax.crypto.*;
 import java.util.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 public class CryptoUtil {
-
+	
+	
+	//Cipher ------------------------------------------------------------------------
 	
 	/*
 	 *  asymCipher() que recebe dados (byte[]) e uma chave e devolve esses dados cifrados. 
@@ -30,7 +36,7 @@ public class CryptoUtil {
 		return decipherBytes;
 	}
 
-	// digital signature --------
+	// Digital signature ------------------------------------------------------------------------
 	
 	public static byte[] makeDigitalSignature(final PrivateKey privateKey, final byte[] bytesToSign) throws NoSuchAlgorithmException, 
 		InvalidKeyException, SignatureException {
@@ -47,14 +53,124 @@ public class CryptoUtil {
 		sig.initVerify(publicKey);
 		sig.update(bytesToVerify);
 		return sig.verify(signature);
-	}	
+	}
 	
-	//RANDOM NUMBER GEN
-	/*
-	 * Garante frescura. - gerar tokens para garantir que a mensagem não está a ser reenviada por um atacante.
-	 * 
-	 * 
-	 * Para testar, temos que fazer ataques - 1 handler por ataques - um handler que envia a mesma msg 100x p.e.
-	 * */
 	
+	//Random Number Generator-------------------
+	
+	public String randomTokenGenerator() {
+
+		SecureRandom random;
+		try {
+			random = SecureRandom.getInstance("SHA1PRNG");
+			final byte array[] = new byte[32];
+			random.nextBytes(array);
+			return printBase64Binary(array);
+			
+		} catch (NoSuchAlgorithmException e) {
+			System.err.print("Random Token Gen: This algo does not exist!!");
+			return null;
+		}
+		
+	}
+
+
+	//Certificate ------------------------------------------------------------------------
+	
+	public static Certificate getX509CertificateFromResource(String certificateResourcePath)
+			throws IOException, CertificateException {
+		InputStream is = getResourceAsStream(certificateResourcePath);
+		return getX509CertificateFromStream(is);
+	}
+	
+	public static Certificate getX509CertificateFromStream(InputStream in) throws CertificateException {
+		try {
+			CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+			Certificate cert = certFactory.generateCertificate(in);
+			return cert;
+		} finally {
+			closeStream(in);
+		}
+	}
+	/*Para obter a chave a partir do certificado*/
+	public static PublicKey getPublicKeyFromCertificate(Certificate certificate) {
+		return certificate.getPublicKey();
+	}
+	
+	/*Para verificar os certificados recebidos*/
+	public static boolean verifySignedCertificate(Certificate certificate, Certificate caCertificate) {
+		return verifySignedCertificate(certificate, caCertificate.getPublicKey());
+	}
+	
+	public static boolean verifySignedCertificate(Certificate certificate, PublicKey caPublicKey) {
+		try {
+			certificate.verify(caPublicKey);
+		} catch (InvalidKeyException | CertificateException | NoSuchAlgorithmException | NoSuchProviderException
+				| SignatureException e) {
+			System.err.println("Caught exception while verifying certificate with CA public key : " + e);
+			System.err.println("Returning false.");
+			return false;
+		}
+		return true;
+	}
+	
+	//Private Key ------------------------------------------------------------------
+	
+		public static PrivateKey getPrivateKeyFromKeyStoreResource(String keyStoreResourcePath, char[] keyStorePassword,
+				String keyAlias, char[] keyPassword)
+				throws FileNotFoundException, KeyStoreException, UnrecoverableKeyException {
+			KeyStore keystore = readKeystoreFromResource(keyStoreResourcePath, keyStorePassword);
+			return getPrivateKeyFromKeyStore(keyAlias, keyPassword, keystore);
+		}
+		
+		public static KeyStore readKeystoreFromResource(String keyStoreResourcePath, char[] keyStorePassword)
+				throws KeyStoreException {
+			InputStream is = getResourceAsStream(keyStoreResourcePath);
+			return readKeystoreFromStream(is, keyStorePassword);
+		}
+		
+		public static PrivateKey getPrivateKeyFromKeyStore(String keyAlias, char[] keyPassword, KeyStore keystore)
+				throws KeyStoreException, UnrecoverableKeyException {
+			PrivateKey key;
+			try {
+				key = (PrivateKey) keystore.getKey(keyAlias, keyPassword);
+			} catch (NoSuchAlgorithmException e) {
+				throw new KeyStoreException(e);
+			}
+			return key;
+		}
+		
+		private static KeyStore readKeystoreFromStream(InputStream keyStoreInputStream, char[] keyStorePassword)
+				throws KeyStoreException {
+			KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+			try {
+				keystore.load(keyStoreInputStream, keyStorePassword);
+			} catch (NoSuchAlgorithmException | CertificateException | IOException e) {
+				throw new KeyStoreException("Could not load key store", e);
+			} finally {
+				closeStream(keyStoreInputStream);
+			}
+			return keystore;
+		}
+
+	// resource stream helpers ------------------------------------------------------------------------
+
+	/** Method used to access resource. */
+	private static InputStream getResourceAsStream(String resourcePath) {
+		// uses current thread's class loader to also work correctly inside
+		// application servers
+		// reference: http://stackoverflow.com/a/676273/129497
+		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath);
+		return is;
+	}
+
+	/** Do the best effort to close the stream, but ignore exceptions. */
+	private static void closeStream(InputStream in) {
+		try {
+			if (in != null)
+				in.close();
+		} catch (IOException e) {
+			// ignore
+		}
+	}
 }
