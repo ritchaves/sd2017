@@ -1,13 +1,21 @@
 package org.komparator.security.handler;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SignatureException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
@@ -16,6 +24,9 @@ import javax.xml.soap.SOAPPart;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
+import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printBase64Binary;
+
 
 import org.komparator.security.CryptoUtil;
 
@@ -23,10 +34,9 @@ import org.komparator.security.CryptoUtil;
  * This SOAPHandler outputs the contents of inbound and outbound messages.
  */
 public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageContext> {
-	private CryptoUtil securityTools = new CryptoUtil();
-	final static String CA_CERTIFICATE = "ca.cer";		//send help- ca? what about the suppliers cer?
 	
-	final static String KEYSTORE = "A57_Supplier1.jks";  //send help which supplier?
+	final static String CA_CERTIFICATE = "ca.cer";		//send help- ca? or /ca?
+	final static String KEYSTORE = "A57_Supplier1.jks";  //send help -which supplier?
 	final static String KEYSTORE_PASSWORD = "k1fFNszN";
 	final static String KEY_ALIAS = "t57_mediator";
 	final static String KEY_PASSWORD = "k1fFNszN";
@@ -42,45 +52,100 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
     @Override
 	public boolean handleMessage(SOAPMessageContext smc) {
         	Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-        	Certificate certificate = securityTools.getX509CertificateFromResource(CA_CERTIFICATE);
         	
-        	//msg going out
-        	if(outbound) {
-        		System.out.println("AutenticityIntegrityHandler: caught outbound SOAP message...");
+        	try {
+        		Certificate certificateCA = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
         		
-        		// get SOAP envelope
-				SOAPMessage msg = smc.getMessage();
-				SOAPPart sp = msg.getSOAPPart();
-				SOAPEnvelope se = sp.getEnvelope();
-				
-				byte[] plainBytes;
-
-				PrivateKey privateKey = securityTools.getPrivateKeyFromKeyStoreResource(KEYSTORE,KEYSTORE_PASSWORD.toCharArray(), 
-																						KEY_ALIAS, KEY_PASSWORD.toCharArray());
-				//byte[] digitalSignature = securityTools.makeDigitalSignature(SIGNATURE_ALGO, privateKey, plainBytes);
-				
-        		
-        	}
+	        	//msg going out
+	        	if(outbound) {
+	        		System.out.println("AutenticityIntegrityHandler: caught outbound SOAP message...");
+	        		
+	        		// get SOAP envelope
+					SOAPMessage msg = smc.getMessage();
+					SOAPPart sp = msg.getSOAPPart();
+					SOAPEnvelope se = sp.getEnvelope();
+					//to make digital signature
+					SOAPBody sb = se.getBody();
+					
+					// add header
+					SOAPHeader sh = se.getHeader();
+					if (sh == null)
+						sh = se.addHeader();
+					
+					
+					byte[] plainBytes = sb.getTextContent().getBytes();	//can i do this?
+					//CA not needed for this case besides ca.cer? 
+	
+					PrivateKey privateKey = CryptoUtil.getPrivateKeyFromKeyStoreResource(KEYSTORE, KEYSTORE_PASSWORD.toCharArray(), KEY_ALIAS, KEY_PASSWORD.toCharArray());
+					byte[] digitalSignature = CryptoUtil.makeDigitalSignature(privateKey, plainBytes);
+					
+					//how to add digitalsignature? not sure if im very smart or wat wat this is all wrong
+					String updatedContent = printBase64Binary(digitalSignature);
+					sb.setTextContent(updatedContent);
+					msg.saveRequired();	 		
+	        	}
+	        	
+	
+	        	//msg coming in
+	        	else {
+	        		
+	        		//how to acess ca to get certificate? FIXME
+	        		Certificate certificateReceived = CryptoUtil.getX509CertificateFromResource("WELP- path to received certificate?");
+	        		boolean result = CryptoUtil.verifySignedCertificate(certificateReceived, certificateCA);
+	        		
+	        		if(!result) {
+	        			//certificated not emmited by CA, discarding msg
+	        			//FIXME
+	        			return true;
+	        		}
+	        		
+	        		else {
+	        			SOAPMessage msg = smc.getMessage();
+						SOAPPart sp = msg.getSOAPPart();
+						SOAPEnvelope se = sp.getEnvelope();
+						//to make digital signature
+						SOAPBody sb = se.getBody();
+						
+						// add header
+						SOAPHeader sh = se.getHeader();
+						if (sh == null)
+							sh = se.addHeader();
+						
+						//SEND MORE WELP- which certificated? received? how to get it?
+						PublicKey publicKey = CryptoUtil.getPublicKeyFromCertificate(certificateReceived);
+						
+						byte[] bytesToVerify = sb.getTextContent().getBytes();
+						byte[] signature = parseBase64Binary("SIGNATURE_ALGO");
+	        			boolean verifyDS = CryptoUtil.verifyDigitalSignature(publicKey, bytesToVerify, signature);
+	        			
+	        			if(!verifyDS) {
+	        				System.out.println("Message was changed");
+	        				//TODO- what else?
+	        				return true;
+	        			}
+	        			
+	        			//forgetting anything else?
+	        		}
+	        		
+	        	}
         	
-        	
-        	
-        	
-        	
-        	//msg coming in
-        	else {
-        		SOAPMessage message = smc.getMessage();
-        		
-        		boolean result = securityTools.verifySignedCertificate(certificate, Certificate);
-        		
-        	//	verifyDigitalSignature
-        		
-        	}
-        	
-        	
-        	
-        	
-        	
-        	
+        	} catch (SOAPException se) {
+        		System.out.println(se);
+        	} catch (CertificateException se) {
+				System.out.println(se);
+			} catch (IOException se) {
+				System.out.println(se);
+			} catch (InvalidKeyException se) {
+				System.out.println(se);
+			} catch (NoSuchAlgorithmException se) {
+				System.out.println(se);
+			} catch (SignatureException se) {
+				System.out.println(se);
+			} catch (UnrecoverableKeyException se) {
+				System.out.println(se);
+			} catch (KeyStoreException se) {
+				System.out.println(se);
+			}
 		return true;
 	}
 
