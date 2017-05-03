@@ -58,7 +58,7 @@ public class CryptoUtil {
 	
 	//Random Number Generator-------------------
 	
-	public String randomTokenGenerator() {
+	public static String randomTokenGenerator() {
 
 		SecureRandom random;
 		try {

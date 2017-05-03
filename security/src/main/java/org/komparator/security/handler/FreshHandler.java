@@ -1,10 +1,10 @@
 package org.komparator.security.handler;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.Name;
@@ -26,13 +26,12 @@ import org.komparator.security.CryptoUtil;
 /**
  * This SOAPHandler outputs the contents of inbound and outbound messages.
  * (que é basicamente evitar que um atacante envie a msg 1000 vezes)
-				Fazer no CryptoUtil uma funcao para gerar numeros realmente aleatorios (procurar nos exemplos do lab, está lá ja feito)
 				if (mensagem a sair){
 										get Token
 										addToken to header
 										enviar msg
 									}
-									else{
+				else  (            ){
 										get Token
 										if (token is old)
 											reject
@@ -40,12 +39,13 @@ import org.komparator.security.CryptoUtil;
 											store Token
 											accept msg
 									}
+									
  */
 public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 	
 	public static final String CONTEXT_PROPERTY = "my.token";
 	
-	private CryptoUtil securityTools = new CryptoUtil();
+	private Map<String,TokenDetails> tokenMap = new ConcurrentHashMap<>();
 
 @Override
 	public Set<QName> getHeaders() {
@@ -66,7 +66,7 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
         System.out.println("FreshHandler: Handling message.");
 
     	Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-    	String endpointAddress = (String) smc.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+    	String endpointAddress = (String) smc.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);  	
     	
     	try {
 			if (outboundElement.booleanValue()) {
@@ -87,13 +87,10 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 				Name name = se.createName("tokenHeader", "d", "http://demo");
 				SOAPHeaderElement element = sh.addHeaderElement(name);
 
-				String num = securityTools.randomTokenGenerator();
+				String num = CryptoUtil.randomTokenGenerator();
+				
 				element.addTextNode(num);
-				
-				//TODO Guardar o token e o autor correspondente numa lista/hashmap para verificar a origem da 
-				//msg e elemento a false para mostrar que ainda nao foi lida vez nenhuma
-				
-				
+			
 
 			} else {
 				System.out.println("FreshHandler: Reading header in inbound SOAP message...");
@@ -123,24 +120,32 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 				// get header element value *********************************************************
 				String value = element.getValue();
 				
-				//check if token is OK
-				/*Averiguar a tal lista de tokens e autores. Verificar se o autor é igual ao endpoint e se está a true*/
-				
-				Boolean alreadySent = false; //FIXME
-				    
-	    			if (!alreadySent){
-	    				// print received header
-						System.out.println("FreshHandler: Header token is fresh!");
-						// put header in a property context
-						smc.put(CONTEXT_PROPERTY, value);
-						// set property scope to application client/server class can
-						// access it
-						smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);
-	    			}
-	    			else{
+				//se nao estiver la ou se estiver, se o autor e o mesmo - is that needed? sure xD
+				if (!tokenMap.containsKey(value) ){
+					// print received header
+					System.out.println("FreshHandler: Header token is fresh!");
+					// put header in a property context
+					smc.put(CONTEXT_PROPERTY, value);
+					// set property scope to application client/server class can
+					// access it
+					smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);
+					
+					
+					String author = endpointAddress; //FIXME how do I get the author??
+					TokenDetails tokenD = new TokenDetails(author);
+					
+					//FIXME should I sync?
+					tokenMap.put(value, tokenD);
+					
+					
+					if (tokenMap.size() > 30){
+						cleanTokenMap();
+					}
+				}
+				else{
 	    				System.out.println("FreshHandler: The received message has already been received before - not fresh enough.");
 	    				throw new RuntimeException();
-	    			}		
+	    		}		
 			
 			}
 		}  catch (SOAPException se) {
@@ -157,6 +162,12 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 	public void close(MessageContext messageContext) {
 		// nothing to clean up
 	}
-
+	
+	public void cleanTokenMap(){
+		for(Map.Entry<String,TokenDetails> tok : tokenMap.entrySet()){
+			if(tok.getValue().isOldToken())
+				tokenMap.remove(tok.getKey());
+		}
+	}
 	
 }
