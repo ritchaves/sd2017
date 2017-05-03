@@ -35,12 +35,12 @@ import org.komparator.security.CryptoUtil;
  */
 public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageContext> {
 	
-	final static String CA_CERTIFICATE = "ca.cer";		//send help- ca? or /ca?
-	final static String KEYSTORE = "A57_Supplier1.jks";  //send help -which supplier?
+	final static String CA_CERTIFICATE = "ca.cer";	
+	final static String KEYSTORE = "a57_supplier%.jks";  //send help -which supplier?
 	final static String KEYSTORE_PASSWORD = "k1fFNszN";
-	final static String KEY_ALIAS = "t57_mediator";
+	final static String KEY_ALIAS = "a57_mediator";
 	final static String KEY_PASSWORD = "k1fFNszN";
-	private static final String SIGNATURE_ALGO = "SHA256withRSA";		//send more welp
+	private static final String SIGNATURE_ALGO = "SHA256withRSA";	
 
 	
 	@Override
@@ -86,17 +86,17 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        	}
 	        	
 	
-	        	//msg coming in
+	        	//msg coming in - inbound
 	        	else {
 	        		
 	        		//how to acess ca to get certificate? FIXME
 	        		Certificate certificateReceived = CryptoUtil.getX509CertificateFromResource("WELP- path to received certificate?");
 	        		boolean result = CryptoUtil.verifySignedCertificate(certificateReceived, certificateCA);
 	        		
-	        		if(!result) {
-	        			//certificated not emmited by CA, discarding msg
-	        			//FIXME
-	        			return true;
+	        		if(!result) {	
+	        			//FIXME what else - certificated not emmited by CA, discarding msg
+	        			System.out.println("AutenticityIntegrityHandler: Certificated was not emited by CA, ignoring this message.");
+        				throw new RuntimeException();
 	        		}
 	        		
 	        		else {
@@ -119,9 +119,9 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        			boolean verifyDS = CryptoUtil.verifyDigitalSignature(publicKey, bytesToVerify, signature);
 	        			
 	        			if(!verifyDS) {
-	        				System.out.println("Message was changed");
+	        				System.out.println("AutenticityIntegrityHandler: Message was changed, ignoring it.");
 	        				//TODO- what else?
-	        				return true;
+	        				throw new RuntimeException();
 	        			}
 	        			
 	        			//forgetting anything else?
