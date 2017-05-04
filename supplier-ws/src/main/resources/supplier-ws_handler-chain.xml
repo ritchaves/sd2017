@@ -8,11 +8,28 @@
         <handler>
             <handler-class>org.komparator.security.handler.FreshHandler</handler-class>
         </handler>
-        <!--handler>
-            <handler-class>org.komparator.security.handler.AutenticityIntegrityHandler</handler-class>
-        </handler-->
         <handler>
-            <handler-class>org.komparator.security.handler.LoggingHandler</handler-class>
+            <handler-class>org.komparator.security.handler.AutenticityIntegrityHandler</handler-class>
         </handler>
+
+        <!--Attacks!-->
+        <!--handler>
+            <handler-class>org.komparator.security.attackhandler.AntiFreshnessImmediateAttack</handler-class>
+        </handler-->
+        <!--handler>
+            <handler-class>org.komparator.security.attackhandler.AntiFreshnessLateAttack</handler-class>
+        </handler-->
+        <!--handler>
+            <handler-class>org.komparator.security.attackhandler.CertificateAttackHandler</handler-class>
+        </handler-->
+        <!--handler>
+            <handler-class>org.komparator.security.attackhandler.DigitalSignaturesAttackHandler</handler-class>
+        </handler-->
+        <!--handler>
+            <handler-class>org.komparator.security.attackhandler.DigitalSignaturesAttackHandler2</handler-class>
+        </handler-->
+        <!--handler>
+            <handler-class>org.komparator.security.handler.LoggingHandler</handler-class>
+        </handler-->
     </handler-chain>
 </handler-chains>

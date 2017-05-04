@@ -73,8 +73,7 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
 	        /*Obter nome do serviço e da operacao*/
 //			QName svcn = (QName) smc.get(MessageContext.WSDL_SERVICE);  
 	        QName opn = (QName) smc.get(MessageContext.WSDL_OPERATION);
-	        
-	        if(!opn.getLocalPart().equals(OPERATION_NAME)) {return false;}
+	        if(!opn.getLocalPart().equals(OPERATION_NAME)) {return true;}
 	        
 	        /* Obter argumentos da mensagem*/
 	        NodeList children = sb.getFirstChild().getChildNodes(); 

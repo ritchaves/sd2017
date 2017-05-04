@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <!-- http://maven.apache.org/pom.html#Quick_Overview -->
 
-	<!-- Please replace 'CXX' below with 
+    <!-- Please replace 'CXX' below with 
         your C (campus) with A (Alameda) / T (Tagus); and 
         your group number with two digits.
         Then delete this comment. -->
@@ -43,12 +43,12 @@
             <artifactId>uddi-naming</artifactId>
             <version>1.2</version>
         </dependency>
-		<!-- To be able to test suppliers -->
- 		<dependency>
-        	<groupId>org.komparator.A57</groupId>
-        	<artifactId>supplier-ws-cli</artifactId>
-        	<version>1.0-SNAPSHOT</version>
-        	<scope>test</scope>
+        <!-- To be able to test suppliers -->
+        <dependency>
+            <groupId>org.komparator.A57</groupId>
+            <artifactId>supplier-ws-cli</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>test</scope>
         </dependency>
         <!-- JUnit -->
         <dependency>
@@ -57,7 +57,7 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-         <!-- Security is this needed?-->
+         <!-- Security-->
         <dependency>
             <groupId>org.komparator.A57</groupId>
             <artifactId>security</artifactId>
