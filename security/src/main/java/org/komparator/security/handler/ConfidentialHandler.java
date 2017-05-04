@@ -1,14 +1,14 @@
 package org.komparator.security.handler;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Set;
 
 
@@ -40,12 +40,14 @@ import org.w3c.dom.NodeList;
  */
 public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
 	
+	final static String KEYSTORE = "/A57_Mediator.jks";  
+	final static String KEYSTORE_PASSWORD = "k1fFNszN";
+	final static String KEY_ALIAS = "/a57_mediator";
+	final static String KEY_PASSWORD = "k1fFNszN";
 	public static final String ENTITY_NAME = "A57_Mediator";
 	public static final String OPERATION_NAME = "buyCart";
 	final static String CA_CERTIFICATE = "/ca.cer";
 	
-	private CryptoUtil securityTools = new CryptoUtil();
-
         @Override
 	public Set<QName> getHeaders() {
 		return null;
@@ -58,6 +60,7 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
         Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         
         try {
+        	
 	        SOAPMessage msg = smc.getMessage();
 	        SOAPPart sp = msg.getSOAPPart();    /*Obter Conteudo da mensagem SOAP*/
 	        SOAPEnvelope se = sp.getEnvelope();
@@ -67,35 +70,37 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
 	        
 	        String urlSOAP = (String) smc.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 	       
-	        /*buscar certificado correcto*/
-	        Certificate certificate = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
-	    	String certificateSource = SecurityManager.compareURL(urlSOAP, ENTITY_NAME);
-	    	Certificate certificateMediator = SecurityManager.getCertificateFromSource(certificateSource);
-			boolean result = CryptoUtil.verifySignedCertificate(certificateMediator, certificate);
-	    	PublicKey publicKey = null;
-			if (result)
-				publicKey = CryptoUtil.getPublicKeyFromCertificate(certificateMediator);
-			else
-				throw new RuntimeException();
-	
-
-        
+	        /*Obter nome do serviço e da operacao*/
+//			QName svcn = (QName) smc.get(MessageContext.WSDL_SERVICE);  
+	        QName opn = (QName) smc.get(MessageContext.WSDL_OPERATION);
+	        
+	        if(!opn.getLocalPart().equals(OPERATION_NAME)) {return false;}
+	        
+	        /* Obter argumentos da mensagem*/
+	        NodeList children = sb.getFirstChild().getChildNodes(); 
+	        
+	        
          //outbound envia -> encripta //inbound recebe ->desencripta
         	if (outboundElement.booleanValue()) {
-        		
-		        QName svcn = (QName) smc.get(MessageContext.WSDL_SERVICE);  /*Obter nome do serviço e da operacao*/
-		        QName opn = (QName) smc.get(MessageContext.WSDL_OPERATION);
-		        
-		        if(!opn.getLocalPart().equals(OPERATION_NAME)) {return false;}
-		        
-		        NodeList children = sb.getFirstChild().getChildNodes(); /* Obter argumentos da mensagem*/
-		        
-		        for (int i = 0; i < children.getLength(); i++) {
+
+    	        /*buscar certificado correcto*/
+    	        Certificate certificate = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
+    	    	String certificateSource = SecurityManager.compareURL(urlSOAP, ENTITY_NAME);
+    	    	Certificate certificateMediator = SecurityManager.getCertificateFromSource(certificateSource);
+    			boolean result = CryptoUtil.verifySignedCertificate(certificateMediator, certificate);
+    	    	PublicKey publicKey = null;
+    			if (result)
+    				publicKey = CryptoUtil.getPublicKeyFromCertificate(certificateMediator);
+    			else
+    				throw new RuntimeException();
+    			
+    			
+        		for (int i = 0; i < children.getLength(); i++) {
 		        	Node argument = children.item(i);
 		        	if (argument.getNodeName().equals("creditCardNr")) { /*Para cada nó verifica-se se corresponde ao argumento q é preciso*/
 		        		String secretArgument = argument.getTextContent();
 		        		
-		        		//cipher message w symmetric key
+		        		//cipher message w publickey
 		        		byte[] plainBytes = parseBase64Binary(secretArgument);
 		        		byte[] cipheredArg = CryptoUtil.asymCipher(plainBytes, publicKey);
 		       
@@ -107,10 +112,24 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
 		        }
         	}
         	else {
-        		
+		        for (int i = 0; i < children.getLength(); i++) {
+		        	Node argument = children.item(i);
+		        	if (argument.getNodeName().equals("creditCardNr")) { 
+		        		String secretArgument = argument.getTextContent();
+		        		
+		        		//decipher message w privateKey
+		        		byte[] plainBytes = parseBase64Binary(secretArgument);
+		        		PrivateKey privateKey = CryptoUtil.getPrivateKeyFromKeyStoreResource(KEYSTORE, KEYSTORE_PASSWORD.toCharArray(), KEY_ALIAS, KEY_PASSWORD.toCharArray());
+		        		byte[] decipheredBytes = CryptoUtil.asymDecipher(plainBytes, privateKey);
+		        		
+		        		String encodedSecretArg = printBase64Binary(decipheredBytes);
+		        		argument.setTextContent(encodedSecretArg);
+		        		msg.saveChanges();
+		        	}
+		        }
         	}
-	        
-        } catch (SOAPException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | CertificateException | IOException es) {
+        } catch (SOAPException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | 
+        			BadPaddingException | CertificateException | IOException | UnrecoverableKeyException | KeyStoreException es) {
         	System.err.println(es);
         }
 		return true;

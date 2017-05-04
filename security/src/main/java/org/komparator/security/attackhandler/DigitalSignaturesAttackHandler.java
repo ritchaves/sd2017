@@ -1,4 +1,4 @@
-package org.komparator.security.handler;
+package org.komparator.security.attackhandler;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
