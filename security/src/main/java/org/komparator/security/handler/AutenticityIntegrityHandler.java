@@ -2,6 +2,7 @@ package org.komparator.security.handler;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.KeyPair;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -75,10 +76,12 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 					if (sh == null)
 						sh = se.addHeader();
 					
-					byte[] message = se.getTextContent().getBytes();	
+					byte[] message = se.getTextContent().getBytes();
 	
 					PrivateKey privateKey = CryptoUtil.getPrivateKeyFromKeyStoreResource(KEYSTORE, KEYSTORE_PASSWORD.toCharArray(), KEY_ALIAS, KEY_PASSWORD.toCharArray());
-					byte[] digitalSignature = CryptoUtil.makeDigitalSignature(privateKey, message);
+					//digest the message with SHA
+					byte[] digestedMessage = CryptoUtil.digest(message);
+					byte[] digitalSignature = CryptoUtil.makeDigitalSignature(privateKey, digestedMessage);
 					
 					String updatedContent = printBase64Binary(digitalSignature);
 					se.setTextContent(updatedContent);
@@ -140,6 +143,8 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 			} catch (UnrecoverableKeyException se) {
 				System.out.println(se);
 			} catch (KeyStoreException se) {
+				System.out.println(se);
+			} catch (Exception se) {
 				System.out.println(se);
 			}
 		return true;
