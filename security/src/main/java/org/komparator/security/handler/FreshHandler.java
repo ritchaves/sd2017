@@ -1,6 +1,8 @@
 package org.komparator.security.handler;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +47,7 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 	
 	public static final String CONTEXT_PROPERTY = "my.token";
 	
-	private Map<String,TokenDetails> tokenMap = new ConcurrentHashMap<>();
+	private Map<String,LocalDateTime> tokenMap = new ConcurrentHashMap<>();
 
 @Override
 	public Set<QName> getHeaders() {
@@ -120,7 +122,7 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 				// get header element value *********************************************************
 				String value = element.getValue();
 				
-				//se nao estiver la ou se estiver, se o autor e o mesmo - is that needed? sure xD
+				//se nao estiver la
 				if (!tokenMap.containsKey(value) ){
 					// print received header
 					System.out.println("FreshHandler: Header token is fresh!");
@@ -130,22 +132,20 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 					// access it
 					smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);
 					
+					LocalDateTime timestamp = LocalDateTime.now();
 					
-					String author = endpointAddress; //FIXME how do I get the author??
-					TokenDetails tokenD = new TokenDetails(author);
+					tokenMap.put(value, timestamp);
 					
-					//FIXME should I sync?
-					tokenMap.put(value, tokenD);
-					
-					
-					if (tokenMap.size() > 30){
+					//Limpa tokens com mais de 10 minutos caso haja muitos tokens na lista
+					if (tokenMap.size() > 50){
 						cleanTokenMap();
 					}
+					
 				}
 				else{
 	    				System.out.println("FreshHandler: The received message has already been received before - not fresh enough.");
 	    				throw new RuntimeException();
-	    		}		
+	    		}
 			
 			}
 		}  catch (SOAPException se) {
@@ -164,8 +164,11 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 	}
 	
 	public void cleanTokenMap(){
-		for(Map.Entry<String,TokenDetails> tok : tokenMap.entrySet()){
-			if(tok.getValue().isOldToken())
+		LocalDateTime now = LocalDateTime.now();
+		for(Map.Entry<String,LocalDateTime> tok : tokenMap.entrySet()){
+			
+			long minutesBetween = ChronoUnit.MINUTES.between(tok.getValue(), now);
+			if((minutesBetween > 15 )) //Se o token tiver mais de 15 minutos, e removido para libertar memoria
 				tokenMap.remove(tok.getKey());
 		}
 	}
