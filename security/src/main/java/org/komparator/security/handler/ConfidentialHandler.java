@@ -46,7 +46,7 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
 	final static String KEY_PASSWORD = "k1fFNszN";
 	public static final String ENTITY_NAME = "A57_Mediator";
 	public static final String OPERATION_NAME = "buyCart";
-	final static String CA_CERTIFICATE = "/src/main/resources/ca.cer";
+	final static String CA_CERTIFICATE = "ca.cer";
 	
         @Override
 	public Set<QName> getHeaders() {

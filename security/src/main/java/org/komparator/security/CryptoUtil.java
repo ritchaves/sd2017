@@ -82,7 +82,9 @@ public class CryptoUtil {
 	
 	public static Certificate getX509CertificateFromResource(String certificateResourcePath)
 			throws IOException, CertificateException {
+		System.out.println("----------------Getting from resources----------------");
 		InputStream is = getResourceAsStream(certificateResourcePath);
+		System.out.println(is);
 		return getX509CertificateFromStream(is);
 	}
 	
