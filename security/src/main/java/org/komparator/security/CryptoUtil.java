@@ -159,8 +159,8 @@ public class CryptoUtil {
 		return true;
 	}
 	
-	/** auxiliary method to calculate digest from text and cipher it */
-	public static byte[] digestAndCipher(byte[] bytes, KeyPair keyPair) throws Exception {
+	/** auxiliary method to calculate digest from text */
+	public static byte[] digest(byte[] bytes) throws Exception {
 
 		// get a message digest object using the specified algorithm
 		MessageDigest messageDigest = MessageDigest.getInstance(DIGEST_ALGO);
@@ -171,17 +171,7 @@ public class CryptoUtil {
 		System.out.println("Digest:");
 		System.out.println(printHexBinary(digest));
 
-		// get an RSA cipher object
-		Cipher cipher = Cipher.getInstance(ASYM_CIPHER);
-
-		// encrypt the plain text using the private key
-		cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPrivate());
-		byte[] cipherDigest = cipher.doFinal(digest);
-
-		System.out.println("Cipher digest:");
-		System.out.println(printHexBinary(cipherDigest));
-
-		return cipherDigest;
+		return digest;
 	}
 	
 	
