@@ -38,12 +38,12 @@ import org.komparator.security.SecurityManager;
 public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageContext> {
 	
 	final static String CA_CERTIFICATE = "/ca.cer";	
-	final static String KEYSTORE = "/A57_Mediator.jks";  //send help -which supplier?
+	final static String KEYSTORE = "/A57_Mediator.jks";  //to confirm
 	final static String KEYSTORE_PASSWORD = "k1fFNszN";
 	final static String KEY_ALIAS = "/a57_mediator";
 	final static String KEY_PASSWORD = "k1fFNszN";
 	private static final String SIGNATURE_ALGO = "SHA256withRSA";	
-	private static String SUPPLIER_ENTITY = "A57_Supplier%";
+	private static final String SUPPLIER_ENTITY = "A57_Supplier%";
 
 	
 	@Override
@@ -68,30 +68,27 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 					SOAPMessage msg = smc.getMessage();
 					SOAPPart sp = msg.getSOAPPart();
 					SOAPEnvelope se = sp.getEnvelope();
-					//to make digital signature- TODO. CHANGE TO ENVELOPE NOT BODY,
-					SOAPBody sb = se.getBody();
+
 					
 					// add header
 					SOAPHeader sh = se.getHeader();
 					if (sh == null)
 						sh = se.addHeader();
 					
-					
-					byte[] plainBytes = sb.getTextContent().getBytes();	
-					//CA not needed for this case besides ca.cer? 
+					byte[] message = se.getTextContent().getBytes();	
 	
 					PrivateKey privateKey = CryptoUtil.getPrivateKeyFromKeyStoreResource(KEYSTORE, KEYSTORE_PASSWORD.toCharArray(), KEY_ALIAS, KEY_PASSWORD.toCharArray());
-					byte[] digitalSignature = CryptoUtil.makeDigitalSignature(privateKey, plainBytes);
+					byte[] digitalSignature = CryptoUtil.makeDigitalSignature(privateKey, message);
 					
-					//how to add digitalsignature? not sure if im very smart or wat wat this is all wrong
 					String updatedContent = printBase64Binary(digitalSignature);
-					sb.setTextContent(updatedContent);
+					se.setTextContent(updatedContent);
 					msg.saveChanges();	 		
 	        	}
 	        	
 	
 	        	//msg coming in - inbound
 	        	else {
+	        		System.out.println("AutenticityIntegrityHandler: caught inbound SOAP message...");
 	        		
 	        		//acess ca to get certificate
 	        		Certificate certificateReceived = SecurityManager.getCertificateFromSource(SecurityManager.compareURL(urlSoap, SUPPLIER_ENTITY));        		
@@ -107,30 +104,25 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        			SOAPMessage msg = smc.getMessage();
 						SOAPPart sp = msg.getSOAPPart();
 						SOAPEnvelope se = sp.getEnvelope();
-						//to make digital signature-TODO CHANGE TO ENVELOPE
-						SOAPBody sb = se.getBody();
-						
+			
 						// add header
 						SOAPHeader sh = se.getHeader();
 						if (sh == null)
 							sh = se.addHeader();
 						
-						//SEND MORE WELP- which certificated? received? how to get it?
 						PublicKey publicKey = CryptoUtil.getPublicKeyFromCertificate(certificateReceived);
 						
-						byte[] bytesToVerify = sb.getTextContent().getBytes();
-						byte[] signature = parseBase64Binary("SIGNATURE_ALGO");
+						byte[] bytesToVerify = se.getTextContent().getBytes();
+						byte[] signature = parseBase64Binary(SIGNATURE_ALGO);
 	        			boolean verifyDS = CryptoUtil.verifyDigitalSignature(publicKey, bytesToVerify, signature);
 	        			
 	        			if(!verifyDS) {
 	        				System.out.println("AutenticityIntegrityHandler: Message was changed, ignoring it.");
-	        				//TODO- what else?
 	        				throw new RuntimeException();
 	        			}
-	        			
-	        			//forgetting anything else?
-	        		}
-	        		
+	        			else
+	        				System.out.println("AutenticityIntegrityHandler: inbound SOAP message appears to be OK.");
+	        		}       		
 	        	}
         	
         	} catch (SOAPException se) {
