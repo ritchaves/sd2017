@@ -129,23 +129,23 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        	}
         	
         	} catch (SOAPException se) {
-        		System.out.println(se);
+        		System.err.println("AutenticityIntegrityHandler: " + se);
         	} catch (CertificateException se) {
-				System.out.println(se);
+        		System.err.println("AutenticityIntegrityHandler: " + se);
 			} catch (IOException se) {
-				System.out.println(se);
+				System.err.println("AutenticityIntegrityHandler: " + se);
 			} catch (InvalidKeyException se) {
-				System.out.println(se);
+				System.err.println("AutenticityIntegrityHandler: " + se);
 			} catch (NoSuchAlgorithmException se) {
-				System.out.println(se);
+				System.err.println("AutenticityIntegrityHandler: " + se);
 			} catch (SignatureException se) {
-				System.out.println(se);
+				System.err.println("AutenticityIntegrityHandler: " + se);
 			} catch (UnrecoverableKeyException se) {
-				System.out.println(se);
+				System.err.println("AutenticityIntegrityHandler: " + se);
 			} catch (KeyStoreException se) {
-				System.out.println(se);
+				System.err.println("AutenticityIntegrityHandler: " + se);
 			} catch (Exception se) {
-				System.out.println(se);
+				System.err.println("AutenticityIntegrityHandler: " + se);
 			}
 		return true;
 	}
@@ -153,7 +153,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	/** The handleFault method is invoked for fault message processing. */
 	@Override
 	public boolean handleFault(SOAPMessageContext smc) {
-		System.out.println("Ignoring fault message...");
+		System.out.println("AutenticityIntegrityHandler: Ignoring fault message...");
 		return true;
 	}
 

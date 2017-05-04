@@ -46,7 +46,7 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
 	final static String KEY_PASSWORD = "k1fFNszN";
 	public static final String ENTITY_NAME = "A57_Mediator";
 	public static final String OPERATION_NAME = "buyCart";
-	final static String CA_CERTIFICATE = "/ca.cer";
+	final static String CA_CERTIFICATE = "/src/main/resources/ca.cer";
 	
         @Override
 	public Set<QName> getHeaders() {
@@ -81,12 +81,15 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
 	        
          //outbound envia -> encripta //inbound recebe ->desencripta
         	if (outboundElement.booleanValue()) {
-
+        		System.out.println("0");
     	        /*buscar certificado correcto*/
     	        Certificate certificate = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
+    	        System.out.println("1");
     	    	String certificateSource = SecurityManager.compareURL(urlSOAP, ENTITY_NAME);
     	    	Certificate certificateMediator = SecurityManager.getCertificateFromSource(certificateSource);
+    	    	System.out.println("2");
     			boolean result = CryptoUtil.verifySignedCertificate(certificateMediator, certificate);
+    			System.out.println("3");
     	    	PublicKey publicKey = null;
     			if (result)
     				publicKey = CryptoUtil.getPublicKeyFromCertificate(certificateMediator);
@@ -129,7 +132,7 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
         	}
         } catch (SOAPException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | 
         			BadPaddingException | CertificateException | IOException | UnrecoverableKeyException | KeyStoreException es) {
-        	System.err.println(es);
+        	System.err.println("ConfidentialHandler: " + es);
         }
 		return true;
 	}
@@ -137,7 +140,7 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
     /** The handleFault method is invoked for fault message processing. */
     @Override
     public boolean handleFault(SOAPMessageContext smc) {
-    	System.out.println("Ignoring fault message...");
+    	System.out.println("ConfidentialHandler: Ignoring fault message...");
     	return true;
     }
     	

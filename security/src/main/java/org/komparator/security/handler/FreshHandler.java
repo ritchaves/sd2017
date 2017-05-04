@@ -37,7 +37,7 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 	/** The handleFault method is invoked for fault message processing. */
 	@Override
 	public boolean handleFault(SOAPMessageContext smc) {
-		System.out.println("Ignoring fault message...");
+		System.out.println("FreshHandler: Ignoring fault message...");
 		return true;
 	}
 
@@ -128,7 +128,7 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 			
 			}
 		}  catch (SOAPException se) {
-			System.out.println(se);
+			System.err.println("FreshHandler: "+ se);
 		}
 		return true;
 	}
