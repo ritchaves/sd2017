@@ -20,16 +20,16 @@ public class SecurityManager {
 	
 	private String caURL = "http://sec.sd.rnl.tecnico.ulisboa.pt:8081/ca";
 	
-	private UDDINaming uddiNaming;
+	private static UDDINaming uddiNaming;
 	
-	CAClient caClient = null;
+	static CAClient caClient = null;
 	
 	public SecurityManager() throws CAClientException, UDDINamingException {
 		uddiNaming = new UDDINaming(uddiURL);
 		caClient = new CAClient(caURL); 
 	}
 	
-	public String compareURL(String urlSOAP, String entity) {
+	public static String compareURL(String urlSOAP, String entity) {
 		Collection<UDDIRecord> availableSupplierswsURL = new ArrayList<UDDIRecord>();
 		try { 
 			availableSupplierswsURL = uddiNaming.listRecords(entity);
@@ -45,7 +45,7 @@ public class SecurityManager {
 		return null;
 	}
 	
-	public Certificate getCertificateFromSource(String entityName) throws CertificateException {
+	public static Certificate getCertificateFromSource(String entityName) throws CertificateException {
 		String certificateName = caClient.getCertificate(entityName);
 		return CryptoUtil.getX509CertificateFromPEMString(certificateName);
 	}

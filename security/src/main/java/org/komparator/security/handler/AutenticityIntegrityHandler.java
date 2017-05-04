@@ -21,6 +21,7 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
@@ -29,18 +30,20 @@ import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 
 
 import org.komparator.security.CryptoUtil;
+import org.komparator.security.SecurityManager;
 
 /**
  * This SOAPHandler outputs the contents of inbound and outbound messages.
  */
 public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageContext> {
 	
-	final static String CA_CERTIFICATE = "ca.cer";	
-	final static String KEYSTORE = "a57_supplier%.jks";  //send help -which supplier?
+	final static String CA_CERTIFICATE = "/ca.cer";	
+	final static String KEYSTORE = "/A57_Mediator.jks";  //send help -which supplier?
 	final static String KEYSTORE_PASSWORD = "k1fFNszN";
-	final static String KEY_ALIAS = "a57_mediator";
+	final static String KEY_ALIAS = "/a57_mediator";
 	final static String KEY_PASSWORD = "k1fFNszN";
 	private static final String SIGNATURE_ALGO = "SHA256withRSA";	
+	private static String SUPPLIER_ENTITY = "A57_Supplier%";
 
 	
 	@Override
@@ -52,6 +55,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
     @Override
 	public boolean handleMessage(SOAPMessageContext smc) {
         	Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        	String urlSoap = (String) smc.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
         	
         	try {
         		Certificate certificateCA = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
@@ -64,7 +68,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 					SOAPMessage msg = smc.getMessage();
 					SOAPPart sp = msg.getSOAPPart();
 					SOAPEnvelope se = sp.getEnvelope();
-					//to make digital signature
+					//to make digital signature- TODO. CHANGE TO ENVELOPE NOT BODY,
 					SOAPBody sb = se.getBody();
 					
 					// add header
@@ -73,7 +77,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 						sh = se.addHeader();
 					
 					
-					byte[] plainBytes = sb.getTextContent().getBytes();	//can i do this?
+					byte[] plainBytes = sb.getTextContent().getBytes();	
 					//CA not needed for this case besides ca.cer? 
 	
 					PrivateKey privateKey = CryptoUtil.getPrivateKeyFromKeyStoreResource(KEYSTORE, KEYSTORE_PASSWORD.toCharArray(), KEY_ALIAS, KEY_PASSWORD.toCharArray());
@@ -89,12 +93,12 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        	//msg coming in - inbound
 	        	else {
 	        		
-	        		//how to acess ca to get certificate? FIXME
-	        		Certificate certificateReceived = CryptoUtil.getX509CertificateFromResource("WELP- path to received certificate?");
+	        		//acess ca to get certificate
+	        		Certificate certificateReceived = SecurityManager.getCertificateFromSource(SecurityManager.compareURL(urlSoap, SUPPLIER_ENTITY));        		
 	        		boolean result = CryptoUtil.verifySignedCertificate(certificateReceived, certificateCA);
 	        		
 	        		if(!result) {	
-	        			//FIXME what else - certificated not emmited by CA, discarding msg
+	        			//certificated not emmited by CA, discarding msg
 	        			System.out.println("AutenticityIntegrityHandler: Certificated was not emited by CA, ignoring this message.");
         				throw new RuntimeException();
 	        		}
@@ -103,7 +107,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        			SOAPMessage msg = smc.getMessage();
 						SOAPPart sp = msg.getSOAPPart();
 						SOAPEnvelope se = sp.getEnvelope();
-						//to make digital signature
+						//to make digital signature-TODO CHANGE TO ENVELOPE
 						SOAPBody sb = se.getBody();
 						
 						// add header
