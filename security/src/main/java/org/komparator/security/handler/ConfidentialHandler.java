@@ -2,8 +2,11 @@ package org.komparator.security.handler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
@@ -12,6 +15,9 @@ import java.util.Set;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPEnvelope;
@@ -51,30 +57,30 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
         
         Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         
-        
-        SOAPMessage msg = smc.getMessage();
-        SOAPPart sp = msg.getSOAPPart();    /*Obter Conteudo da mensagem SOAP*/
-        SOAPEnvelope se = sp.getEnvelope();
-        SOAPBody sb = se.getBody();
-        SOAPHeader sh = se.getHeader();
-        if (sh == null) { sh = se.addHeader(); }
-        
-        String urlSOAP = (String) smc.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-       
-        /*buscar certificado correcto*/
-        Certificate certificate = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
-    	String certificateSource = SecurityManager.compareURL(urlSOAP, ENTITY_NAME);
-    	Certificate certificateMediator = SecurityMagaer.getCertificateFromSource(certificateSource);
-		boolean result = CryptoUtil.verifySignedCertificate(certificateMediator, certificate);
-    	PublicKey publicKey = null;
-		if (result)
-			publicKey = CryptoUtil.getPublicKeyFromCertificate(certificateMediator);
-		else
-			throw new RuntimeException();
+        try {
+	        SOAPMessage msg = smc.getMessage();
+	        SOAPPart sp = msg.getSOAPPart();    /*Obter Conteudo da mensagem SOAP*/
+	        SOAPEnvelope se = sp.getEnvelope();
+	        SOAPBody sb = se.getBody();
+	        SOAPHeader sh = se.getHeader();
+	        if (sh == null) { sh = se.addHeader(); }
+	        
+	        String urlSOAP = (String) smc.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+	       
+	        /*buscar certificado correcto*/
+	        Certificate certificate = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
+	    	String certificateSource = SecurityManager.compareURL(urlSOAP, ENTITY_NAME);
+	    	Certificate certificateMediator = SecurityManager.getCertificateFromSource(certificateSource);
+			boolean result = CryptoUtil.verifySignedCertificate(certificateMediator, certificate);
+	    	PublicKey publicKey = null;
+			if (result)
+				publicKey = CryptoUtil.getPublicKeyFromCertificate(certificateMediator);
+			else
+				throw new RuntimeException();
+	
 
-
         
-        try { //outbound envia -> encripta //inbound recebe ->desencripta
+         //outbound envia -> encripta //inbound recebe ->desencripta
         	if (outboundElement.booleanValue()) {
         		
 		        QName svcn = (QName) smc.get(MessageContext.WSDL_SERVICE);  /*Obter nome do serviço e da operacao*/
@@ -104,8 +110,8 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
         		
         	}
 	        
-        } catch (SOAPException se) {
-        	System.out.println("Erro");
+        } catch (SOAPException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | CertificateException | IOException es) {
+        	System.err.println(es);
         }
 		return true;
 	}
