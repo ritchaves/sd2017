@@ -9,9 +9,11 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import static javax.xml.bind.DatatypeConverter.printBase64Binary;
+import static javax.xml.bind.DatatypeConverter.printHexBinary;
 
 public class CryptoUtil {
-	
+	private static final String ASYM_CIPHER = "RSA/ECB/PKCS1Padding";
+	private static final String DIGEST_ALGO = "SHA-256";
 	
 	//Cipher ------------------------------------------------------------------------
 	
@@ -124,6 +126,64 @@ public class CryptoUtil {
 		}
 		return true;
 	}
+	
+	//digest -----------------------------------------------------------------------
+	
+	public static boolean redigestDecipherCompare(byte[] cipherDigest, byte[] text, KeyPair keyPair) throws Exception {
+
+		// get a message digest object
+		MessageDigest messageDigest = MessageDigest.getInstance(DIGEST_ALGO);
+
+		// calculate the digest and print it out
+		messageDigest.update(text);
+		byte[] digest = messageDigest.digest();
+		System.out.println("New digest:");
+		System.out.println(printHexBinary(digest));
+
+		// get a cipher object
+		Cipher cipher = Cipher.getInstance(ASYM_CIPHER);
+
+		// decipher the ciphered digest using the public key
+		cipher.init(Cipher.DECRYPT_MODE, keyPair.getPublic());
+		byte[] decipheredDigest = cipher.doFinal(cipherDigest);
+		System.out.println("Deciphered digest:");
+		System.out.println(printHexBinary(decipheredDigest));
+
+		// compare digests
+		if (digest.length != decipheredDigest.length)
+			return false;
+
+		for (int i = 0; i < digest.length; i++)
+			if (digest[i] != decipheredDigest[i])
+				return false;
+		return true;
+	}
+	
+	/** auxiliary method to calculate digest from text and cipher it */
+	public static byte[] digestAndCipher(byte[] bytes, KeyPair keyPair) throws Exception {
+
+		// get a message digest object using the specified algorithm
+		MessageDigest messageDigest = MessageDigest.getInstance(DIGEST_ALGO);
+
+		// calculate the digest and print it out
+		messageDigest.update(bytes);
+		byte[] digest = messageDigest.digest();
+		System.out.println("Digest:");
+		System.out.println(printHexBinary(digest));
+
+		// get an RSA cipher object
+		Cipher cipher = Cipher.getInstance(ASYM_CIPHER);
+
+		// encrypt the plain text using the private key
+		cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPrivate());
+		byte[] cipherDigest = cipher.doFinal(digest);
+
+		System.out.println("Cipher digest:");
+		System.out.println(printHexBinary(cipherDigest));
+
+		return cipherDigest;
+	}
+	
 	
 	//Private Key ------------------------------------------------------------------
 	
