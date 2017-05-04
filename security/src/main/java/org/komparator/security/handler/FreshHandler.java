@@ -1,6 +1,5 @@
 package org.komparator.security.handler;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
@@ -17,7 +16,6 @@ import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.handler.soap.SOAPHandler;
@@ -25,24 +23,6 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.komparator.security.CryptoUtil;
 
-/**
- * This SOAPHandler outputs the contents of inbound and outbound messages.
- * (que é basicamente evitar que um atacante envie a msg 1000 vezes)
-				if (mensagem a sair){
-										get Token
-										addToken to header
-										enviar msg
-									}
-				else  (            ){
-										get Token
-										if (token is old)
-											reject
-										else
-											store Token
-											accept msg
-									}
-									
- */
 public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 	
 	public static final String CONTEXT_PROPERTY = "my.token";
@@ -67,8 +47,7 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
         	
         System.out.println("FreshHandler: Handling message.");
 
-    	Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
-    	String endpointAddress = (String) smc.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);  	
+    	Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);	
     	
     	try {
 			if (outboundElement.booleanValue()) {
