@@ -1,4 +1,4 @@
-package org.komparator.security.handler;
+package org.komparator.security.attackhandler;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -35,7 +35,7 @@ import org.komparator.security.SecurityManager;
 /**
  * This SOAPHandler outputs the contents of inbound and outbound messages.
  */
-public class DigitalSignaturesAttackHandler implements SOAPHandler<SOAPMessageContext> {
+public class DigitalSignaturesAttackHandler2 implements SOAPHandler<SOAPMessageContext> {
 	
 	final static String CA_CERTIFICATE = "/ca.cer";	
 	final static String KEYSTORE = "/A57_Mediator.jks";  //to confirm
@@ -78,7 +78,9 @@ public class DigitalSignaturesAttackHandler implements SOAPHandler<SOAPMessageCo
 					byte[] message = se.getTextContent().getBytes();	
 					
 					System.out.println("AttackHandler: DigitalSignatures! Attack!");
-					message[3] = 69;
+					for (int i = 0; i < message.length; i++) {
+						message[i] = 0;	
+					}
 					System.out.println(printHexBinary(message));
 					System.out.println("      ^");
 	
