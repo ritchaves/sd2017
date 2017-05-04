@@ -1,6 +1,7 @@
 package org.komparator.security;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import javax.crypto.*;
 import java.util.*;
@@ -81,6 +82,16 @@ public class CryptoUtil {
 			throws IOException, CertificateException {
 		InputStream is = getResourceAsStream(certificateResourcePath);
 		return getX509CertificateFromStream(is);
+	}
+	
+	public static Certificate getX509CertificateFromBytes(byte[] bytes) throws CertificateException {
+		InputStream in = new ByteArrayInputStream(bytes);
+		return getX509CertificateFromStream(in);
+	}
+	
+	public static Certificate getX509CertificateFromPEMString(String certificateString) throws CertificateException {
+		byte[] bytes = certificateString.getBytes(StandardCharsets.UTF_8);
+		return getX509CertificateFromBytes(bytes);
 	}
 	
 	public static Certificate getX509CertificateFromStream(InputStream in) throws CertificateException {
