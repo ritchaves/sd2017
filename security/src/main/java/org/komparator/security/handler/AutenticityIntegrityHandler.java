@@ -86,7 +86,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 					//how to add digitalsignature? not sure if im very smart or wat wat this is all wrong
 					String updatedContent = printBase64Binary(digitalSignature);
 					sb.setTextContent(updatedContent);
-					msg.saveRequired();	 		
+					msg.saveChanges();	 		
 	        	}
 	        	
 	
