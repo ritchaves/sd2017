@@ -13,7 +13,7 @@
         </handler-->
 
         <!--Attacks!-->
-       <!--handler>
+        <!--handler>
             <handler-class>org.komparator.security.attackhandler.AntiFreshnessAttack</handler-class>
         </handler-->
         <!--handler>
