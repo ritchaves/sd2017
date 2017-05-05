@@ -101,8 +101,12 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 					byte[] digitalSignature = CryptoUtil.makeDigitalSignature(privateKey, digestedMessage);
 					
 					String updatedContent = printBase64Binary(digitalSignature);
-					se.setTextContent(updatedContent);
-					msg.saveChanges();	
+					
+					//last minute hack
+	        		Name nameS = se.createName("signature", "ns", "http://signature");
+					SOAPHeaderElement elementS = sh.addHeaderElement(nameS);
+					elementS.addTextNode(updatedContent);
+	        		//end of hack
 					
 	        	}
 	        	
@@ -118,12 +122,18 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 					SOAPElement element = (SOAPElement) it.next();
 					String myname = element.getValue();
 					//end hack
-	        		
+					
+					//my other bad hack
+					Name nameS = se.createName("signature", "ns", "http://signature");
+					Iterator ite = sh.getChildElements(nameS);
+					// check header element
+					SOAPElement elementS = (SOAPElement) ite.next();
+					String signatureHeader = element.getValue();
+					//end hack
+					
 	        		Certificate certificateCA = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
 	        		Certificate certificateReceived = secManager.getCertificateFromSource(myname);
 	        	
-	        		//acess ca to get certificate
-	        		       		
 	        		boolean result = CryptoUtil.verifySignedCertificate(certificateReceived, certificateCA);
 	        		
 	        		if(!result) {	
@@ -136,7 +146,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 						
 						PublicKey publicKey = CryptoUtil.getPublicKeyFromCertificate(certificateReceived);
 						
-						byte[] bytesToVerify = se.getTextContent().getBytes();
+						byte[] bytesToVerify = signatureHeader.getBytes();
 						byte[] signature = parseBase64Binary(SIGNATURE_ALGO);
 	        			boolean verifyDS = CryptoUtil.verifyDigitalSignature(publicKey, bytesToVerify, signature);
 	        			
