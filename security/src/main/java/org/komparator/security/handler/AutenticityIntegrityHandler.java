@@ -65,7 +65,6 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
     		
         	Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         	String urlSoap = (String) smc.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-        	System.out.println("url--- " + urlSoap);
         	
         	try {
         		
@@ -80,11 +79,16 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        		
 	        		System.out.println("AutenticityIntegrityHandler: caught outbound SOAP message...");
 	        		
+
 	        		String receiver = secManager.compareURL(urlSoap,SUPPLIER_ENTITY);
 	        		if(receiver.equals(null))
 	        			receiver = "A57_Mediator";
-	        		
-	        		//last minute hack
+	        		else {
+	        			keystore = receiver + ".jks";
+	        			key_alias = receiver.toLowerCase();
+	        		}
+	        		System.out.println("---------------->" + keystore);
+	        		System.out.println("---------------->" + key_alias);
 	        		Name name = se.createName("receiver", "ns", "http://helper");
 					SOAPHeaderElement element = sh.addHeaderElement(name);
 					element.addTextNode(receiver);
@@ -97,16 +101,13 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 					KeyStore ks = CryptoUtil.readKeystoreFromResource(keystore, PASSWORD.toCharArray());
 					PrivateKey privateKey = CryptoUtil.getPrivateKeyFromKeyStore(key_alias, PASSWORD.toCharArray(), ks);
 					
-					System.out.println("Check private key: is it null?? -------> " +(privateKey == null));
 					byte[] digitalSignature = CryptoUtil.makeDigitalSignature(privateKey, digestedMessage);
 					
 					String updatedContent = printBase64Binary(digitalSignature);
 					
-					//last minute hack
 	        		Name nameS = se.createName("signature", "ns", "http://signature");
 					SOAPHeaderElement elementS = sh.addHeaderElement(nameS);
 					elementS.addTextNode(updatedContent);
-	        		//end of hack
 					
 	        	}
 	        	
@@ -115,21 +116,17 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        	else {
 	        		System.out.println("AutenticityIntegrityHandler: caught inbound SOAP message...");
 	        		
-	        		//hack continuation
 	        		Name name = se.createName("receiver", "ns", "http://helper");
 					Iterator it = sh.getChildElements(name);
 					// check header element
 					SOAPElement element = (SOAPElement) it.next();
 					String myname = element.getValue();
-					//end hack
 					
-					//my other bad hack
 					Name nameS = se.createName("signature", "ns", "http://signature");
 					Iterator ite = sh.getChildElements(nameS);
 					// check header element
 					SOAPElement elementS = (SOAPElement) ite.next();
 					String signatureHeader = elementS.getValue();
-					//end hack
 					
 	        		Certificate certificateCA = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
 	        		Certificate certificateReceived = secManager.getCertificateFromSource(myname);
