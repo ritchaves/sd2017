@@ -82,9 +82,7 @@ public class CryptoUtil {
 	
 	public static Certificate getX509CertificateFromResource(String certificateResourcePath)
 			throws IOException, CertificateException {
-		System.out.println("----------------Getting from resources----------------");
 		InputStream is = getResourceAsStream(certificateResourcePath);
-		System.out.println(is);
 		return getX509CertificateFromStream(is);
 	}
 	
@@ -139,7 +137,7 @@ public class CryptoUtil {
 		// calculate the digest and print it out
 		messageDigest.update(text);
 		byte[] digest = messageDigest.digest();
-		System.out.println("New digest:");
+		System.out.println("CryptoUtil: New digest:");
 		System.out.println(printHexBinary(digest));
 
 		// get a cipher object
@@ -148,7 +146,7 @@ public class CryptoUtil {
 		// decipher the ciphered digest using the public key
 		cipher.init(Cipher.DECRYPT_MODE, keyPair.getPublic());
 		byte[] decipheredDigest = cipher.doFinal(cipherDigest);
-		System.out.println("Deciphered digest:");
+		System.out.println("CryptoUtil: Deciphered digest:");
 		System.out.println(printHexBinary(decipheredDigest));
 
 		// compare digests
@@ -170,7 +168,7 @@ public class CryptoUtil {
 		// calculate the digest and print it out
 		messageDigest.update(bytes);
 		byte[] digest = messageDigest.digest();
-		System.out.println("Digest:");
+		System.out.println("CryptoUtil: Digest:");
 		System.out.println(printHexBinary(digest));
 
 		return digest;

@@ -19,7 +19,6 @@ import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.ws.BindingProvider;
@@ -33,12 +32,14 @@ import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 import org.komparator.security.CryptoUtil;
 import org.komparator.security.SecurityManager;
 
+import com.sun.xml.ws.developer.JAXWSProperties;
+
 /**
  * This SOAPHandler outputs the contents of inbound and outbound messages.
  */
 public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageContext> {
 	
-	final static String CA_CERTIFICATE = "/ca.cer";	
+	final static String CA_CERTIFICATE = "ca.cer";	
 	final static String KEYSTORE = "/A57_Mediator.jks";  //to confirm
 	final static String KEYSTORE_PASSWORD = "k1fFNszN";
 	final static String KEY_ALIAS = "/a57_mediator";
@@ -57,26 +58,24 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	
     @Override
 	public boolean handleMessage(SOAPMessageContext smc) {
+    		System.out.println("AutenticityIntegrityHandler");
+    		
         	Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         	String urlSoap = (String) smc.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+        	System.out.println("FIRST URL --------------------> " + urlSoap);
         	
         	try {
+        		
+        		// get SOAP envelope
+				SOAPMessage msg = smc.getMessage();
+				SOAPPart sp = msg.getSOAPPart();
+				SOAPEnvelope se = sp.getEnvelope();
+				
         		Certificate certificateCA = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
         		
 	        	//msg going out
 	        	if(outbound) {
 	        		System.out.println("AutenticityIntegrityHandler: caught outbound SOAP message...");
-	        		
-	        		// get SOAP envelope
-					SOAPMessage msg = smc.getMessage();
-					SOAPPart sp = msg.getSOAPPart();
-					SOAPEnvelope se = sp.getEnvelope();
-
-					
-					// add header
-					SOAPHeader sh = se.getHeader();
-					if (sh == null)
-						sh = se.addHeader();
 					
 					byte[] message = se.getTextContent().getBytes();
 	
@@ -95,6 +94,8 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        	else {
 	        		System.out.println("AutenticityIntegrityHandler: caught inbound SOAP message...");
 	        		
+	        		//String urlSoap = (String) smc.get(JAXWSProperties.HTTP_REQUEST_URL);
+	        		//System.out.println("DEBUG --------------------> " + urlSoap);
 	        		//acess ca to get certificate
 	        		Certificate certificateReceived = secManager.getCertificateFromSource(secManager.compareURL(urlSoap, SUPPLIER_ENTITY));        		
 	        		boolean result = CryptoUtil.verifySignedCertificate(certificateReceived, certificateCA);
@@ -105,15 +106,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
         				throw new RuntimeException();
 	        		}
 	        		
-	        		else {
-	        			SOAPMessage msg = smc.getMessage();
-						SOAPPart sp = msg.getSOAPPart();
-						SOAPEnvelope se = sp.getEnvelope();
-			
-						// add header
-						SOAPHeader sh = se.getHeader();
-						if (sh == null)
-							sh = se.addHeader();
+	        		else{
 						
 						PublicKey publicKey = CryptoUtil.getPublicKeyFromCertificate(certificateReceived);
 						
