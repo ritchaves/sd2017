@@ -43,6 +43,8 @@ public class SupplierClientApp {
 		System.out.println(result);
 		System.out.println("Invoke clear()...");
 		client.clear();
+		
+		//	TODO POR AQUI UM BUY
 	}
 
 }
