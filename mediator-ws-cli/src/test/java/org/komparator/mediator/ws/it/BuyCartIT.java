@@ -1,292 +1,306 @@
 package org.komparator.mediator.ws.it;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.komparator.mediator.ws.*;
+import org.komparator.mediator.ws.EmptyCart_Exception;
+import org.komparator.mediator.ws.InvalidCartId_Exception;
+import org.komparator.mediator.ws.InvalidCreditCard_Exception;
+import org.komparator.mediator.ws.InvalidItemId_Exception;
+import org.komparator.mediator.ws.InvalidQuantity_Exception;
+import org.komparator.mediator.ws.ItemIdView;
+import org.komparator.mediator.ws.NotEnoughItems_Exception;
+import org.komparator.mediator.ws.Result;
+import org.komparator.mediator.ws.ShoppingResultView;
 import org.komparator.supplier.ws.BadProductId_Exception;
 import org.komparator.supplier.ws.BadProduct_Exception;
 import org.komparator.supplier.ws.ProductView;
-import org.komparator.supplier.ws.cli.SupplierClient;
-import org.komparator.supplier.ws.cli.SupplierClientException;
 
-
-/**
- * Test suite
- */
 public class BuyCartIT extends BaseIT {
+	private static final String VALID_CC = "1234567890123452";
 
-	private static final String DUCKY_MUCH_WOW = "Ducky much wow";
-	private static final String DUCKYWOW = "Duckywow";
-	private static final String DUCKY = "Ducky";
-	private static final String CS3 = "CS3";
-	private static final String X2 = "X2";
-	private static final String X1 = "X1";
-	private static SupplierClient sp1;
-	private static SupplierClient sp2;
-	private static SupplierClient sp3;
-	private static ItemIdView itemidview = null;
-	private static ItemIdView itemidview2 = null;
-	private static ItemIdView itemidview3 = null;
-	private static String ValidCCN = "4024007102923926";
+	// static members
 
 	// one-time initialization and clean-up
 	@BeforeClass
-	public static void oneTimeSetUp() throws InvalidItemId_Exception, SupplierClientException, BadProductId_Exception, BadProduct_Exception {
-		
-		mediatorClient.clear();
-		
-		{
-			sp1 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
-			
-			ProductView product = new ProductView();
-			product.setId(X1);
-			product.setDesc(DUCKY);
-			product.setPrice(11);
-			product.setQuantity(10);
-			sp1.createProduct(product);
-			
-			itemidview = new ItemIdView();
-			itemidview.setProductId(X1);
-			itemidview.setSupplierId("A57_Supplier1");	
-		}
-		{
-			sp2 = new SupplierClient("http://localhost:8082/supplier-ws/endpoint");
-			
-			ProductView product = new ProductView();
-			product.setId(X2);
-			product.setDesc(DUCKYWOW);
-			product.setPrice(5);
-			product.setQuantity(20);
-			sp2.createProduct(product);
-			
-			itemidview2 = new ItemIdView();
-			itemidview2.setProductId(X2);
-			itemidview2.setSupplierId("A57_Supplier2");
-		}
-		{
-			sp3 = new SupplierClient("http://localhost:8083/supplier-ws/endpoint");
-			
-			ProductView product = new ProductView();
-			product.setId(X1);
-			product.setDesc(DUCKY_MUCH_WOW);
-			product.setPrice(10);
-			product.setQuantity(20);
-			sp3.createProduct(product);
-			
-			itemidview3 = new ItemIdView();
-			itemidview3.setProductId(X1);
-			itemidview3.setSupplierId("A57_Supplier3");
-		}		
+	public static void oneTimeSetUp() {
 	}
-	
+
 	@AfterClass
 	public static void oneTimeTearDown() {
+	}
+
+	// members
+
+	// initialization and clean-up for each test
+	@Before
+	public void setUp() throws BadProductId_Exception, BadProduct_Exception {
+		// clear remote service state before each test
 		mediatorClient.clear();
-		sp1.clear();
-		sp2.clear();
-		sp3.clear();
+
+		// fill-in test products
+		// (since buyProduct is a read/write operation
+		// the initialization below is done for each test)
+		{
+			ProductView prod = new ProductView();
+			prod.setId("p1");
+			prod.setDesc("AAA bateries (pack of 3)");
+			prod.setPrice(3);
+			prod.setQuantity(10);
+			supplierClients[0].createProduct(prod);
+		}
+
+		{
+			ProductView prod = new ProductView();
+			prod.setId("p1");
+			prod.setDesc("3batteries");
+			prod.setPrice(4);
+			prod.setQuantity(10);
+			supplierClients[1].createProduct(prod);
+		}
+
+		{
+			ProductView prod = new ProductView();
+			prod.setId("p2");
+			prod.setDesc("AAA bateries (pack of 10)");
+			prod.setPrice(9);
+			prod.setQuantity(20);
+			supplierClients[0].createProduct(prod);
+		}
+
+		{
+			ProductView prod = new ProductView();
+			prod.setId("p2");
+			prod.setDesc("10x AAA battery");
+			prod.setPrice(8);
+			prod.setQuantity(20);
+			supplierClients[1].createProduct(prod);
+		}
+
+		{
+			ProductView prod = new ProductView();
+			prod.setId("p3");
+			prod.setDesc("Digital Multimeter");
+			prod.setPrice(15);
+			prod.setQuantity(5);
+			supplierClients[0].createProduct(prod);
+		}
+
+		{
+			ProductView prod = new ProductView();
+			prod.setId("p4");
+			prod.setDesc("very cheap batteries");
+			prod.setPrice(2);
+			prod.setQuantity(5);
+			supplierClients[0].createProduct(prod);
+		}
 	}
-	
-	@Test
-	public void BuyCartCompleteSucess() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
-		mediatorClient.addToCart(CS3, itemidview, 1);		//price in order: 11 5 10 (* 1 3 2)  11 15 20
-		mediatorClient.addToCart(CS3, itemidview2, 3);
-		mediatorClient.addToCart(CS3, itemidview3, 2);
-		
-		ShoppingResultView toTest = mediatorClient.buyCart(CS3, ValidCCN);
-		assertEquals(46,toTest.getTotalPrice());
-		assertTrue(toTest.getDroppedItems().isEmpty());
-		assertEquals(Result.COMPLETE, toTest.getResult());
-		
-		List<CartItemView> purchaseditems = toTest.getPurchasedItems();
-		List<CartItemView> expecteditems = new ArrayList<CartItemView>();
-		
-		CartItemView toAdd = new CartItemView();
-		ItemView iv1 = new ItemView();
-		iv1.setDesc(DUCKY);
-		iv1.setPrice(11);
-		iv1.setItemId(itemidview);
-		toAdd.setItem(iv1);
-		toAdd.setQuantity(1);
-		
-		CartItemView toAdd2 = new CartItemView();
-		ItemView iv2 = new ItemView();
-		iv2.setDesc(DUCKYWOW);
-		iv2.setPrice(5);
-		iv2.setItemId(itemidview2);
-		toAdd2.setItem(iv2);
-		toAdd2.setQuantity(3);
-		
-		CartItemView toAdd3 = new CartItemView();
-		ItemView iv3 = new ItemView();
-		iv3.setDesc(DUCKY_MUCH_WOW);
-		iv3.setPrice(10);
-		iv3.setItemId(itemidview3);
-		toAdd3.setItem(iv3);
-		toAdd3.setQuantity(2);
-		
-		expecteditems.add(toAdd);
-		expecteditems.add(toAdd2);
-		expecteditems.add(toAdd3);
-		
-		assertEquals(expecteditems, purchaseditems);
+
+	@After
+	public void tearDown() {
+		// clear remote service state after each test
+		mediatorClient.clear();
+		// even though mediator clear should have cleared suppliers, clear them
+		// explicitly after use
+		supplierClients[0].clear();
+		supplierClients[1].clear();
 	}
-	
-	@Test
-	public void BuyCartPartialSucess() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
-		mediatorClient.addToCart(CS3, itemidview, 1);		//price in order: 11 5 10 (* 1 3 2)
-		mediatorClient.addToCart(CS3, itemidview2, 200);
-		mediatorClient.addToCart(CS3, itemidview3, 2);
-		
-		ShoppingResultView toTest = mediatorClient.buyCart(CS3, ValidCCN);
-		assertEquals(31,toTest.getTotalPrice());
-		assertTrue(!toTest.getDroppedItems().isEmpty());
-		assertEquals(Result.PARTIAL, toTest.getResult());
-		
-		List<CartItemView> purchaseditems = toTest.getPurchasedItems();
-		List<CartItemView> expecteditems = new ArrayList<CartItemView>();
-		List<CartItemView> droppeditems = new ArrayList<CartItemView>();
-		
-		CartItemView toAdd = new CartItemView();
-		ItemView iv1 = new ItemView();
-		iv1.setDesc(DUCKY);
-		iv1.setPrice(11);
-		iv1.setItemId(itemidview);
-		toAdd.setItem(iv1);
-		toAdd.setQuantity(1);
-		
-		CartItemView toDrop2 = new CartItemView();
-		ItemView iv2 = new ItemView();
-		iv2.setDesc(DUCKYWOW);
-		iv2.setPrice(5);
-		iv2.setItemId(itemidview2);
-		toDrop2.setItem(iv2);
-		toDrop2.setQuantity(200);
-		
-		CartItemView toAdd3 = new CartItemView();
-		ItemView iv3 = new ItemView();
-		iv3.setDesc(DUCKY_MUCH_WOW);
-		iv3.setPrice(10);
-		iv3.setItemId(itemidview3);
-		toAdd3.setItem(iv3);
-		toAdd3.setQuantity(2);
-		
-		expecteditems.add(toAdd);
-		expecteditems.add(toAdd3);
-		droppeditems.add(toDrop2);
-	
-		assertEquals(expecteditems, purchaseditems);
-		assertEquals(droppeditems, toTest.getDroppedItems());
-	}
-	
-	@Test
-	public void BuyCartEmptySucess() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
-		mediatorClient.addToCart(CS3, itemidview, 500);		//price in order: 11 5 10 (* 1 3 2)
-		mediatorClient.addToCart(CS3, itemidview2, 200);
-		mediatorClient.addToCart(CS3, itemidview3, 500);
-		
-		ShoppingResultView toTest = mediatorClient.buyCart(CS3, ValidCCN);
-		assertEquals(0,toTest.getTotalPrice());
-		assertTrue(!toTest.getDroppedItems().isEmpty());
-		assertTrue(toTest.getPurchasedItems().isEmpty());
-		assertEquals(Result.EMPTY, toTest.getResult());
-		
-		List<CartItemView> expecteditems = new ArrayList<CartItemView>();
-		
-		CartItemView toAdd = new CartItemView();
-		ItemView iv1 = new ItemView();
-		iv1.setDesc(DUCKY);
-		iv1.setPrice(11);
-		iv1.setItemId(itemidview);
-		toAdd.setItem(iv1);
-		toAdd.setQuantity(500);
-		
-		CartItemView toAdd2 = new CartItemView();
-		ItemView iv2 = new ItemView();
-		iv2.setDesc(DUCKYWOW);
-		iv2.setPrice(5);
-		iv2.setItemId(itemidview2);
-		toAdd2.setItem(iv2);
-		toAdd2.setQuantity(200);
-		
-		CartItemView toAdd3 = new CartItemView();
-		ItemView iv3 = new ItemView();
-		iv3.setDesc(DUCKY_MUCH_WOW);
-		iv3.setPrice(10);
-		iv3.setItemId(itemidview3);
-		toAdd3.setItem(iv3);
-		toAdd3.setQuantity(500);
-		
-		expecteditems.add(toAdd);
-		expecteditems.add(toAdd2);
-		expecteditems.add(toAdd3);
-		
-		assertEquals(expecteditems, toTest.getDroppedItems());
-	}
-	
-		
-	@Test(expected = EmptyCart_Exception.class)
-	public void BuyCartCaseSensitiveTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
-		mediatorClient.addToCart(CS3, itemidview, 1);
-		mediatorClient.buyCart("cs3", ValidCCN);
-	}
-	
-	@Test(expected = EmptyCart_Exception.class)
-	public void BuyCartEmptyCartTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
-		mediatorClient.addToCart(CS3, itemidview, 1);
-		mediatorClient.buyCart("CS4", ValidCCN);
-	}
-	
-	@Test(expected = InvalidCreditCard_Exception.class)
-	public void BuyCartInvalidCCTest() throws InvalidItemId_Exception, InvalidCartId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception, EmptyCart_Exception, InvalidCreditCard_Exception {
-		mediatorClient.addToCart(CS3, itemidview, 1);
-		mediatorClient.buyCart(CS3, "5555555555555555");
-	}
-	
-		
-	//invalid cart id tests
+
+	// ------ WSDL Faults (error cases) ------
+
 	@Test(expected = InvalidCartId_Exception.class)
-	public void BuyCartInvalidCart() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
-		mediatorClient.buyCart("HA A", ValidCCN);
-	}
-	
-	@Test(expected = InvalidCartId_Exception.class)
-	public void BuyCartNullTest() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
-		mediatorClient.buyCart(null, ValidCCN);
+	public void testNullCart() throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
+		mediatorClient.buyCart(null, "2344223");
 	}
 
 	@Test(expected = InvalidCartId_Exception.class)
-	public void BuyCartEmptyTest() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
-		mediatorClient.buyCart("", ValidCCN);
+	public void testEmptyCartId() throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
+		mediatorClient.buyCart("", "2344223");
 	}
-	
+
 	@Test(expected = InvalidCartId_Exception.class)
-	public void BuyCartWhiteSpaceTest() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
-		mediatorClient.buyCart(" ", ValidCCN);
+	public void testInexistingCart() throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
+		mediatorClient.buyCart("xyz", VALID_CC);
 	}
-	
-	@Test(expected = InvalidCartId_Exception.class)
-	public void BuyCartTabTest() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
-		mediatorClient.buyCart("\t", ValidCCN);
+
+	@Test(expected = InvalidCreditCard_Exception.class)
+	public void testEmptyCardId() throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception,
+			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+		ItemIdView id = new ItemIdView();
+		id.setProductId("p2");
+		id.setSupplierId(supplierNames[0]);
+		mediatorClient.addToCart("xyz", id, 1);
+		mediatorClient.buyCart("xyz", "");
 	}
-	
-	@Test(expected = InvalidCartId_Exception.class)
-	public void BuyCartNewLineTest() throws InvalidItemId_Exception, EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
-		mediatorClient.buyCart("\n", ValidCCN);
+
+	@Test(expected = InvalidCreditCard_Exception.class)
+	public void testIncompleteCard() throws EmptyCart_Exception, InvalidCartId_Exception,
+			InvalidCreditCard_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+		// < 16 digits
+		ItemIdView id = new ItemIdView();
+		id.setProductId("p2");
+		id.setSupplierId(supplierNames[0]);
+		mediatorClient.addToCart("xyz", id, 1);
+		mediatorClient.buyCart("xyz", "8392320");
 	}
+
+	@Test(expected = InvalidCreditCard_Exception.class)
+	public void testInvalidCard() throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception,
+			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+		// > 16 digits, 16 first are a 'valid' card
+		ItemIdView id = new ItemIdView();
+		id.setProductId("p2");
+		id.setSupplierId(supplierNames[0]);
+		mediatorClient.addToCart("xyz", id, 1);
+		mediatorClient.buyCart("xyz", VALID_CC + "27282828022802");
+	}
+
+	// not used for evaluation
+	// @Test(expected = InvalidCreditCard_Exception.class)
+	public void testInvalidCardLetters() throws EmptyCart_Exception, InvalidCartId_Exception,
+			InvalidCreditCard_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+		// string with letters
+		ItemIdView id = new ItemIdView();
+		id.setProductId("p2");
+		id.setSupplierId(supplierNames[0]);
+		mediatorClient.addToCart("xyz", id, 1);
+		mediatorClient.buyCart("xyz", "12334567890aaabbb");
+	}
+
+	// not used for evaluation
+	// @Test(expected = InvalidCreditCard_Exception.class)
+	public void testAnotherInvalidCard() throws EmptyCart_Exception, InvalidCartId_Exception,
+			InvalidCreditCard_Exception, InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+		ItemIdView id = new ItemIdView();
+		id.setProductId("p2");
+		id.setSupplierId(supplierNames[0]);
+		mediatorClient.addToCart("xyz", id, 1);
+		mediatorClient.buyCart("xyz", "1234567820123452");
+	}
+
+	// ------ Normal cases
+
+	@Test
+	public void testFullBuy() throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception,
+			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+		// -- add products to carts --
+		{
+			ItemIdView id = new ItemIdView();
+			id.setProductId("p1");
+			id.setSupplierId(supplierNames[0]);
+			mediatorClient.addToCart("xyz", id, 2);
+		}
+
+		{
+			ItemIdView id = new ItemIdView();
+			id.setProductId("p1");
+			id.setSupplierId(supplierNames[1]);
+			mediatorClient.addToCart("xyz", id, 1);
+		}
+
+		{
+			ItemIdView id = new ItemIdView();
+			id.setProductId("p2");
+			id.setSupplierId(supplierNames[0]);
+			mediatorClient.addToCart("xyz", id, 3);
+		}
+
+		{ // product in other cart! (will not try to buy this)
+			ItemIdView id = new ItemIdView();
+			id.setProductId("p1");
+			id.setSupplierId(supplierNames[1]);
+			mediatorClient.addToCart("DoNotBuyMe", id, 1);
+		}
+
+		// -- buy a cart
+		ShoppingResultView shpResView = mediatorClient.buyCart("xyz", VALID_CC);
+		assertNotNull(shpResView.getId());
+		assertEquals(Result.COMPLETE, shpResView.getResult());
+		assertEquals(0, shpResView.getDroppedItems().size());
+		assertEquals(3, shpResView.getPurchasedItems().size());
+		final int expectedTotalPrice = 2 * 3 + 1 * 4 + 3 * 9; // sum(qty*price)
+		assertEquals(expectedTotalPrice, shpResView.getTotalPrice());
+	}
+
+	@Test
+	public void testPartialBuy() throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception,
+			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+		// -- add products to carts --
+		{
+			ItemIdView id = new ItemIdView();
+			id.setProductId("p1");
+			id.setSupplierId(supplierNames[0]);
+			mediatorClient.addToCart("xyz", id, 4);
+			mediatorClient.addToCart("otherXyz", id, 3); // Purchased
+		}
+
+		{
+			ItemIdView id = new ItemIdView();
+			id.setProductId("p2");
+			id.setSupplierId(supplierNames[0]);
+			mediatorClient.addToCart("xyz", id, 15);
+			mediatorClient.addToCart("otherXyz", id, 7); // Dropped
+		}
+
+		// -- buy carts
+		ShoppingResultView[] shpResViews = new ShoppingResultView[2];
+		shpResViews[0] = mediatorClient.buyCart("xyz", VALID_CC);
+		shpResViews[1] = mediatorClient.buyCart("otherXyz", VALID_CC);
+
+		// verify id and result of first buy
+		assertNotNull(shpResViews[0].getId());
+		assertEquals(Result.COMPLETE, shpResViews[0].getResult());
+
+		// verify the entire result of the second buy (i.e., the partial one)
+		assertNotNull(shpResViews[1].getId());
+		assertEquals(Result.PARTIAL, shpResViews[1].getResult());
+		assertEquals(1, shpResViews[1].getDroppedItems().size());
+		assertEquals(1, shpResViews[1].getPurchasedItems().size());
+		final int expectedTotalPrice = 3 * 3; // sum(qty*price) of purchased
+												// items
+		assertEquals(expectedTotalPrice, shpResViews[1].getTotalPrice());
+	}
+
+	@Test
+	public void testEmptyBuy() throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception,
+			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
+		// -- add products to carts --
+		{
+			ItemIdView id = new ItemIdView();
+			id.setProductId("p1");
+			id.setSupplierId(supplierNames[0]);
+			mediatorClient.addToCart("xyz", id, 10);
+			mediatorClient.addToCart("otherXyz", id, 10); // Dropped
+		}
+
+		{
+			ItemIdView id = new ItemIdView();
+			id.setProductId("p2");
+			id.setSupplierId(supplierNames[0]);
+			mediatorClient.addToCart("xyz", id, 15);
+			mediatorClient.addToCart("otherXyz", id, 15); // Dropped
+		}
+
+		// -- buy carts
+		ShoppingResultView[] shpResViews = new ShoppingResultView[2];
+		shpResViews[0] = mediatorClient.buyCart("xyz", VALID_CC);
+		shpResViews[1] = mediatorClient.buyCart("otherXyz", VALID_CC);
+
+		// verify id and result of first buy
+		assertNotNull(shpResViews[0].getId());
+		assertEquals(Result.COMPLETE, shpResViews[0].getResult());
+
+		// verify the entire result of the second buy (i.e., the empty one)
+		assertNotNull(shpResViews[1].getId());
+		assertEquals(Result.EMPTY, shpResViews[1].getResult());
+		assertEquals(2, shpResViews[1].getDroppedItems().size());
+		assertEquals(0, shpResViews[1].getPurchasedItems().size());
+		assertEquals(0, shpResViews[1].getTotalPrice());
+	}
+
 }
-	
-	
-	

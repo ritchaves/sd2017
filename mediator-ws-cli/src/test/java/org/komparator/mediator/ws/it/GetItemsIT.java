@@ -1,142 +1,189 @@
 package org.komparator.mediator.ws.it;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
+
 import java.util.List;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.komparator.mediator.ws.*;
+import org.komparator.mediator.ws.InvalidItemId_Exception;
+import org.komparator.mediator.ws.ItemView;
 import org.komparator.supplier.ws.BadProductId_Exception;
 import org.komparator.supplier.ws.BadProduct_Exception;
 import org.komparator.supplier.ws.ProductView;
-import org.komparator.supplier.ws.cli.SupplierClient;
-import org.komparator.supplier.ws.cli.SupplierClientException;
 
-
-/**
- * Test suite
- */
 public class GetItemsIT extends BaseIT {
 
-	private static final String X1 = "X1";
-	private static SupplierClient sp1;
-	private static SupplierClient sp2;
-	private static SupplierClient sp3;
+	// static members
 
 	// one-time initialization and clean-up
 	@BeforeClass
-	public static void oneTimeSetUp() throws InvalidItemId_Exception, SupplierClientException, BadProductId_Exception, BadProduct_Exception {
-		
+	public static void oneTimeSetUp() throws BadProductId_Exception, BadProduct_Exception {
+		// clear remote service state before all tests
 		mediatorClient.clear();
-		
+
+		// fill-in test products
+		// (since getItems is read-only the initialization below
+		// can be done once for all tests in this suite)
 		{
-			sp1 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
-			
-			ProductView product = new ProductView();
-			product.setId(X1);
-			product.setDesc("Baseball ball");
-			product.setPrice(5);
-			product.setQuantity(10);
-			sp1.createProduct(product);
+			ProductView prod = new ProductView();
+			prod.setId("p1");
+			prod.setDesc("AAA bateries (pack of 3)");
+			prod.setPrice(3);
+			prod.setQuantity(10);
+			supplierClients[0].createProduct(prod);
 		}
+
 		{
-			sp2 = new SupplierClient("http://localhost:8082/supplier-ws/endpoint");
-			
-			ProductView product = new ProductView();
-			product.setId(X1);
-			product.setDesc("Baseball bat");
-			product.setPrice(15);
-			product.setQuantity(20);
-			sp2.createProduct(product);
+			ProductView prod = new ProductView();
+			prod.setId("p1");
+			prod.setDesc("3batteries");
+			prod.setPrice(4);
+			prod.setQuantity(10);
+			supplierClients[1].createProduct(prod);
 		}
+
 		{
-			sp3 = new SupplierClient("http://localhost:8083/supplier-ws/endpoint");
-			
-			ProductView product = new ProductView();
-			product.setId(X1);
-			product.setDesc("Baseball Over 9000");
-			product.setPrice(10);
-			product.setQuantity(20);
-			sp3.createProduct(product);
-		}		
+			ProductView prod = new ProductView();
+			prod.setId("p2");
+			prod.setDesc("AAA bateries (pack of 10)");
+			prod.setPrice(9);
+			prod.setQuantity(20);
+			supplierClients[0].createProduct(prod);
+		}
+
+		{
+			ProductView prod = new ProductView();
+			prod.setId("p2");
+			prod.setDesc("10x AAA battery");
+			prod.setPrice(8);
+			prod.setQuantity(20);
+			supplierClients[1].createProduct(prod);
+		}
+
+		{
+			ProductView prod = new ProductView();
+			prod.setId("p3");
+			prod.setDesc("Digital Multimeter");
+			prod.setPrice(15);
+			prod.setQuantity(5);
+			supplierClients[0].createProduct(prod);
+		}
 	}
-	
+
 	@AfterClass
 	public static void oneTimeTearDown() {
+		// clear remote service state after all tests
 		mediatorClient.clear();
-		sp1.clear();
-		sp2.clear();
-		sp3.clear();
+		// even though mediator clear should have cleared suppliers, clear them
+		// explicitly after use
+		supplierClients[0].clear();
+		supplierClients[1].clear();
 	}
-	
-	@Test
-	public void getItemsSucess() throws InvalidItemId_Exception {
-		List<ItemView> Itemviewlist = mediatorClient.getItems(X1);
-		assertFalse(Itemviewlist.isEmpty());
-		assertEquals(3, Itemviewlist.size());
-		
-		for (ItemView iv : Itemviewlist) {
-			assertEquals(X1, iv.getItemId().getProductId());
-			assertThat(iv.getDesc(), containsString("Baseball"));
-		}
-		
-		ItemView firstitem = Itemviewlist.get(0);
-		//assertEquals("sp1", firstitem.getItemId().getSupplierId());
-		assertEquals(5, firstitem.getPrice());
-		
-		ItemView seconditem = Itemviewlist.get(1);
-		//assertEquals("sp2", seconditem.getItemId().getSupplierId());
-		assertEquals(10, seconditem.getPrice());
-		
-		ItemView thirditem = Itemviewlist.get(2);
-		//assertEquals("sp3", thirditem.getItemId().getSupplierId());
-		assertEquals(15, thirditem.getPrice());		
+
+	// members
+
+	// initialization and clean-up for each test
+	@Before
+	public void setUp() {
 	}
-	
-	@Test
-	public void getItemsCaseSensitiveTest() throws InvalidItemId_Exception {
-		List<ItemView> iv = mediatorClient.getItems("x1");
-		assertTrue(iv.isEmpty());
+
+	@After
+	public void tearDown() {
 	}
-	
-	@Test
-	public void getItemsDontExist() throws InvalidItemId_Exception {
-		List<ItemView> iv = mediatorClient.getItems("YOLO");
-		assertTrue(iv.isEmpty());
-	}
-	
+
+	// ------ WSDL Faults (error cases) ------
+
 	@Test(expected = InvalidItemId_Exception.class)
-	public void getItemsNullTest() throws InvalidItemId_Exception {
+	public void testNullItem() throws InvalidItemId_Exception {
 		mediatorClient.getItems(null);
 	}
 
 	@Test(expected = InvalidItemId_Exception.class)
-	public void getItemsEmptyTest() throws InvalidItemId_Exception {
+	public void testEmptyItemId() throws InvalidItemId_Exception {
 		mediatorClient.getItems("");
 	}
-	
-	@Test(expected = InvalidItemId_Exception.class)
-	public void getItemsWhiteSpaceTest() throws InvalidItemId_Exception {
+
+	// not used for evaluation
+	// @Test(expected = InvalidItemId_Exception.class)
+	public void testSpace() throws InvalidItemId_Exception {
 		mediatorClient.getItems(" ");
 	}
-	
-	@Test(expected = InvalidItemId_Exception.class)
-	public void getItemsTabTest() throws InvalidItemId_Exception {
+
+	// not used for evaluation
+	// @Test(expected = InvalidItemId_Exception.class)
+	public void testTab() throws InvalidItemId_Exception {
 		mediatorClient.getItems("\t");
 	}
-	
-	@Test(expected = InvalidItemId_Exception.class)
-	public void getItemsNewLineTest() throws InvalidItemId_Exception {
+
+	// not used for evaluation
+	// @Test(expected = InvalidItemId_Exception.class)
+	public void testNewline() throws InvalidItemId_Exception {
 		mediatorClient.getItems("\n");
 	}
+
+	// not used for evaluation
+	// @Test(expected = InvalidItemId_Exception.class)
+	public void testDot() throws InvalidItemId_Exception {
+		mediatorClient.getItems(".");
+	}
+
+	// ------ Normal cases ------
+
+	@Test
+	public void testInexistingItem1() throws InvalidItemId_Exception {
+		List<ItemView> items = mediatorClient.getItems("p4");
+		// desired output is empty, but null is also accepted (case not
+		// specified in project statement)
+		assertTrue(items == null || items.size() == 0);
+	}
+
+	@Test
+	public void testInexistingItem2() throws InvalidItemId_Exception {
+		// There is no such item, but there is an item with the description
+		// "3batteries"
+		List<ItemView> items = mediatorClient.getItems("3batteries");
+		// desired output is empty, but null is also accepted (case not
+		// specified in project statement)
+		assertTrue(items == null || items.size() == 0);
+	}
+
+	@Test
+	public void testSingleExistingItem() throws InvalidItemId_Exception {
+		// Testing all item properties only in this test
+		List<ItemView> items = mediatorClient.getItems("p3");
+		assertEquals(1, items.size());
+
+		assertEquals("p3", items.get(0).getItemId().getProductId());
+		assertEquals("Digital Multimeter", items.get(0).getDesc());
+		assertEquals(15, items.get(0).getPrice());
+		assertEquals(supplierNames[0], items.get(0).getItemId().getSupplierId());
+	}
+
+	@Test
+	public void testMultipleExistingItems() throws InvalidItemId_Exception {
+		List<ItemView> items = mediatorClient.getItems("p1");
+		assertEquals(2, items.size());
+	}
+
+	@Test
+	public void testOrder1() throws InvalidItemId_Exception {
+		// First supplier has the cheapest price
+		List<ItemView> items = mediatorClient.getItems("p1");
+		assertEquals(2, items.size());
+		assertTrue(items.get(0).getPrice() <= items.get(1).getPrice());
+	}
+
+	@Test
+	public void testOrder2() throws InvalidItemId_Exception {
+		// First supplier has the most expensive price
+		List<ItemView> items = mediatorClient.getItems("p2");
+		assertEquals(2, items.size());
+		assertTrue(items.get(0).getPrice() <= items.get(1).getPrice());
+	}
+
 }
-	
-	
-	

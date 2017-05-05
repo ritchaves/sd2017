@@ -26,18 +26,19 @@ public class BaseIT {
 			System.out.println(msg);
 			throw e;
 		}
+
 		String uddiEnabled = testProps.getProperty("uddi.enabled");
-		if ("true".equalsIgnoreCase(uddiEnabled)){
-			String wsName = testProps.getProperty("ws.name");
-			String uddiURL = testProps.getProperty("uddi.url");
+		String uddiURL = testProps.getProperty("uddi.url");
+		String wsName = testProps.getProperty("ws.name");
+		String wsURL = testProps.getProperty("ws.url");
+
+		if ("true".equalsIgnoreCase(uddiEnabled)) {
 			client = new SupplierClient(uddiURL, wsName);
-		}
-		else{
-			String wsURL = testProps.getProperty("ws.url");
+		} else {
 			client = new SupplierClient(wsURL);
 		}
-		
 		// CLIENT.setVerbose(true);
+
 	}
 
 	@AfterClass

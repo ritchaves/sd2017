@@ -1,166 +1,209 @@
 package org.komparator.mediator.ws.it;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
+
 import java.util.List;
+
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.komparator.mediator.ws.*;
+import org.komparator.mediator.ws.InvalidItemId_Exception;
+import org.komparator.mediator.ws.InvalidText_Exception;
+import org.komparator.mediator.ws.ItemView;
 import org.komparator.supplier.ws.BadProductId_Exception;
 import org.komparator.supplier.ws.BadProduct_Exception;
 import org.komparator.supplier.ws.ProductView;
-import org.komparator.supplier.ws.cli.SupplierClient;
-import org.komparator.supplier.ws.cli.SupplierClientException;
 
-
-/**
- * Test suite
- */
 public class SearchItemsIT extends BaseIT {
 
-	private static final String X69 = "X69";
-	private static final String BASEBALL_BAT = "Baseball bat";
-	private static final String BASEBALL = "Baseball";
-	private static final String X1 = "X1";
-	private static SupplierClient sp1;
-	private static SupplierClient sp2;
-	private static SupplierClient sp3;
+	// static members
 
 	// one-time initialization and clean-up
 	@BeforeClass
-	public static void oneTimeSetUp() throws InvalidText_Exception, SupplierClientException, BadProductId_Exception, BadProduct_Exception {
-		
+	public static void oneTimeSetUp() throws BadProductId_Exception, BadProduct_Exception {
+		// clear remote service state before all tests
 		mediatorClient.clear();
-		
-		
+
+		// fill-in test products
+		// (since searchItems is read-only the initialization below
+		// can be done once for all tests in this suite)
 		{
-			sp1 = new SupplierClient("http://localhost:8081/supplier-ws/endpoint");
-			
-			ProductView product = new ProductView();
-			product.setId(X1);
-			product.setDesc("Baseball ball");
-			product.setPrice(20);
-			product.setQuantity(10);
-			sp1.createProduct(product);
+			ProductView prod = new ProductView();
+			prod.setId("p1");
+			prod.setDesc("AAA bateries (pack of 3)");
+			prod.setPrice(3);
+			prod.setQuantity(10);
+			supplierClients[0].createProduct(prod);
 		}
+
 		{
-			sp2 = new SupplierClient("http://localhost:8082/supplier-ws/endpoint");
-			
-			ProductView product = new ProductView();
-			product.setId(X69);
-			product.setDesc(BASEBALL_BAT);
-			product.setPrice(15);
-			product.setQuantity(20);
-			sp2.createProduct(product);
+			ProductView prod = new ProductView();
+			prod.setId("p1");
+			prod.setDesc("3batteries");
+			prod.setPrice(4);
+			prod.setQuantity(10);
+			supplierClients[1].createProduct(prod);
 		}
+
 		{
-			sp3 = new SupplierClient("http://localhost:8083/supplier-ws/endpoint");
-			
-			ProductView product = new ProductView();
-			product.setId("X3");
-			product.setDesc("Baseball Over 9000");
-			product.setPrice(10);
-			product.setQuantity(20);
-			sp3.createProduct(product);
-			
-			ProductView product2 = new ProductView();
-			product2.setId(X69);
-			product2.setDesc("Baseball all the way");
-			product2.setPrice(1);
-			product2.setQuantity(20);
-			sp3.createProduct(product2);
-		}		
+			ProductView prod = new ProductView();
+			prod.setId("p2");
+			prod.setDesc("AAA bateries (pack of 10)");
+			prod.setPrice(9);
+			prod.setQuantity(20);
+			supplierClients[0].createProduct(prod);
+		}
+
+		{
+			ProductView prod = new ProductView();
+			prod.setId("p2");
+			prod.setDesc("10x AAA battery");
+			prod.setPrice(8);
+			prod.setQuantity(20);
+			supplierClients[1].createProduct(prod);
+		}
+
+		{
+			ProductView prod = new ProductView();
+			prod.setId("p3");
+			prod.setDesc("Digital Multimeter");
+			prod.setPrice(15);
+			prod.setQuantity(5);
+			supplierClients[0].createProduct(prod);
+		}
+
+		{
+			ProductView prod = new ProductView();
+			prod.setId("p4");
+			prod.setDesc("very cheap batteries");
+			prod.setPrice(2);
+			prod.setQuantity(5);
+			supplierClients[0].createProduct(prod);
+		}
 	}
-	
+
 	@AfterClass
 	public static void oneTimeTearDown() {
+		// clear remote service state after all tests
 		mediatorClient.clear();
-		sp1.clear();
-		sp2.clear();
-		sp3.clear();
+		// even though mediator clear should have cleared suppliers, clear them
+		// explicitly after use
+		supplierClients[0].clear();
+		supplierClients[1].clear();
 	}
-	
-	@Test
-	public void searchItemsSucess() throws InvalidText_Exception {
-		List<ItemView> Itemviewlist = mediatorClient.searchItems(BASEBALL);
-		assertFalse(Itemviewlist.isEmpty());
-		assertEquals(4, Itemviewlist.size());
-		
-		for (ItemView iv : Itemviewlist) {
-			assertThat(iv.getDesc(), containsString(BASEBALL));
-		}
-		
-		ItemView firstitem = Itemviewlist.get(0);
-		assertEquals(X1, firstitem.getItemId().getProductId());
-		assertEquals(20, firstitem.getPrice());
-		
-		ItemView seconditem = Itemviewlist.get(1);
-		assertEquals("X3", seconditem.getItemId().getProductId());
-		assertEquals(10, seconditem.getPrice());
-		
-		ItemView thirditem = Itemviewlist.get(2);
-		assertEquals(X69, thirditem.getItemId().getProductId());
-		assertEquals(1, thirditem.getPrice());
-		
-		ItemView lastitem = Itemviewlist.get(3);
-		assertEquals(X69, lastitem.getItemId().getProductId());
-		assertEquals(15, lastitem.getPrice());
-		
-	
+
+	// members
+
+	// initialization and clean-up for each test
+	@Before
+	public void setUp() {
 	}
-	
-	@Test
-	public void searchItemsNameWithSpacesTest() throws InvalidText_Exception {
-		List<ItemView> Itemviewlist = mediatorClient.searchItems(BASEBALL_BAT);
-		assertFalse(Itemviewlist.isEmpty());
-		assertEquals(1, Itemviewlist.size());
-		
-		for (ItemView iv : Itemviewlist) {
-			assertThat(iv.getDesc(), containsString(BASEBALL_BAT));
-		}
+
+	@After
+	public void tearDown() {
 	}
-		
-	@Test
-	public void searchItemsCaseSensitiveTest() throws InvalidText_Exception {
-		List<ItemView> iv = mediatorClient.searchItems("baseball");
-		assertTrue(iv.isEmpty());
-	}
-	
-	@Test
-	public void searchItemsDontExist() throws InvalidText_Exception {
-		List<ItemView> iv = mediatorClient.searchItems("YOLO");
-		assertTrue(iv.isEmpty());
-	}
-	
+
+	// ------ WSDL Faults (error cases) ------
+
 	@Test(expected = InvalidText_Exception.class)
-	public void searchItemsNullTest() throws InvalidText_Exception {
+	public void testNullText() throws InvalidText_Exception {
 		mediatorClient.searchItems(null);
 	}
 
-	@Test(expected = InvalidText_Exception.class)
-	public void searchItemsEmptyTest() throws InvalidText_Exception {
-		mediatorClient.searchItems("");
+	@Test(expected = InvalidItemId_Exception.class)
+	public void testEmptyItemId() throws InvalidItemId_Exception {
+		mediatorClient.getItems("");
 	}
-	
-	@Test(expected = InvalidText_Exception.class)
-	public void searchItemsWhiteSpaceTest() throws InvalidText_Exception {
-		mediatorClient.searchItems(" ");
+
+	// not used for evaluation
+	// @Test(expected = InvalidItemId_Exception.class)
+	public void testSpace() throws InvalidItemId_Exception {
+		mediatorClient.getItems(" ");
 	}
-	
-	@Test(expected = InvalidText_Exception.class)
-	public void searchItemsTabTest() throws InvalidText_Exception {
-		mediatorClient.searchItems("\t");
+
+	// not used for evaluation
+	// @Test(expected = InvalidItemId_Exception.class)
+	public void testTab() throws InvalidItemId_Exception {
+		mediatorClient.getItems("\t");
 	}
-	
-	@Test(expected = InvalidText_Exception.class)
-	public void searchItemsNewLineTest() throws InvalidText_Exception {
-		mediatorClient.searchItems("\n");
+
+	// not used for evaluation
+	// @Test(expected = InvalidItemId_Exception.class)
+	public void testNewline() throws InvalidItemId_Exception {
+		mediatorClient.getItems("\n");
 	}
+
+	// ------ Normal cases ------
+
+	@Test
+	public void testInexistingText1() throws InvalidText_Exception {
+		List<ItemView> items = mediatorClient.searchItems("porsche");
+		// desired output is empty, but null is also accepted (case not
+		// specified in project statement)
+		assertTrue(items == null || items.size() == 0);
+	}
+
+	@Test
+	public void testInexistingText2() throws InvalidText_Exception {
+		// There is no item containing this string in its description.
+		// There is one that contains it in its ID though,
+		// but this operation is not supposed to search by ID.
+		List<ItemView> items = mediatorClient.searchItems("p4");
+		// desired output is empty, but null is also accepted (case not
+		// specified in project statement)
+		assertTrue(items == null || items.size() == 0);
+	}
+
+	@Test
+	public void testSingleExistingText() throws InvalidText_Exception {
+		List<ItemView> items = mediatorClient.searchItems("battery");
+		assertEquals(1, items.size());
+
+		assertEquals("p2", items.get(0).getItemId().getProductId());
+		assertEquals("10x AAA battery", items.get(0).getDesc());
+		assertEquals(8, items.get(0).getPrice());
+		assertEquals(supplierNames[1], items.get(0).getItemId().getSupplierId());
+	}
+
+	@Test
+	public void testWithoutOrder() throws InvalidText_Exception {
+		List<ItemView> items = mediatorClient.searchItems("bat");
+		assertEquals(5, items.size());
+	}
+
+	@Test
+	public void testWithOrder() throws InvalidText_Exception {
+		List<ItemView> items = mediatorClient.searchItems("bat");
+		assertEquals(5, items.size());
+
+		// Check order criteria two by two
+		for (int i = 0; i < items.size() - 1; i++) {
+			// Check the first order criterion: product id
+			final String firstProductId = items.get(i).getItemId().getProductId();
+			final String secondProductId = items.get(i + 1).getItemId().getProductId();
+			assertTrue(firstProductId.compareTo(secondProductId) <= 0);
+			// Check the second order criterion: price
+			if (firstProductId.equals(secondProductId)) {
+				final int firstPrice = items.get(i).getPrice();
+				final int secondPrice = items.get(i + 1).getPrice();
+				assertTrue(firstPrice <= secondPrice);
+			}
+		}
+	}
+
+	@Test
+	public void testCaseSensitivity() throws InvalidText_Exception {
+		{
+			List<ItemView> items = mediatorClient.searchItems("digital");
+			assertEquals(0, items.size());
+		}
+		{
+			List<ItemView> items = mediatorClient.searchItems("Digital");
+			assertEquals(1, items.size());
+		}
+	}
+
 }
-	
-	
-	
