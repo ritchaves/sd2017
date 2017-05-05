@@ -8,9 +8,9 @@
         <handler>
             <handler-class>org.komparator.security.handler.FreshHandler</handler-class>
         </handler>
-        <handler>
+        <!--handler>
             <handler-class>org.komparator.security.handler.AutenticityIntegrityHandler</handler-class>
-        </handler>
+        </handler-->
 
         <!--Attacks!-->
         <!--handler>
@@ -28,8 +28,8 @@
         <!--handler>
             <handler-class>org.komparator.security.attackhandler.DigitalSignaturesAttackHandler2</handler-class>
         </handler-->
-        <!--handler>
+        <handler>
             <handler-class>org.komparator.security.handler.LoggingHandler</handler-class>
-        </handler-->
+        </handler>
     </handler-chain>
 </handler-chains>

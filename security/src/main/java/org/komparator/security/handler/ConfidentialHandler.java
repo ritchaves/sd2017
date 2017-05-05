@@ -48,6 +48,8 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
 	public static final String OPERATION_NAME = "buyCart";
 	final static String CA_CERTIFICATE = "ca.cer";
 	
+	private SecurityManager secManager = new SecurityManager();
+	
         @Override
 	public Set<QName> getHeaders() {
 		return null;
@@ -85,8 +87,8 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
     	        /*buscar certificado correcto*/
     	        Certificate certificate = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
     	        System.out.println("1");
-    	    	String certificateSource = SecurityManager.compareURL(urlSOAP, ENTITY_NAME);
-    	    	Certificate certificateMediator = SecurityManager.getCertificateFromSource(certificateSource);
+    	    	String certificateSource = secManager.compareURL(urlSOAP, ENTITY_NAME);
+    	    	Certificate certificateMediator = secManager.getCertificateFromSource(certificateSource);
     	    	System.out.println("2");
     			boolean result = CryptoUtil.verifySignedCertificate(certificateMediator, certificate);
     			System.out.println("3");

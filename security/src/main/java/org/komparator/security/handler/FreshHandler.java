@@ -27,7 +27,7 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 	
 	public static final String CONTEXT_PROPERTY = "my.token";
 	
-	private Map<String,LocalDateTime> tokenMap = new ConcurrentHashMap<>();
+	private Map<String,LocalDateTime> tokenMap = new ConcurrentHashMap<>(); //<Token, Client>
 
 @Override
 	public Set<QName> getHeaders() {
@@ -45,51 +45,44 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
         @Override
 	public boolean handleMessage(SOAPMessageContext smc) {
         	
-        System.out.println("FreshHandler: Handling message.");
+        System.out.println("FreshHandler:");
 
-    	Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);	
+    	Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
     	
     	try {
+    		// get SOAP envelope
+			SOAPMessage msg = smc.getMessage();
+			SOAPPart sp = msg.getSOAPPart();
+			SOAPEnvelope se = sp.getEnvelope();
+			SOAPHeader sh = se.getHeader();
+			
 			if (outboundElement.booleanValue()) {
 				//Se a mensagem estiver a sair
 				System.out.println("FreshHandler: Writing header in outbound SOAP message...");
-
-				// get SOAP envelope
-				SOAPMessage msg = smc.getMessage();
-				SOAPPart sp = msg.getSOAPPart();
-				SOAPEnvelope se = sp.getEnvelope();
-
-				// add header
-				SOAPHeader sh = se.getHeader();
+				
 				if (sh == null)
 					sh = se.addHeader();
-
-				// add header element (name, namespace prefix, namespace)
-				Name name = se.createName("tokenHeader", "d", "http://demo");
-				SOAPHeaderElement element = sh.addHeaderElement(name);
-
-				String num = CryptoUtil.randomTokenGenerator();
 				
-				element.addTextNode(num);
+				// add header element (name, namespace prefix, namespace)
+				Name name = se.createName("tokenHeader", "ns", "http://komparator");
+				
+				SOAPHeaderElement element = sh.addHeaderElement(name);
+				
+				element.addTextNode(CryptoUtil.randomTokenGenerator());
+				System.out.println("FreshHandler: Sending message... ");
 			
 
 			} else {
 				System.out.println("FreshHandler: Reading header in inbound SOAP message...");
 
-				// get SOAP envelope header
-				SOAPMessage msg = smc.getMessage();
-				SOAPPart sp = msg.getSOAPPart();
-				SOAPEnvelope se = sp.getEnvelope();
-				SOAPHeader sh = se.getHeader();
-
 				// check header
 				if (sh == null) {
-					System.out.println("FreshHandler: Header not found.");
+					System.out.println("FreshHandler: Header not found!");
 					return true;
 				}
 
 				// get first header element
-				Name name = se.createName("myHeader", "d", "http://demo");
+				Name name = se.createName("tokenHeader", "ns", "http://komparator");
 				Iterator it = sh.getChildElements(name);
 				// check header element
 				if (!it.hasNext()) {
@@ -105,12 +98,7 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 				if (!tokenMap.containsKey(value) ){
 					// print received header
 					System.out.println("FreshHandler: Header token is fresh!");
-					// put header in a property context
-					smc.put(CONTEXT_PROPERTY, value);
-					// set property scope to application client/server class can
-					// access it
-					smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);
-					
+				
 					LocalDateTime timestamp = LocalDateTime.now();
 					
 					tokenMap.put(value, timestamp);
@@ -119,9 +107,16 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 					if (tokenMap.size() > 50){
 						cleanTokenMap();
 					}
+
+					// put header in a property context
+					smc.put(CONTEXT_PROPERTY, CryptoUtil.randomTokenGenerator());
+					// set property scope to application client/server class can
+					// access it
+					smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);
 					
 				}
 				else{
+					
 	    				System.out.println("FreshHandler: The received message has already been received before - not fresh enough.");
 	    				throw new RuntimeException();
 	    		}

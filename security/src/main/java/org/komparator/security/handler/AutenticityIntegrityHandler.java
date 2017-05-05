@@ -45,6 +45,8 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	final static String KEY_PASSWORD = "k1fFNszN";
 	private static final String SIGNATURE_ALGO = "SHA256withRSA";	
 	private static final String SUPPLIER_ENTITY = "A57_Supplier%";
+	
+	private SecurityManager secManager = new SecurityManager();
 
 	
 	@Override
@@ -94,7 +96,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        		System.out.println("AutenticityIntegrityHandler: caught inbound SOAP message...");
 	        		
 	        		//acess ca to get certificate
-	        		Certificate certificateReceived = SecurityManager.getCertificateFromSource(SecurityManager.compareURL(urlSoap, SUPPLIER_ENTITY));        		
+	        		Certificate certificateReceived = secManager.getCertificateFromSource(secManager.compareURL(urlSoap, SUPPLIER_ENTITY));        		
 	        		boolean result = CryptoUtil.verifySignedCertificate(certificateReceived, certificateCA);
 	        		
 	        		if(!result) {	

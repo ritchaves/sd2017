@@ -24,12 +24,20 @@ public class SecurityManager {
 	
 	static CAClient caClient = null;
 	
-	public SecurityManager() throws CAClientException, UDDINamingException {
-		uddiNaming = new UDDINaming(uddiURL);
-		caClient = new CAClient(caURL); 
+	public SecurityManager() {
+		try {
+			uddiNaming = new UDDINaming(uddiURL);
+		} catch (UDDINamingException e) {
+			System.err.println("Security Manager - Not an available uddi url.");
+		}
+		try {
+			caClient = new CAClient(caURL);
+		} catch (CAClientException e) {
+			System.err.println("Security Manager - Nor an available CA url");
+		} 
 	}
 	
-	public static String compareURL(String urlSOAP, String entity) {
+	public String compareURL(String urlSOAP, String entity) {
 		Collection<UDDIRecord> availableSupplierswsURL = new ArrayList<UDDIRecord>();
 		try { 
 			availableSupplierswsURL = uddiNaming.listRecords(entity);
@@ -45,7 +53,7 @@ public class SecurityManager {
 		return null;
 	}
 	
-	public static Certificate getCertificateFromSource(String entityName) throws CertificateException {
+	public Certificate getCertificateFromSource(String entityName) throws CertificateException {
 		String certificateName = caClient.getCertificate(entityName);
 		return CryptoUtil.getX509CertificateFromPEMString(certificateName);
 	}
