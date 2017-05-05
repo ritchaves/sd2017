@@ -5,12 +5,12 @@
         <handler>
             <handler-class>org.komparator.security.handler.LoggingHandler</handler-class>
         </handler>
-        <!--handler>
-            <handler-class>org.komparator.security.handler.FreshHandler</handler-class>
-        </handler-->
         <handler>
-            <handler-class>org.komparator.security.handler.AutenticityIntegrityHandler</handler-class>
+            <handler-class>org.komparator.security.handler.FreshHandler</handler-class>
         </handler>
+        <!--handler>
+            <handler-class>org.komparator.security.handler.AutenticityIntegrityHandler</handler-class>
+        </handler-->
 
         <!--Attacks!-->
         <!--handler>
