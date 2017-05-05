@@ -128,7 +128,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 					Iterator ite = sh.getChildElements(nameS);
 					// check header element
 					SOAPElement elementS = (SOAPElement) ite.next();
-					String signatureHeader = element.getValue();
+					String signatureHeader = elementS.getValue();
 					//end hack
 					
 	        		Certificate certificateCA = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
