@@ -80,19 +80,13 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
 	        
 	        /* Obter argumentos da mensagem*/
 	        NodeList children = sb.getFirstChild().getChildNodes(); 
-	        
-	        
-         //outbound envia -> encripta //inbound recebe ->desencripta
+	       
         	if (outboundElement.booleanValue()) {
-        		System.out.println("0");
     	        /*buscar certificado correcto*/
     	        Certificate certificate = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
-    	        System.out.println("1");
     	    	String certificateSource = secManager.compareURL(urlSOAP, ENTITY_NAME);
     	    	Certificate certificateMediator = secManager.getCertificateFromSource(certificateSource);
-    	    	System.out.println("2");
     			boolean result = CryptoUtil.verifySignedCertificate(certificateMediator, certificate);
-    			System.out.println("3");
     	    	PublicKey publicKey = null;
     			if (result)
     				publicKey = CryptoUtil.getPublicKeyFromCertificate(certificateMediator);
@@ -102,7 +96,7 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
     			
         		for (int i = 0; i < children.getLength(); i++) {
 		        	Node argument = children.item(i);
-		        	if (argument.getNodeName().equals("creditCardNr")) { /*Para cada nó verifica-se se corresponde ao argumento q é preciso*/
+		        	if (argument.getNodeName().equals("creditCardNr")) { 
 		        		String secretArgument = argument.getTextContent();
 		        		
 		        		//cipher message w publickey
