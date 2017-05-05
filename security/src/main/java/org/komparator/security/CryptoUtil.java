@@ -159,8 +159,9 @@ public class CryptoUtil {
 		return true;
 	}
 	
-	/** auxiliary method to calculate digest from text */
-	public static byte[] digest(byte[] bytes) throws Exception {
+	/** auxiliary method to calculate digest from text 
+	 * @throws NoSuchAlgorithmException */
+	public static byte[] digest(byte[] bytes) throws NoSuchAlgorithmException  {
 
 		// get a message digest object using the specified algorithm
 		MessageDigest messageDigest = MessageDigest.getInstance(DIGEST_ALGO);

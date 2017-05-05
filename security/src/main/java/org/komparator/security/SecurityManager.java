@@ -54,7 +54,8 @@ public class SecurityManager {
 	}
 	
 	public Certificate getCertificateFromSource(String entityName) throws CertificateException {
-		String certificateName = caClient.getCertificate(entityName);
+		String file = entityName + ".cer";
+		String certificateName = caClient.getCertificate(file);
 		return CryptoUtil.getX509CertificateFromPEMString(certificateName);
 	}
 	

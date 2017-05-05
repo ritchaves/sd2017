@@ -2,7 +2,6 @@ package org.komparator.security.handler;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.KeyPair;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -11,18 +10,21 @@ import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPBody;
+import javax.xml.soap.Name;
+import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
@@ -32,20 +34,20 @@ import static javax.xml.bind.DatatypeConverter.printBase64Binary;
 import org.komparator.security.CryptoUtil;
 import org.komparator.security.SecurityManager;
 
-import com.sun.xml.ws.developer.JAXWSProperties;
-
 /**
  * This SOAPHandler outputs the contents of inbound and outbound messages.
  */
 public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageContext> {
 	
-	final static String CA_CERTIFICATE = "ca.cer";	
-	final static String KEYSTORE = "/A57_Mediator.jks";  //to confirm
-	final static String KEYSTORE_PASSWORD = "k1fFNszN";
-	final static String KEY_ALIAS = "/a57_mediator";
-	final static String KEY_PASSWORD = "k1fFNszN";
+	final static String CA_CERTIFICATE = "ca.cer";
+	final static String PASSWORD = "k1fFNszN";
 	private static final String SIGNATURE_ALGO = "SHA256withRSA";	
 	private static final String SUPPLIER_ENTITY = "A57_Supplier%";
+	
+	private String keystore = "A57_Mediator.jks"; 
+	private String key_alias = "a57_mediator";
+	
+	public static final String CONTEXT_PROPERTY = "my.NAME";
 	
 	private SecurityManager secManager = new SecurityManager();
 
@@ -62,7 +64,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
     		
         	Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         	String urlSoap = (String) smc.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-        	System.out.println("FIRST URL --------------------> " + urlSoap);
+        	System.out.println("url--- " + urlSoap);
         	
         	try {
         		
@@ -70,23 +72,36 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 				SOAPMessage msg = smc.getMessage();
 				SOAPPart sp = msg.getSOAPPart();
 				SOAPEnvelope se = sp.getEnvelope();
-				
-        		Certificate certificateCA = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
+				SOAPHeader sh = se.getHeader();
         		
 	        	//msg going out
 	        	if(outbound) {
+	        		
 	        		System.out.println("AutenticityIntegrityHandler: caught outbound SOAP message...");
+	        		
+	        		String receiver = secManager.compareURL(urlSoap,SUPPLIER_ENTITY);
+	        		if(receiver.equals(null))
+	        			receiver = "A57_Mediator";
+	        		
+	        		//last minute hack
+	        		Name name = se.createName("receiver", "ns", "http://helper");
+					SOAPHeaderElement element = sh.addHeaderElement(name);
+					element.addTextNode(receiver);
+	        		//end of hack
 					
 					byte[] message = se.getTextContent().getBytes();
-	
-					PrivateKey privateKey = CryptoUtil.getPrivateKeyFromKeyStoreResource(KEYSTORE, KEYSTORE_PASSWORD.toCharArray(), KEY_ALIAS, KEY_PASSWORD.toCharArray());
 					//digest the message with SHA
 					byte[] digestedMessage = CryptoUtil.digest(message);
+					
+					PrivateKey privateKey = CryptoUtil.getPrivateKeyFromKeyStoreResource(getPath(keystore), PASSWORD.toCharArray(), key_alias, PASSWORD.toCharArray());
+					
+					System.out.println("Check private key: is it null?? -------> " +(privateKey == null));
 					byte[] digitalSignature = CryptoUtil.makeDigitalSignature(privateKey, digestedMessage);
 					
 					String updatedContent = printBase64Binary(digitalSignature);
 					se.setTextContent(updatedContent);
-					msg.saveChanges();	 		
+					msg.saveChanges();	
+					
 	        	}
 	        	
 	
@@ -94,10 +109,19 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        	else {
 	        		System.out.println("AutenticityIntegrityHandler: caught inbound SOAP message...");
 	        		
-	        		//String urlSoap = (String) smc.get(JAXWSProperties.HTTP_REQUEST_URL);
-	        		//System.out.println("DEBUG --------------------> " + urlSoap);
+	        		//hack continuation
+	        		Name name = se.createName("receiver", "ns", "http://helper");
+					Iterator it = sh.getChildElements(name);
+					// check header element
+					SOAPElement element = (SOAPElement) it.next();
+					String myname = element.getValue();
+					//end hack
+	        		
+	        		Certificate certificateCA = CryptoUtil.getX509CertificateFromResource(CA_CERTIFICATE);
+	        		Certificate certificateReceived = secManager.getCertificateFromSource(myname);
+	        	
 	        		//acess ca to get certificate
-	        		Certificate certificateReceived = secManager.getCertificateFromSource(secManager.compareURL(urlSoap, SUPPLIER_ENTITY));        		
+	        		       		
 	        		boolean result = CryptoUtil.verifySignedCertificate(certificateReceived, certificateCA);
 	        		
 	        		if(!result) {	
@@ -120,26 +144,16 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	        			}
 	        			else
 	        				System.out.println("AutenticityIntegrityHandler: inbound SOAP message appears to be OK.");
-	        		}       		
+	        		} 
+	        		// put header in a property context
+					smc.put(CONTEXT_PROPERTY, myname);
+					// set property scope to application client/server class can
+					// access it
+					smc.setScope(CONTEXT_PROPERTY, Scope.APPLICATION);
 	        	}
         	
-        	} catch (SOAPException se) {
-        		System.err.println("AutenticityIntegrityHandler: " + se);
-        	} catch (CertificateException se) {
-        		System.err.println("AutenticityIntegrityHandler: " + se);
-			} catch (IOException se) {
-				System.err.println("AutenticityIntegrityHandler: " + se);
-			} catch (InvalidKeyException se) {
-				System.err.println("AutenticityIntegrityHandler: " + se);
-			} catch (NoSuchAlgorithmException se) {
-				System.err.println("AutenticityIntegrityHandler: " + se);
-			} catch (SignatureException se) {
-				System.err.println("AutenticityIntegrityHandler: " + se);
-			} catch (UnrecoverableKeyException se) {
-				System.err.println("AutenticityIntegrityHandler: " + se);
-			} catch (KeyStoreException se) {
-				System.err.println("AutenticityIntegrityHandler: " + se);
-			} catch (Exception se) {
+        	} catch (SOAPException | CertificateException | IOException | NoSuchAlgorithmException 
+        			| UnrecoverableKeyException | KeyStoreException | InvalidKeyException | SignatureException se) {
 				System.err.println("AutenticityIntegrityHandler: " + se);
 			}
 		return true;
@@ -159,6 +173,15 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 	@Override
 	public void close(MessageContext messageContext) {
 		// nothing to clean up
+	}
+	
+	public String getPath(String keystoreName){
+		if (keystoreName.contains("Mediator"))
+			return "/mediator-ws/src/main/resources/A57_Mediator.jks";
+		else{
+			return "/supplier-ws/src/main/resources/"+ keystoreName +".jks";
+		}
+		
 	}
 	
 }
