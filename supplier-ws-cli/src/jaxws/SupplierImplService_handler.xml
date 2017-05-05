@@ -12,10 +12,7 @@
 
         <!--Attacks!-->
         <!--handler>
-            <handler-class>org.komparator.security.attackhandler.AntiFreshnessImmediateAttack</handler-class>
-        </handler-->
-        <!--handler>
-            <handler-class>org.komparator.security.attackhandler.AntiFreshnessLateAttack</handler-class>
+            <handler-class>org.komparator.security.attackhandler.AntiFreshnessAttack</handler-class>
         </handler-->
         <!--handler>
             <handler-class>org.komparator.security.attackhandler.CertificateAttackHandler</handler-class>

@@ -41,6 +41,8 @@ public class SupplierClientApp {
 		String result = client.ping("client");
 		System.out.print("Result: ");
 		System.out.println(result);
+		System.out.println("Invoke clear()...");
+		client.clear();
 	}
 
 }
