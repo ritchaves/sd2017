@@ -1,5 +1,6 @@
 package org.komparator.security.handler;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
@@ -105,8 +106,10 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
 		        		String secretArgument = argument.getTextContent();
 		        		
 		        		//cipher message w publickey
-		        		byte[] plainBytes = parseBase64Binary(secretArgument);
-		        		byte[] cipheredArg = CryptoUtil.asymCipher(plainBytes, publicKey);
+		        		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+		        		byteOut.write(secretArgument.getBytes());
+//		        		byte[] plainBytes = parseBase64Binary(secretArgument);
+		        		byte[] cipheredArg = CryptoUtil.asymCipher(byteOut.toByteArray(), publicKey);
 		       
 		        		String encodedSecretArg = printBase64Binary(cipheredArg);
 		        		
@@ -122,9 +125,11 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
 		        		String secretArgument = argument.getTextContent();
 		        		
 		        		//decipher message w privateKey
-		        		byte[] plainBytes = parseBase64Binary(secretArgument);
+		        		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+		        		byteOut.write(secretArgument.getBytes());
+		        		//byte[] plainBytes = parseBase64Binary(secretArgument);
 		        		PrivateKey privateKey = CryptoUtil.getPrivateKeyFromKeyStoreResource(KEYSTORE, KEYSTORE_PASSWORD.toCharArray(), KEY_ALIAS, KEY_PASSWORD.toCharArray());
-		        		byte[] decipheredBytes = CryptoUtil.asymDecipher(plainBytes, privateKey);
+		        		byte[] decipheredBytes = CryptoUtil.asymDecipher(byteOut.toByteArray(), privateKey);
 		        		
 		        		String encodedSecretArg = printBase64Binary(decipheredBytes);
 		        		argument.setTextContent(encodedSecretArg);
