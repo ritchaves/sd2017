@@ -1,11 +1,8 @@
 package org.komparator.security.attackhandler;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.Name;
@@ -16,13 +13,10 @@ import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
-import javax.xml.ws.handler.MessageContext.Scope;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.komparator.security.CryptoUtil;
 
 /*
  * Este ataque consiste em alterar os tokens das mensagens de saida para um token permanente para provar que tokens iguais nao sao aceites
@@ -35,7 +29,7 @@ public class AntiFreshnessAttack implements SOAPHandler<SOAPMessageContext> {
 	
 	@Override
 	public boolean handleMessage(SOAPMessageContext smc) {
-		System.out.println("Warning - this is an attack to your freshness!");
+		System.out.println("Initiating an attack to your freshness...");
 		Boolean outboundElement = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 		
 		try {
@@ -50,18 +44,16 @@ public class AntiFreshnessAttack implements SOAPHandler<SOAPMessageContext> {
 				
 				Name name = se.createName("tokenHeader", "ns", "http://komparator");
 				Iterator it = sh.getChildElements(name);
-				SOAPElement element = (SOAPElement) it.next();
+				it.next();
 				it.remove();
 				
 				SOAPHeaderElement newelement = sh.addHeaderElement(name);
 				
 				newelement.addTextNode(existingToken);
-			
-				System.out.println("FreshHandler: Sending message... ");
 			}
 
 		}  catch (SOAPException se) {
-				System.err.println("FreshHandler: "+ se);
+				System.err.println("Freshness Attack: "+ se);
 		}
 		return true;
 		
