@@ -2,6 +2,7 @@ package org.komparator.security.handler;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -93,7 +94,8 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
 					//digest the message with SHA
 					byte[] digestedMessage = CryptoUtil.digest(message);
 					
-					PrivateKey privateKey = CryptoUtil.getPrivateKeyFromKeyStoreResource(getPath(keystore), PASSWORD.toCharArray(), key_alias, PASSWORD.toCharArray());
+					KeyStore ks = CryptoUtil.readKeystoreFromResource(keystore, PASSWORD.toCharArray());
+					PrivateKey privateKey = CryptoUtil.getPrivateKeyFromKeyStore(key_alias, PASSWORD.toCharArray(), ks);
 					
 					System.out.println("Check private key: is it null?? -------> " +(privateKey == null));
 					byte[] digitalSignature = CryptoUtil.makeDigitalSignature(privateKey, digestedMessage);
