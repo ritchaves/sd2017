@@ -134,6 +134,7 @@ public class ConfidentialHandler implements SOAPHandler<SOAPMessageContext> {
         } catch (SOAPException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | 
         			BadPaddingException | CertificateException | IOException | UnrecoverableKeyException | KeyStoreException es) {
         	System.err.println("ConfidentialHandler: " + es);
+        	throw new RuntimeException();
         }
 		return true;
 	}

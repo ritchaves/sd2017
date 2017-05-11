@@ -164,6 +164,7 @@ public class AutenticityIntegrityHandler implements SOAPHandler<SOAPMessageConte
         	} catch (SOAPException | CertificateException | IOException | NoSuchAlgorithmException 
         			| UnrecoverableKeyException | KeyStoreException | InvalidKeyException | SignatureException se) {
 				System.err.println("AutenticityIntegrityHandler: " + se);
+				throw new RuntimeException();
 			}
 		return true;
 	}

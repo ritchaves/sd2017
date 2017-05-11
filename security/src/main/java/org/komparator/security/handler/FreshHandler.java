@@ -124,6 +124,7 @@ public class FreshHandler implements SOAPHandler<SOAPMessageContext> {
 			}
 		}  catch (SOAPException se) {
 			System.err.println("FreshHandler: "+ se);
+			throw new RuntimeException();
 		}
 		return true;
 	}
