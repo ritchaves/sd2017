@@ -1,6 +1,7 @@
 package org.komparator.mediator.ws;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,7 +31,7 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDIRecord;
 
 @WebService(
 		endpointInterface = "org.komparator.mediator.ws.MediatorPortType", 
-		wsdlLocation = "mediator.1_0.wsdl", 
+		wsdlLocation = "mediator.2_0.wsdl",  //FIXME Isto faz sentido aqui? 2.0
 		name = "MediatorWebService", 
 		portName = "MediatorPort", 
 		targetNamespace = "http://ws.mediator.komparator.org/", 
@@ -44,15 +45,22 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	private String cccURL = "http://ws.sd.rnl.tecnico.ulisboa.pt:8080/cc";
 	
+	private List<LocalDateTime> aliveTSlist = new ArrayList<LocalDateTime>();
+	
 	public MediatorPortImpl(MediatorEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
 	}
 	
-	//Being Alive
+	//Being Alive - FIXME SEND HELP
 	@Override
-	public void iAmAlive() {
-		// TODO Auto-generated method stub
+	public void imAlive() {
 		
+		//if(mediatorport == 8071) Outra vez a mesma historia - como sei quem sou?
+			//return;
+		//else{
+			LocalDateTime now = LocalDateTime.now();
+			aliveTSlist.add(now);
+		//}
 	}
 	
 	

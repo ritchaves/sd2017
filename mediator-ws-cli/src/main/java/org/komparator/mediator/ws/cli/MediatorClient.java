@@ -125,7 +125,13 @@ public class MediatorClient implements MediatorPortType{
         }
     }
 
-	@Override
+	//I was here!!
+    @Override
+	public void imAlive() {
+		port.imAlive();
+	}
+    
+    @Override
 	public void clear() {
 		port.clear();
 	}

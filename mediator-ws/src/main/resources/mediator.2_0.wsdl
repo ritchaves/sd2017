@@ -68,8 +68,8 @@ wsdl:service, wsdl:portType, wsdl:types and wsdl:binding below
             <xs:element name="shopHistoryResponse" type="tns:shopHistoryResponse"/>
 
             <!--I was here!-->
-            <xs:element name="iAmAlive" type="tns:iAmAlive"/>
-            <xs:complexType name="iAmAlive">
+            <xs:element name="imAlive" type="tns:imAlive"/>
+            <xs:complexType name="imAlive">
                 <xs:sequence/>
             </xs:complexType>
 
@@ -324,15 +324,15 @@ wsdl:service, wsdl:portType, wsdl:types and wsdl:binding below
         <part name="parameters" element="tns:shopHistoryResponse"/>
     </message>
     <!--I was here!-->
-    <message name="iAmAlive">
-        <part name="parameters" element="tns:iAmAlive"/>
+    <message name="imAlive">
+        <part name="parameters" element="tns:imAlive"/>
     </message>
 
     <!-- Port Type (Interface) -->
     <portType name="MediatorPortType">
         <!--I was here!-->
-        <operation name="iAmAlive">
-            <input wsam:Action="http://ws.mediator.komparator.org/Mediator/iAmAlive" message="tns:iAmAlive"/>
+        <operation name="imAlive">
+            <input wsam:Action="http://ws.mediator.komparator.org/Mediator/imAlive" message="tns:imAlive"/>
         </operation>
         <operation name="clear">
             <input wsam:Action="http://ws.mediator.komparator.org/Mediator/clearRequest" message="tns:clear"/>
@@ -381,7 +381,7 @@ wsdl:service, wsdl:portType, wsdl:types and wsdl:binding below
     <binding name="MediatorPortSoapHttpBinding" type="tns:MediatorPortType">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
         <!--I was here!-->
-        <operation name="iAmAlive">
+        <operation name="imAlive">
             <soap:operation soapAction=""/>
             <input>
                 <soap:body use="literal"/>
