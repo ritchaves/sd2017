@@ -1,5 +1,7 @@
 package org.komparator.mediator.ws;
 
+import org.komparator.mediator.domain.LifeProof;
+
 public class MediatorApp {
 
 	public static void main(String[] args) throws Exception {
@@ -28,6 +30,10 @@ public class MediatorApp {
 
 		try {			
 			endpoint.start();
+			
+			//I was here
+			//LifeProof lp = new LifeProof(); //FIXME this???
+			
 			endpoint.awaitConnections();
 		} finally {
 			endpoint.stop();
