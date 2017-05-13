@@ -48,6 +48,13 @@ public class MediatorPortImpl implements MediatorPortType{
 		this.endpointManager = endpointManager;
 	}
 	
+	//Being Alive
+	@Override
+	public void iAmAlive() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	
 	public List<String> myUddiList() {
 		UDDINaming uddinn = endpointManager.getUddiNaming();
@@ -565,5 +572,4 @@ public class MediatorPortImpl implements MediatorPortType{
 		faultInfo.message = message;
 		throw new InvalidCreditCard_Exception(message, faultInfo);
 	}
-	
 }
