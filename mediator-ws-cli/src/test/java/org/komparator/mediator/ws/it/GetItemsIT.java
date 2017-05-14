@@ -78,7 +78,7 @@ public class GetItemsIT extends BaseIT {
 	@AfterClass
 	public static void oneTimeTearDown() {
 		// clear remote service state after all tests
-	//	mediatorClient.clear();
+		mediatorClient.clear();
 		// even though mediator clear should have cleared suppliers, clear them
 		// explicitly after use
 		supplierClients[0].clear();
