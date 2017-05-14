@@ -174,4 +174,16 @@ public class MediatorClient implements MediatorPortType{
 		return port.shopHistory();
 	}
 
+	@Override
+	public void updateShopHistory() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateCart() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

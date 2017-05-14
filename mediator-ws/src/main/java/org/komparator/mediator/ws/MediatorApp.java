@@ -28,8 +28,13 @@ public class MediatorApp {
 			endpoint.setVerbose(true);
 		}
 
-		try {			
-			endpoint.start();
+		try {
+			if(wsURL.contains("8071")) {
+				System.out.println(">Primary Mediator at your service!");
+				endpoint.start();
+			}
+			
+			else System.out.println(">Secoundary Mediator at your service!");
 			
 			//I was here
 			//LifeProof lp = new LifeProof(); //FIXME this???

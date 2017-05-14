@@ -51,16 +51,18 @@ public class MediatorPortImpl implements MediatorPortType{
 		this.endpointManager = endpointManager;
 	}
 	
-	//Being Alive - FIXME SEND HELP
+	//Being Alive - FIXME SEND HELP- fixed?
 	@Override
 	public void imAlive() {
 		
-		//if(mediatorport == 8071) Outra vez a mesma historia - como sei quem sou?
-			//return;
-		//else{
+		String med = endpointManager.getWSUrl();
+		if(med.contains("8071")) {
+			return;
+		}
+		else{
 			LocalDateTime now = LocalDateTime.now();
 			aliveTSlist.add(now);
-		//}
+		}
 	}
 	
 	
@@ -579,5 +581,17 @@ public class MediatorPortImpl implements MediatorPortType{
 		InvalidCreditCard faultInfo = new InvalidCreditCard();
 		faultInfo.message = message;
 		throw new InvalidCreditCard_Exception(message, faultInfo);
+	}
+
+	@Override
+	public void updateShopHistory() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateCart() {
+		// TODO Auto-generated method stub
+		
 	}
 }

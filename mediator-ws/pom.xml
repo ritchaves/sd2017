@@ -20,11 +20,11 @@
 
         <mainclass>org.komparator.mediator.ws.MediatorApp</mainclass>
 
-        <uddi.url>http://a57:k1fFNszN@uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url>
+
         <group.id>A57</group.id>
 
 	    <ws.i>1</ws.i>
-
+        <uddi.url>http://a57:k1fFNszN@uddi.sd.rnl.tecnico.ulisboa.pt:9090/</uddi.url>
 	    <ws.host>localhost</ws.host>
 	    <ws.port>807${ws.i}</ws.port>
 	    <ws.url>http://${ws.host}:${ws.port}/mediator-ws/endpoint</ws.url>

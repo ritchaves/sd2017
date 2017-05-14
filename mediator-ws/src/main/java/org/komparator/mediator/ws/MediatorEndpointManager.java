@@ -41,6 +41,10 @@ public class MediatorEndpointManager {
 	UDDINaming getUddiNaming() {
 		return uddiNaming;
 	}
+	
+	String getWSUrl() {
+		return wsURL;
+	}
 
 	/** output option **/
 	private boolean verbose = true;
