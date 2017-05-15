@@ -38,7 +38,7 @@ public class MediatorApp {
 			else System.out.println(">Secondary Mediator at your service!");
 			
 			//I was here 
-			LifeProof lp = new LifeProof(wsURL); //FIXME this???
+			LifeProof lp = new LifeProof(wsURL, uddiURL, wsName); //FIXME this???
 			
 			
 			
