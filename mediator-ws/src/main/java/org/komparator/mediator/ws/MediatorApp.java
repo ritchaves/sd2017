@@ -1,5 +1,7 @@
 package org.komparator.mediator.ws;
 
+import java.util.Timer;
+
 import org.komparator.mediator.domain.LifeProof;
 
 public class MediatorApp {
@@ -36,7 +38,9 @@ public class MediatorApp {
 			else System.out.println(">Secondary Mediator at your service!");
 			
 			//I was here 
-			LifeProof lp = new LifeProof(); //FIXME this???
+			LifeProof lp = new LifeProof(wsURL); //FIXME this???
+			
+			
 			
 			endpoint.awaitConnections();
 		} finally {
