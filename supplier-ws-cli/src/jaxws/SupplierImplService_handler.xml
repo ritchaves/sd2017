@@ -8,9 +8,9 @@
         <handler>
             <handler-class>org.komparator.security.handler.FreshHandler</handler-class>
         </handler>
-        <!--handler>
+        <handler>
             <handler-class>org.komparator.security.handler.AutenticityIntegrityHandler</handler-class>
-        </handler-->
+        </handler>
 
         <!--Attacks!-->
         <!--handler>

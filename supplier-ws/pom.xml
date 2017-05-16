@@ -60,6 +60,26 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*.jks</exclude>
+                    <exclude>**/*.xml</exclude>
+                    <exclude>**/*.cer</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*.jks</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.cer</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -135,6 +155,16 @@
                             <id>${project.artifactId}</id>
                         </program>
                     </programs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.komparator.A57</groupId>
+                <artifactId>supplier-ws-cli</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <configuration>
+                    <nonFilteredFileExtensions>
+                        <nonFilteredFileExtension>jks</nonFilteredFileExtension>                
+                    </nonFilteredFileExtensions>
                 </configuration>
             </plugin>
         </plugins>
