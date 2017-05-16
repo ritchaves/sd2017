@@ -21,7 +21,7 @@ import javax.xml.ws.BindingProvider;
 //import org.komparator.mediator.ws.ShoppingResultView;
 
 // TODO uncomment after generate-sources
-import org.komparator.mediator.ws.*; //FIXME NÃO SEI SE FOI BATOTA MINHA O_O PLS HELP
+import org.komparator.mediator.ws.*;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 
