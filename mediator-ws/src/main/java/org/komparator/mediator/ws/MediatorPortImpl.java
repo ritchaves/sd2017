@@ -47,6 +47,8 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	private List<LocalDateTime> aliveTSlist = new ArrayList<LocalDateTime>();
 	
+	private List<ShoppingResultView> shopHistoryUp = new ArrayList<ShoppingResultView>();
+	
 	public MediatorPortImpl(MediatorEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
 	}
@@ -448,27 +450,30 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	@Override
 	public List<ShoppingResultView> shopHistory() {
-		
 		List<ShoppingResultView> lSRV = new ArrayList<ShoppingResultView>();
-		
-		
-		List<String> orderedPurchaseIds = Mediator.getInstance().getPurchasesIDs();
-		
-		List<CartItemView> drop = new ArrayList<CartItemView>();
-		List<CartItemView> purc = new ArrayList<CartItemView>();
-		
-		for (String id: orderedPurchaseIds){
-			
-			drop.clear();
-			purc.clear();
-			
-			ShoppingResultView view = newShoppingResultView(id);
-			
-			lSRV.add(view);
-		}
-		
-		
-		return lSRV;
+		String med = endpointManager.getWSUrl();
+		if(med.contains("8071")) {
+				List<String> orderedPurchaseIds = Mediator.getInstance().getPurchasesIDs();
+				
+				List<CartItemView> drop = new ArrayList<CartItemView>();
+				List<CartItemView> purc = new ArrayList<CartItemView>();
+				
+				for (String id: orderedPurchaseIds){
+					
+					drop.clear();
+					purc.clear();
+					
+					ShoppingResultView view = newShoppingResultView(id);
+					
+					lSRV.add(view);
+				}
+				
+				updateShopHistory(lSRV);
+			}
+			else {
+				lSRV = shopHistoryUp; 
+			}
+			return lSRV;
 	}
 
 	
@@ -584,9 +589,10 @@ public class MediatorPortImpl implements MediatorPortType{
 	}
 
 	@Override
-	public void updateShopHistory() {
-		// TODO Auto-generated method stub
-		
+	public void updateShopHistory(List<ShoppingResultView> ShopResults) {
+		for (ShoppingResultView shop: ShopResults) {
+			shopHistoryUp.add(shop);
+		}
 	}
 
 	@Override

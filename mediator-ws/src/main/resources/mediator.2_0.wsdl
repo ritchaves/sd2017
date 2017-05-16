@@ -77,8 +77,11 @@ wsdl:service, wsdl:portType, wsdl:types and wsdl:binding below
             </xs:complexType>
 
             <xs:complexType name="updateShopHistory">
-                <xs:sequence/>
+                <xs:sequence>
+                    <xs:element name="shopResults" type="tns:shoppingResultView" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
             </xs:complexType>
+            
             <xs:complexType name="updateCart">
                 <xs:sequence/>
             </xs:complexType>

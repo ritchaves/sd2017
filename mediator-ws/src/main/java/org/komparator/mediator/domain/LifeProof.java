@@ -43,6 +43,7 @@ public class LifeProof {
 		} else {
 			//verificar o quão antigo é o ultimo imalive e se ultrapassar um dado intervalo de tempo
 			try {
+				System.out.println("OLA , eu sou o novo mediator");
 				uddiNaming = new UDDINaming(uddiURL);
 				uddiNaming.unbind(wsName);
 				uddiNaming.rebind(wsName, secundaryURL);
