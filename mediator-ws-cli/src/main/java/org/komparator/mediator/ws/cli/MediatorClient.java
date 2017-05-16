@@ -2,6 +2,7 @@ package org.komparator.mediator.ws.cli;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -122,6 +123,19 @@ public class MediatorClient implements MediatorPortType{
             Map<String, Object> requestContext = bindingProvider
                     .getRequestContext();
             requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
+            
+            
+            //FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! algo assim?
+            int receiveTimeout = 5000;
+            
+            final List<String> RECV_TIME_PROPS = new ArrayList<String>();
+            RECV_TIME_PROPS.add("com.sun.xml.ws.request.timeout");
+            RECV_TIME_PROPS.add("com.sun.xml.internal.ws.request.timeout");
+            RECV_TIME_PROPS.add("javax.xml.ws.client.receiveTimeout");
+            
+            for  (String propName: RECV_TIME_PROPS)
+            	requestContext.put(propName, receiveTimeout);
+            System.out.printf("Set receive timeout to %d milliseconds%n", receiveTimeout);
         }
     }
 
