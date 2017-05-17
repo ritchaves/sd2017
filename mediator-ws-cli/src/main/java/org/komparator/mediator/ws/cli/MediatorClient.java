@@ -189,8 +189,8 @@ public class MediatorClient implements MediatorPortType{
 	}
 
 	@Override
-	public void updateShopHistory() {
-		// TODO Auto-generated method stub
+	public void updateShopHistory(List<ShoppingResultView> shoppingResults) {
+		port.updateShopHistory(shoppingResults);
 		
 	}
 
