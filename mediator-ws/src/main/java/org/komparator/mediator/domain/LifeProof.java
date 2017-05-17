@@ -4,9 +4,11 @@ package org.komparator.mediator.domain;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
+import java.time.LocalDateTime;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.komparator.mediator.ws.MediatorPortImpl;
 import org.komparator.mediator.ws.cli.*;
 
 
@@ -18,7 +20,7 @@ public class LifeProof {
 	MediatorClient secondary;
 	UDDINaming uddiNaming;
 	String secundaryURL = "http://localhost:8072/mediator-ws/endpoint";
-
+	MediatorPortImpl medPort = Mediator.getInstance().; //FIXME
 	
 	public LifeProof(String wsURL, String uddi, String nameWs) {
 		mediatorURL = wsURL;
@@ -42,13 +44,17 @@ public class LifeProof {
 				System.err.println("Caught exception:" + e); }
 		} else {
 			//verificar o quão antigo é o ultimo imalive e se ultrapassar um dado intervalo de tempo
-			try {
-				System.out.println("OLA , eu sou o novo mediator");
-				uddiNaming = new UDDINaming(uddiURL);
-				uddiNaming.unbind(wsName);
-				uddiNaming.rebind(wsName, secundaryURL);
-			} catch (UDDINamingException e) {
-				System.err.println("Caught exception:" + e);
+			//FIXME - nao acho que isto seja assim mas fica uma ideia.. como tirar a lista do port? adicionar a lista no mediator?
+			if(medPort.getLastAlive().isBefore(LocalDateTime.now().minusMinutes(5))) {
+				try {
+					System.out.println("No signal from Primary Mediator..");
+					System.out.println(">Mediator 2.0 taking over!");
+					uddiNaming = new UDDINaming(uddiURL);
+					uddiNaming.unbind(wsName);
+					uddiNaming.rebind(wsName, secundaryURL);
+				} catch (UDDINamingException e) {
+					System.err.println("Caught exception:" + e);
+				}
 			}
 		}
 	}

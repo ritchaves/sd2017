@@ -67,6 +67,11 @@ public class MediatorPortImpl implements MediatorPortType{
 		}
 	}
 	
+	//Returns the last timestamp saved
+	public LocalDateTime getLastAlive() {
+		return aliveTSlist.get(aliveTSlist.size()-1);
+	}
+	
 	
 	public List<String> myUddiList() {
 		UDDINaming uddinn = endpointManager.getUddiNaming();
