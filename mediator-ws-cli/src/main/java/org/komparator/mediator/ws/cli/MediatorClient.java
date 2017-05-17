@@ -231,8 +231,8 @@ private static final int TIME_OUT = 5000;
 	}
 
 	@Override
-	public void updateShopHistory() {
-		// TODO Auto-generated method stub
+	public void updateShopHistory(List<ShoppingResultView> shoppingResults) {
+		port.updateShopHistory(shoppingResults);
 		
 	}
 

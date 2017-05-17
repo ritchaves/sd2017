@@ -457,28 +457,25 @@ public class MediatorPortImpl implements MediatorPortType{
 	public List<ShoppingResultView> shopHistory() {
 		List<ShoppingResultView> lSRV = new ArrayList<ShoppingResultView>();
 		String med = endpointManager.getWSUrl();
-		if(med.contains("8071")) {
-				List<String> orderedPurchaseIds = Mediator.getInstance().getPurchasesIDs();
+		if(!med.contains("8071"))  //se for mediator secundario, vai buscar lista.
+			lSRV = shopHistoryUp;
+		List<String> orderedPurchaseIds = Mediator.getInstance().getPurchasesIDs();
 				
-				List<CartItemView> drop = new ArrayList<CartItemView>();
-				List<CartItemView> purc = new ArrayList<CartItemView>();
-				
-				for (String id: orderedPurchaseIds){
+		List<CartItemView> drop = new ArrayList<CartItemView>();
+		List<CartItemView> purc = new ArrayList<CartItemView>();
+			
+		for (String id: orderedPurchaseIds){
 					
-					drop.clear();
-					purc.clear();
-					
-					ShoppingResultView view = newShoppingResultView(id);
-					
-					lSRV.add(view);
-				}
-				
+			drop.clear();
+			purc.clear();
+			
+			ShoppingResultView view = newShoppingResultView(id);
+			
+			lSRV.add(view);
+		}
+		if(med.contains("8071"))	//faz update da lista caso seja mediator principal	
 				updateShopHistory(lSRV);
-			}
-			else {
-				lSRV = shopHistoryUp; 
-			}
-			return lSRV;
+		return lSRV; 
 	}
 
 	
@@ -595,6 +592,7 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	@Override
 	public void updateShopHistory(List<ShoppingResultView> ShopResults) {
+		shopHistoryUp.clear();
 		for (ShoppingResultView shop: ShopResults) {
 			shopHistoryUp.add(shop);
 		}
