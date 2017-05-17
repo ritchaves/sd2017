@@ -20,7 +20,7 @@ public class LifeProof {
 	MediatorClient secondary;
 	UDDINaming uddiNaming;
 	String secundaryURL = "http://localhost:8072/mediator-ws/endpoint";
-	MediatorPortImpl medPort = Mediator.getInstance().; //FIXME
+	MediatorPortImpl medPort; //FIXME
 	
 	public LifeProof(String wsURL, String uddi, String nameWs) {
 		mediatorURL = wsURL;
