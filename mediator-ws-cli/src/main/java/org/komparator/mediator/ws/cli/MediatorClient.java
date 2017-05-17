@@ -2,11 +2,13 @@ package org.komparator.mediator.ws.cli;
 
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.WebServiceException;
 
 //import org.komparator.mediator.ws.CartView;
 //import org.komparator.mediator.ws.EmptyCart_Exception;
@@ -37,7 +39,9 @@ public class MediatorClient implements MediatorPortType{
     // TODO uncomment after generate-sources 
     //implements MediatorPortType {
 
-// TODO uncomment after generate-sources
+private static final int TIME_OUT = 5000;
+
+	// TODO uncomment after generate-sources
     // /** WS service */
      MediatorService service = null;
 
@@ -125,8 +129,8 @@ public class MediatorClient implements MediatorPortType{
             requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
             
             
-            //FIXME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! algo assim?
-            int receiveTimeout = 5000;
+            //FIXME - fixed?
+            int receiveTimeout = TIME_OUT;
             
             final List<String> RECV_TIME_PROPS = new ArrayList<String>();
             RECV_TIME_PROPS.add("com.sun.xml.ws.request.timeout");
@@ -138,7 +142,7 @@ public class MediatorClient implements MediatorPortType{
             System.out.printf("Set receive timeout to %d milliseconds%n", receiveTimeout);
         }
     }
-
+    
 	//I was here!!
     @Override
 	public void imAlive() {
@@ -152,7 +156,17 @@ public class MediatorClient implements MediatorPortType{
 
 	@Override
 	public List<ItemView> getItems(String productId) throws InvalidItemId_Exception {
-		return port.getItems(productId);
+		try {
+			return port.getItems(productId);
+		}
+		catch(WebServiceException wse) {
+            System.out.println("Caught: " + wse);
+            Throwable cause = wse.getCause();
+            if (cause != null && cause instanceof SocketTimeoutException) {
+                System.out.println("The cause was a timeout exception: " + cause);
+            }
+        }
+		return null;
 	}
 
 	@Override
@@ -162,20 +176,48 @@ public class MediatorClient implements MediatorPortType{
 
 	@Override
 	public List<ItemView> searchItems(String descText) throws InvalidText_Exception {
-		return port.searchItems(descText);
+		try {
+			return port.searchItems(descText);
+		}
+		catch(WebServiceException wse) {
+            System.out.println("Caught: " + wse);
+            Throwable cause = wse.getCause();
+            if (cause != null && cause instanceof SocketTimeoutException) {
+                System.out.println("The cause was a timeout exception: " + cause);
+            }
+        }
+		return null;
 	}
 
 	@Override
 	public ShoppingResultView buyCart(String cartId, String creditCardNr)
 			throws EmptyCart_Exception, InvalidCartId_Exception, InvalidCreditCard_Exception {
-		return port.buyCart(cartId, creditCardNr);
+		try {
+			return port.buyCart(cartId, creditCardNr);
+		}
+		catch(WebServiceException wse) {
+            System.out.println("Caught: " + wse);
+            Throwable cause = wse.getCause();
+            if (cause != null && cause instanceof SocketTimeoutException) {
+                System.out.println("The cause was a timeout exception: " + cause);
+            }
+        }
+		return null;
 	}
 
 	@Override
 	public void addToCart(String cartId, ItemIdView itemId, int itemQty) throws InvalidCartId_Exception,
 			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
-		port.addToCart(cartId, itemId, itemQty);
-		
+		try {
+			port.addToCart(cartId, itemId, itemQty);
+		}
+		catch(WebServiceException wse) {
+            System.out.println("Caught: " + wse);
+            Throwable cause = wse.getCause();
+            if (cause != null && cause instanceof SocketTimeoutException) {
+                System.out.println("The cause was a timeout exception: " + cause);
+            }
+        }		
 	}
 
 	@Override
