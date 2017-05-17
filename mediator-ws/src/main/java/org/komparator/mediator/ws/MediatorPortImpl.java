@@ -49,6 +49,8 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	private List<ShoppingResultView> shopHistoryUp = new ArrayList<ShoppingResultView>();
 	
+	private List<CartView> listCartsUp = new ArrayList<CartView>();
+	
 	public MediatorPortImpl(MediatorEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
 	}
@@ -429,7 +431,10 @@ public class MediatorPortImpl implements MediatorPortType{
 	public List<CartView> listCarts() {
 		
 		List<CartView> listView = new ArrayList<CartView>();
+		String med = endpointManager.getWSUrl();
 		
+		if (!med.contains("8071"))
+			listView = listCartsUp;
 		
 		for (Cart c: Mediator.getInstance().getCartList()){
 			
@@ -449,6 +454,10 @@ public class MediatorPortImpl implements MediatorPortType{
 			
 			listView.add(cartView);
 		}	
+		
+		if (med.contains("8071"))
+			updateCarts(listView);
+		
 		return listView;
 	}
 	
@@ -599,8 +608,11 @@ public class MediatorPortImpl implements MediatorPortType{
 	}
 
 	@Override
-	public void updateCart() {
-		// TODO Auto-generated method stub
+	public void updateCart(List<CartView> CartViews) {
+		listCartsUp.clear();
+		for (CartView cart: CartViews) {
+			listCartsUp.add(cart);
+		}
 		
 	}
 }
