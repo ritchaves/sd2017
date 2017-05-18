@@ -134,5 +134,10 @@ public class Mediator {
 		purchases.put(purchaseId, purchase);
 		return purchaseId;
 	}
+	
+	public void addPurchase(String id, int totalPrice, String result, List<Item> purchasedItems, List<Item> droppedItems){
+		Purchase purchase = new Purchase(id, totalPrice, result, purchasedItems, droppedItems);
+		purchases.put(id, purchase);
+	}
 
 }

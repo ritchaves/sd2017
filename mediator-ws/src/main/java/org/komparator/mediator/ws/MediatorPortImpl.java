@@ -15,6 +15,8 @@ import javax.jws.HandlerChain;
 import javax.jws.WebService;
 
 import org.komparator.mediator.domain.*;
+import org.komparator.mediator.ws.cli.MediatorClient;
+import org.komparator.mediator.ws.cli.MediatorClientException;
 import org.komparator.supplier.ws.BadProductId_Exception;
 import org.komparator.supplier.ws.BadQuantity_Exception;
 import org.komparator.supplier.ws.BadText_Exception;
@@ -261,7 +263,45 @@ public class MediatorPortImpl implements MediatorPortType{
 		} catch (UDDINamingException | SupplierClientException e) {
 			System.err.println("Caught exception:" + e);
 		}
+		 
+		MediatorClient secondary;
+		try {
+			secondary = new MediatorClient("http://localhost:8072/mediator-ws/endpoint");
+			secondary.updateCart();
+		} catch (MediatorClientException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Caught exception:" + e);
+		}
 		
+	}
+
+	@Override
+	public void updateCart() {
+		//TODO: FALTA APANHAR EXCEPÇÕES E O NUMERO ID DO PEDIDO!!
+		/*eliminate this*/CartView cv = new CartView(); //FIXME DELETE LATER! vai estar no argumento!!
+		
+	}
+	
+	@Override
+	public void updateShopHistory() {
+		//TODO: FALTA APANHAR EXCEPÇÕES E O NUMERO ID DO PEDIDO!!
+		ShoppingResultView srv = new ShoppingResultView(); //FIXME DELETE LATER! vai estar no argumento!!
+		List<Item> purchased = new ArrayList<Item>();
+		for (CartItemView civ: srv.getPurchasedItems()){
+			ItemView iv = civ.getItem();
+			Item i = new Item(iv.getItemId().getProductId(), iv.getDesc(), civ.getQuantity(), iv.getPrice(), 
+					iv.getItemId().getSupplierId());
+			purchased.add(i);
+		}
+		List<Item> dropped = new ArrayList<Item>();
+		for (CartItemView civ: srv.getPurchasedItems()){
+			ItemView iv = civ.getItem();
+			Item i = new Item(iv.getItemId().getProductId(), iv.getDesc(), civ.getQuantity(), iv.getPrice(), 
+					iv.getItemId().getSupplierId());
+			dropped.add(i);
+		}
+		
+		Mediator.getInstance().addPurchase(srv.getId(), srv.getTotalPrice(), srv.getResult().toString(), purchased, dropped);
 	}
 	
 	@Override
@@ -352,12 +392,23 @@ public class MediatorPortImpl implements MediatorPortType{
 				
 				ShoppingResultView view = newShoppingResultView(finalId);
 				
+				MediatorClient secondary;
+				try {
+					secondary = new MediatorClient("http://localhost:8072/mediator-ws/endpoint");
+					secondary.updateShopHistory(/*view, null*/);
+				} catch (MediatorClientException e) {
+					// TODO Auto-generated catch block
+					System.err.println("Caught exception:" + e);
+				}
+				
 				return view;
 			} else throwInvalidCreditCard("Card doesn't exist");
 		} catch (CreditCardClientException e) {
 			System.err.println("Caught exception:" + e);
 			
 		}
+		
+		
 		return null;
 	}
 
@@ -573,15 +624,5 @@ public class MediatorPortImpl implements MediatorPortType{
 		InvalidCreditCard faultInfo = new InvalidCreditCard();
 		faultInfo.message = message;
 		throw new InvalidCreditCard_Exception(message, faultInfo);
-	}
-
-	@Override
-	public void updateShopHistory() {
-		
-	}
-
-	@Override
-	public void updateCart() {
-		
 	}
 }

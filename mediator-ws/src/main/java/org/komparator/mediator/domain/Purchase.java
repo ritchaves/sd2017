@@ -41,6 +41,14 @@ public class Purchase {
 		
 	}
 
+	public Purchase(String id, int totalPrice, String res, List<Item> purchasedItems, List<Item> droppedItems) {
+		purchaseId = id;
+		finalPrice = totalPrice;
+		purchased = purchasedItems;
+		setDroppedItemList(droppedItems);
+		result = res;
+	}
+
 	public String getPurchaseId() {
 		return purchaseId;
 	}
