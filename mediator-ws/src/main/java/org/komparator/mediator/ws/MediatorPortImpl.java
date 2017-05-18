@@ -45,10 +45,6 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	private String cccURL = "http://ws.sd.rnl.tecnico.ulisboa.pt:8080/cc";
 	
-	private List<ShoppingResultView> shopHistoryUp = new ArrayList<ShoppingResultView>();
-	
-	private List<CartView> listCartsUp = new ArrayList<CartView>();
-	
 	public MediatorPortImpl(MediatorEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
 	}
@@ -423,10 +419,6 @@ public class MediatorPortImpl implements MediatorPortType{
 	public List<CartView> listCarts() {
 		
 		List<CartView> listView = new ArrayList<CartView>();
-		String med = endpointManager.getWSUrl();
-		
-		if (!med.contains("8071"))
-			listView = listCartsUp;
 		
 		for (Cart c: Mediator.getInstance().getCartList()){
 			
@@ -446,10 +438,6 @@ public class MediatorPortImpl implements MediatorPortType{
 			
 			listView.add(cartView);
 		}	
-		
-		if (med.contains("8071"))
-			updateCarts(listView);
-		
 		return listView;
 	}
 	
@@ -457,9 +445,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	@Override
 	public List<ShoppingResultView> shopHistory() {
 		List<ShoppingResultView> lSRV = new ArrayList<ShoppingResultView>();
-		String med = endpointManager.getWSUrl();
-		if(!med.contains("8071"))  //se for mediator secundario, vai buscar lista.
-			lSRV = shopHistoryUp;
+	
 		List<String> orderedPurchaseIds = Mediator.getInstance().getPurchasesIDs();
 				
 		List<CartItemView> drop = new ArrayList<CartItemView>();
@@ -474,8 +460,6 @@ public class MediatorPortImpl implements MediatorPortType{
 			
 			lSRV.add(view);
 		}
-		if(med.contains("8071"))	//faz update da lista caso seja mediator principal	
-				updateShopHistory(lSRV);
 		return lSRV; 
 	}
 
@@ -592,19 +576,12 @@ public class MediatorPortImpl implements MediatorPortType{
 	}
 
 	@Override
-	public void updateShopHistory(List<ShoppingResultView> ShopResults) {
-		shopHistoryUp.clear();
-		for (ShoppingResultView shop: ShopResults) {
-			shopHistoryUp.add(shop);
-		}
+	public void updateShopHistory() {
+		
 	}
 
 	@Override
-	public void updateCart(List<CartView> CartViews) {
-		listCartsUp.clear();
-		for (CartView cart: CartViews) {
-			listCartsUp.add(cart);
-		}
+	public void updateCart() {
 		
 	}
 }

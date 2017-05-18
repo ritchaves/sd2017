@@ -169,7 +169,6 @@ private static final int TIME_OUT = 5000;
             }
             else throw wse;
         }
-		return null;
 	}
 
 	@Override
@@ -234,15 +233,14 @@ private static final int TIME_OUT = 5000;
 	}
 
 	@Override
-	public void updateShopHistory(List<ShoppingResultView> shoppingResults) {
-		port.updateShopHistory(shoppingResults);
+	public void updateShopHistory() {
+		port.updateShopHistory();
 		
 	}
 
 	@Override
 	public void updateCart() {
-		// TODO Auto-generated method stub
-		
+		port.updateCart();
 	}
 
 }
