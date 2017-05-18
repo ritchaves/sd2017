@@ -251,14 +251,15 @@ private static final int TIME_OUT = 5000;
 	}
 
 	@Override
-	public void updateShopHistory() {
-		port.updateShopHistory();
+	public void updateShopHistory(ShoppingResultView shopResult) {
+		port.updateShopHistory(shopResult);
 		
 	}
 
 	@Override
-	public void updateCart() {
-		port.updateCart();
+	public void updateCart(CartView cart) {
+		port.updateCart(cart);
+		
 	}
 
 }

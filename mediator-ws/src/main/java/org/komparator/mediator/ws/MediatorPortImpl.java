@@ -276,7 +276,7 @@ public class MediatorPortImpl implements MediatorPortType{
 				MediatorClient secondary;
 				try {
 					secondary = new MediatorClient("http://localhost:8072/mediator-ws/endpoint");
-					secondary.updateCart(/*cv, null*/);
+					secondary.updateCart(cv);
 				} catch (MediatorClientException e) {
 					// TODO Auto-generated catch block
 					System.err.println("Caught exception:" + e);
@@ -293,10 +293,8 @@ public class MediatorPortImpl implements MediatorPortType{
 	}
 
 	@Override
-	public void updateCart() {
-		//TODO: FALTA APANHAR EXCEPÇÕES E O NUMERO ID DO PEDIDO!!
-		/*eliminate this*/CartView cv = new CartView(); //FIXME DELETE LATER! vai estar no argumento!!
-		
+	public void updateCart(CartView cv) {
+	
 		String cId = cv.getCartId();
 		Cart cart = Mediator.getInstance().getCart(cId);
 		
@@ -311,9 +309,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	}
 	
 	@Override
-	public void updateShopHistory() {
-		//TODO: FALTA APANHAR EXCEPÇÕES E O NUMERO ID DO PEDIDO!!
-		ShoppingResultView srv = new ShoppingResultView(); //FIXME DELETE LATER! vai estar no argumento!!
+	public void updateShopHistory(ShoppingResultView srv) {
 		List<Item> purchased = new ArrayList<Item>();
 		for (CartItemView civ: srv.getPurchasedItems()){
 			ItemView iv = civ.getItem();
@@ -423,7 +419,7 @@ public class MediatorPortImpl implements MediatorPortType{
 				MediatorClient secondary;
 				try {
 					secondary = new MediatorClient("http://localhost:8072/mediator-ws/endpoint");
-					secondary.updateShopHistory(/*view, null*/);
+					secondary.updateShopHistory(view);
 				} catch (MediatorClientException e) {
 					// TODO Auto-generated catch block
 					System.err.println("Caught exception:" + e);
