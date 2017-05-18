@@ -255,6 +255,29 @@ public class MediatorPortImpl implements MediatorPortType{
 				//Add to Cart
 				c.addProduct(item);
 				
+				CartView cv = new CartView();
+				CartItemView civ = new CartItemView();
+				ItemView iv = new ItemView();
+				ItemIdView iiv = new ItemIdView();
+				
+				iiv.setProductId(productId);
+				iiv.setSupplierId(supId);
+				iv.setItemId(iiv);
+				iv.setDesc(desc);
+				iv.setPrice(supPrice);
+				civ.setItem(iv);
+				civ.setQuantity(itemQty);
+				cv.setCartId(cartId);
+				cv.items.add(civ);
+				
+				MediatorClient secondary;
+				try {
+					secondary = new MediatorClient("http://localhost:8072/mediator-ws/endpoint");
+					secondary.updateCart(/*cv, null*/);
+				} catch (MediatorClientException e) {
+					// TODO Auto-generated catch block
+					System.err.println("Caught exception:" + e);
+				}
 				
 			} catch (BadProductId_Exception e) {
 				System.err.println("Caught exception:" + e);
@@ -264,15 +287,6 @@ public class MediatorPortImpl implements MediatorPortType{
 			System.err.println("Caught exception:" + e);
 		}
 		 
-		MediatorClient secondary;
-		try {
-			secondary = new MediatorClient("http://localhost:8072/mediator-ws/endpoint");
-			secondary.updateCart();
-		} catch (MediatorClientException e) {
-			// TODO Auto-generated catch block
-			System.err.println("Caught exception:" + e);
-		}
-		
 	}
 
 	@Override
@@ -280,6 +294,17 @@ public class MediatorPortImpl implements MediatorPortType{
 		//TODO: FALTA APANHAR EXCEPÇÕES E O NUMERO ID DO PEDIDO!!
 		/*eliminate this*/CartView cv = new CartView(); //FIXME DELETE LATER! vai estar no argumento!!
 		
+		String cId = cv.getCartId();
+		Cart cart = Mediator.getInstance().getCart(cId);
+		
+		if (cart == null)
+			cart = Mediator.getInstance().addNewCart(cId);
+		
+		for (CartItemView civ : cv.getItems()){
+			Item i = new Item(civ.getItem().getItemId().getProductId(), civ.getItem().getDesc(), civ.getQuantity(),
+					civ.getItem().getPrice(), civ.getItem().getItemId().getSupplierId());
+			cart.addProduct(i);
+		}		
 	}
 	
 	@Override
