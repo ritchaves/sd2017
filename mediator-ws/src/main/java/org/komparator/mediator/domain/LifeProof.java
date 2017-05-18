@@ -18,6 +18,7 @@ public class LifeProof {
 	String uddiURL;
 	String wsName;
 	int value = 5000;
+	int value2 = 50000;
 	
 	MediatorClient secondary;
 	UDDINaming uddiNaming;
@@ -34,6 +35,7 @@ public class LifeProof {
 				secondary = new MediatorClient(secundaryURL);
 				
 		        Timer timer = new Timer();
+		        
 		        timer.schedule(new TimerTask() {
 
 		            @Override
@@ -46,7 +48,23 @@ public class LifeProof {
 		} else {
 			//verificar o quão antigo é o ultimo imalive e se ultrapassar um dado intervalo de tempo
 			//FIXME - fixed?
-			if(Mediator.getInstance().getLastAlive().isBefore(LocalDateTime.now().minusSeconds(DEAD_TIME))) {
+			
+			LocalDateTime lastAlive = Mediator.getInstance().getLastAlive();
+			System.out.println(lastAlive);
+	        Timer timer = new Timer();
+	        
+	        timer.schedule(new TimerTask() {
+
+	            @Override
+	            public void run() {
+	            	if (Mediator.getInstance().getLastAlive().isBefore(LocalDateTime.now().minusSeconds(DEAD_TIME))) {
+	            		System.out.println(DEAD_TIME);
+	            		timer.cancel();
+	            	}
+	            		
+	            }
+	        }, 0, value2);
+			
 				try {
 					System.out.println("No signal from Primary Mediator..");
 					System.out.println(">Step aside! Mediator 2.0 taking over!");
@@ -56,7 +74,7 @@ public class LifeProof {
 				} catch (UDDINamingException e) {
 					System.err.println("Caught exception:" + e);
 				}
-			}
+			
 		}
 	}
 }

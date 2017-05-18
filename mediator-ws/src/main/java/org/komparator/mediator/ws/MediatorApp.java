@@ -38,11 +38,10 @@ public class MediatorApp {
 			else System.out.println(">Secondary Mediator at your service!");
 			
 			//I was here 
-			LifeProof lp = new LifeProof(wsURL, uddiURL, wsName); //FIXME this???
-			
-			
 			
 			endpoint.awaitConnections();
+			LifeProof lp = new LifeProof(wsURL, uddiURL, wsName); //FIXME this???
+			lp.run();
 		} finally {
 			endpoint.stop();
 		}
