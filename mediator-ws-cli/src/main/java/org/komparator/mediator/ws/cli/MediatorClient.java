@@ -162,7 +162,7 @@ private static final int TIME_OUT = 5000;
 		catch(WebServiceException wse) {
             System.out.println("Caught: " + wse);
             Throwable cause = wse.getCause();
-            if (cause != null && cause instanceof SocketTimeoutException) {
+            if (cause != null && (cause instanceof SocketTimeoutException || cause instanceof java.net.ConnectException)) {
                 System.out.println("The cause was a timeout exception: " + cause);
                 //semantic - at most once
                 return port.getItems(productId);
@@ -186,9 +186,10 @@ private static final int TIME_OUT = 5000;
             Throwable cause = wse.getCause();
             if (cause != null && (cause instanceof SocketTimeoutException || cause instanceof java.net.ConnectException)) {
                 System.out.println("The cause was a timeout exception: " + cause);
+                return port.searchItems(descText);
             }
+            else throw wse;
         }
-		return null;
 	}
 
 	@Override
@@ -200,11 +201,12 @@ private static final int TIME_OUT = 5000;
 		catch(WebServiceException wse) {
             System.out.println("Caught: " + wse);
             Throwable cause = wse.getCause();
-            if (cause != null && cause instanceof SocketTimeoutException) {
+            if (cause != null && (cause instanceof SocketTimeoutException || cause instanceof java.net.ConnectException)) {
                 System.out.println("The cause was a timeout exception: " + cause);
+                return port.buyCart(cartId, creditCardNr);
             }
+            else throw wse;
         }
-		return null;
 	}
 
 	@Override
@@ -216,9 +218,11 @@ private static final int TIME_OUT = 5000;
 		catch(WebServiceException wse) {
             System.out.println("Caught: " + wse);
             Throwable cause = wse.getCause();
-            if (cause != null && cause instanceof SocketTimeoutException) {
+            if (cause != null && (cause instanceof SocketTimeoutException || cause instanceof java.net.ConnectException)) {
                 System.out.println("The cause was a timeout exception: " + cause);
+                port.addToCart(cartId, itemId, itemQty);
             }
+            else throw wse;
         }		
 	}
 
