@@ -1,5 +1,6 @@
 package org.komparator.mediator.domain;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,6 +25,8 @@ public class Mediator {
 	
 	private Map<String, Purchase> purchases = new ConcurrentHashMap<>();
 	
+	private List<LocalDateTime> aliveTSlist = new ArrayList<LocalDateTime>();
+	
 	// Singleton -------------------------------------------------------------
 
 	/* Private constructor prevents instantiation from other classes */
@@ -42,7 +45,18 @@ public class Mediator {
 	public static synchronized Mediator getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
-
+	
+	//Returns the last timestamp saved
+	public LocalDateTime getLastAlive() {
+		return aliveTSlist.get(aliveTSlist.size()-1);
+	}
+	
+	public void setLastAlive() {
+		LocalDateTime now = LocalDateTime.now();
+		aliveTSlist.add(now);
+	}
+		
+		
 	// product ---------------------------------------------------------------
 
 	public void reset() {

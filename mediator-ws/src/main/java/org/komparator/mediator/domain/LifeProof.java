@@ -13,14 +13,15 @@ import org.komparator.mediator.ws.cli.*;
 
 
 public class LifeProof { 
+	private static final int DEAD_TIME = 30;
 	String mediatorURL;
 	String uddiURL;
 	String wsName;
-	int value = 5;
+	int value = 5000;
+	
 	MediatorClient secondary;
 	UDDINaming uddiNaming;
 	String secundaryURL = "http://localhost:8072/mediator-ws/endpoint";
-	MediatorPortImpl medPort; //FIXME
 	
 	public LifeProof(String wsURL, String uddi, String nameWs) {
 		mediatorURL = wsURL;
@@ -44,11 +45,11 @@ public class LifeProof {
 				System.err.println("Caught exception:" + e); }
 		} else {
 			//verificar o quão antigo é o ultimo imalive e se ultrapassar um dado intervalo de tempo
-			//FIXME - nao acho que isto seja assim mas fica uma ideia.. como tirar a lista do port? adicionar a lista no mediator?
-			if(medPort.getLastAlive().isBefore(LocalDateTime.now().minusMinutes(5))) {
+			//FIXME - fixed?
+			if(Mediator.getInstance().getLastAlive().isBefore(LocalDateTime.now().minusSeconds(DEAD_TIME))) {
 				try {
 					System.out.println("No signal from Primary Mediator..");
-					System.out.println(">Mediator 2.0 taking over!");
+					System.out.println(">Step aside! Mediator 2.0 taking over!");
 					uddiNaming = new UDDINaming(uddiURL);
 					uddiNaming.unbind(wsName);
 					uddiNaming.rebind(wsName, secundaryURL);

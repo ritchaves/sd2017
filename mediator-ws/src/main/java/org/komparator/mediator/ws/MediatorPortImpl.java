@@ -45,8 +45,6 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	private String cccURL = "http://ws.sd.rnl.tecnico.ulisboa.pt:8080/cc";
 	
-	private List<LocalDateTime> aliveTSlist = new ArrayList<LocalDateTime>();
-	
 	private List<ShoppingResultView> shopHistoryUp = new ArrayList<ShoppingResultView>();
 	
 	private List<CartView> listCartsUp = new ArrayList<CartView>();
@@ -64,14 +62,8 @@ public class MediatorPortImpl implements MediatorPortType{
 			return;
 		}
 		else{
-			LocalDateTime now = LocalDateTime.now();
-			aliveTSlist.add(now);
+			Mediator.getInstance().setLastAlive();
 		}
-	}
-	
-	//Returns the last timestamp saved
-	public LocalDateTime getLastAlive() {
-		return aliveTSlist.get(aliveTSlist.size()-1);
 	}
 	
 	

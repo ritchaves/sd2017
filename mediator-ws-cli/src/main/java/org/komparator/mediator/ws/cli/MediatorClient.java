@@ -164,7 +164,10 @@ private static final int TIME_OUT = 5000;
             Throwable cause = wse.getCause();
             if (cause != null && cause instanceof SocketTimeoutException) {
                 System.out.println("The cause was a timeout exception: " + cause);
+                //semantic - at most once
+                return port.getItems(productId);
             }
+            else throw wse;
         }
 		return null;
 	}
