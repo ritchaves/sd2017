@@ -185,7 +185,7 @@ private static final int TIME_OUT = 5000;
 		catch(WebServiceException wse) {
             System.out.println("Caught: " + wse);
             Throwable cause = wse.getCause();
-            if (cause != null && cause instanceof SocketTimeoutException) {
+            if (cause != null && (cause instanceof SocketTimeoutException || cause instanceof java.net.ConnectException)) {
                 System.out.println("The cause was a timeout exception: " + cause);
             }
         }
