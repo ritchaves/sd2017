@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.jws.HandlerChain;
+import javax.jws.Oneway;
 import javax.jws.WebService;
 
 import org.komparator.mediator.domain.*;
@@ -53,6 +54,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	//Being Alive - FIXME SEND HELP- fixed?
 	@Override
+	@Oneway
 	public void imAlive() {
 		
 		String med = endpointManager.getWSUrl();
@@ -60,6 +62,7 @@ public class MediatorPortImpl implements MediatorPortType{
 			return;
 		}
 		else{
+			System.out.println("fkldjsklfjs");
 			Mediator.getInstance().setLastAlive();
 		}
 	}

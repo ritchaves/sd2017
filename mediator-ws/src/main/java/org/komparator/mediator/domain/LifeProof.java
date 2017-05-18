@@ -33,16 +33,20 @@ public class LifeProof {
 		if(mediatorURL.contains("8071")) {
 			try {
 				secondary = new MediatorClient(secundaryURL);
+				System.out.println("Eu mexo-me aqui cá fora?");
 				
-		        Timer timer = new Timer();
+		        Timer timer = new Timer(true);
 		        
 		        timer.schedule(new TimerTask() {
 
 		            @Override
 		            public void run() {
-		            	secondary.imAlive();
+		            	System.out.println("Eu mexo-me aqui dentro?");
+		            	secondary.imAlive();	    	        
 		            }
 		        }, 0, value);
+		        LocalDateTime lastAlive = Mediator.getInstance().getLastAlive();
+    			System.out.println(lastAlive);
 		    } catch (MediatorClientException e) {
 				System.err.println("Caught exception:" + e); }
 		} else {

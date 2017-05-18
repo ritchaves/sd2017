@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.jws.Oneway;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
 
@@ -124,12 +125,9 @@ private static final int TIME_OUT = 5000;
             if (verbose)
                 System.out.println("Setting endpoint address ...");
             BindingProvider bindingProvider = (BindingProvider) port;
-            Map<String, Object> requestContext = bindingProvider
-                    .getRequestContext();
+            Map<String, Object> requestContext = bindingProvider.getRequestContext();
             requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
             
-            
-            //FIXME - fixed?
             int receiveTimeout = TIME_OUT;
             
             final List<String> RECV_TIME_PROPS = new ArrayList<String>();
@@ -145,9 +143,25 @@ private static final int TIME_OUT = 5000;
     
 	//I was here!!
     @Override
-	public void imAlive() {
-		port.imAlive();
-	}
+    public void imAlive() {
+    	port.imAlive();
+    }
+//	public void imAlive() {
+//
+//		System.out.println("------------------>>>oi ");
+//    	try {
+//    		port.imAlive();
+//    	} catch(WebServiceException wse) {
+//            System.out.println("Caught: " + wse);
+//            Throwable cause = wse.getCause();
+//            if (cause != null && (cause instanceof SocketTimeoutException || cause instanceof java.net.ConnectException)) {
+//                System.out.println("The cause was a timeout exception: " + cause);
+//                //semantic - at most once
+//                port.imAlive();
+//            }
+//            else throw wse;
+//        }
+//	}
     
     @Override
 	public void clear() {
