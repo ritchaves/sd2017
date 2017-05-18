@@ -55,6 +55,9 @@ public class Mediator {
 		LocalDateTime now = LocalDateTime.now();
 		aliveTSlist.add(now);
 	}
+	public Boolean aliveListEmpty(){
+		return aliveTSlist.isEmpty();
+	}
 		
 		
 	// product ---------------------------------------------------------------

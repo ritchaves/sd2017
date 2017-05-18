@@ -52,32 +52,33 @@ public class LifeProof {
 		} else {
 			//verificar o quão antigo é o ultimo imalive e se ultrapassar um dado intervalo de tempo
 			//FIXME - fixed?
-			
-			LocalDateTime lastAlive = Mediator.getInstance().getLastAlive();
-			System.out.println(lastAlive);
-	        Timer timer = new Timer();
-	        
-	        timer.schedule(new TimerTask() {
-
-	            @Override
-	            public void run() {
-	            	if (Mediator.getInstance().getLastAlive().isBefore(LocalDateTime.now().minusSeconds(DEAD_TIME))) {
-	            		System.out.println(DEAD_TIME);
-	            		timer.cancel();
-	            	}
-	            		
-	            }
-	        }, 0, value2);
-			
-				try {
-					System.out.println("No signal from Primary Mediator..");
-					System.out.println(">Step aside! Mediator 2.0 taking over!");
-					uddiNaming = new UDDINaming(uddiURL);
-					uddiNaming.unbind(wsName);
-					uddiNaming.rebind(wsName, secundaryURL);
-				} catch (UDDINamingException e) {
-					System.err.println("Caught exception:" + e);
-				}
+			if (!Mediator.getInstance().aliveListEmpty()){
+				LocalDateTime lastAlive = Mediator.getInstance().getLastAlive();
+				System.out.println(lastAlive);
+		        Timer timer = new Timer();
+		        
+		        timer.schedule(new TimerTask() {
+	
+		            @Override
+		            public void run() {
+		            	if (Mediator.getInstance().getLastAlive().isBefore(LocalDateTime.now().minusSeconds(DEAD_TIME))) {
+		            		System.out.println(DEAD_TIME);
+		            		timer.cancel();
+		            	}
+		            		
+		            }
+		        }, 0, value2);
+				
+					try {
+						System.out.println("No signal from Primary Mediator..");
+						System.out.println(">Step aside! Mediator 2.0 taking over!");
+						uddiNaming = new UDDINaming(uddiURL);
+						uddiNaming.unbind(wsName);
+						uddiNaming.rebind(wsName, secundaryURL);
+					} catch (UDDINamingException e) {
+						System.err.println("Caught exception:" + e);
+					}
+			}
 			
 		}
 	}

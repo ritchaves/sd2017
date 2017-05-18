@@ -42,6 +42,7 @@ public class MediatorApp {
 			endpoint.awaitConnections();
 			LifeProof lp = new LifeProof(wsURL, uddiURL, wsName); //FIXME this???
 			lp.run();
+			
 		} finally {
 			endpoint.stop();
 		}
