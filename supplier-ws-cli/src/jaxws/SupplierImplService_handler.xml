@@ -26,8 +26,8 @@
             <handler-class>org.komparator.security.attackhandler.DigitalSignaturesAttackHandler2</handler-class>
         </handler-->
 
-        <handler>
+        <!--handler>
             <handler-class>org.komparator.security.handler.LoggingHandler</handler-class>
-        </handler>
+        </handler-->
     </handler-chain>
 </handler-chains>   
