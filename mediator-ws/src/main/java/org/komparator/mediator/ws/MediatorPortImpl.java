@@ -274,13 +274,18 @@ public class MediatorPortImpl implements MediatorPortType{
 				cv.setCartId(cartId);
 				
 				cv.getItems().add(civ);
-				MediatorClient secondary;
-				try {
-					secondary = new MediatorClient("http://localhost:8072/mediator-ws/endpoint");
-					secondary.updateCart(cv);
-				} catch (MediatorClientException e) {
-					// TODO Auto-generated catch block
-					System.err.println("Caught exception:" + e);
+				
+				String med = endpointManager.getWSUrl();
+				if(med.contains("8071")) {				
+					MediatorClient secondary;
+					try {
+						secondary = new MediatorClient("http://localhost:8072/mediator-ws/endpoint");
+						System.out.println("Updating Secondary Status - addToCart() ... ");
+						secondary.updateCart(cv);
+					} catch (MediatorClientException e) {
+						// TODO Auto-generated catch block
+						System.err.println("Caught exception:" + e);
+					}
 				}
 				
 			} catch (BadProductId_Exception e) {
@@ -295,6 +300,7 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	@Override
 	public void updateCart(CartView cv) {
+		System.out.println("Updating my status: addToCart()...");
 		String cId = cv.getCartId();
 		Cart cart = Mediator.getInstance().getCart(cId);
 		
@@ -305,11 +311,13 @@ public class MediatorPortImpl implements MediatorPortType{
 			Item i = new Item(civ.getItem().getItemId().getProductId(), civ.getItem().getDesc(), civ.getQuantity(),
 					civ.getItem().getPrice(), civ.getItem().getItemId().getSupplierId());
 			cart.addProduct(i);
-		}		
+		}	
+		System.out.println("Update finished!");
 	}
 	
 	@Override
 	public void updateShopHistory(ShoppingResultView srv) {
+		System.out.println("Updating my status: buyCart()...");
 		List<Item> purchased = new ArrayList<Item>();
 		for (CartItemView civ: srv.getPurchasedItems()){
 			ItemView iv = civ.getItem();
@@ -325,6 +333,7 @@ public class MediatorPortImpl implements MediatorPortType{
 			dropped.add(i);
 		}
 		Mediator.getInstance().addPurchase(srv.getId(), srv.getTotalPrice(), srv.getResult().toString(), purchased, dropped);
+		System.out.println("Update finished!");
 	}
 	
 	@Override
@@ -415,13 +424,17 @@ public class MediatorPortImpl implements MediatorPortType{
 				
 				ShoppingResultView view = newShoppingResultView(finalId);
 				
-				MediatorClient secondary;
-				try {
-					secondary = new MediatorClient("http://localhost:8072/mediator-ws/endpoint");
-					secondary.updateShopHistory(view);
-				} catch (MediatorClientException e) {
-					// TODO Auto-generated catch block
-					System.err.println("Caught exception:" + e);
+				String med = endpointManager.getWSUrl();
+				if(med.contains("8071")) {	
+					MediatorClient secondary;
+					try {
+						secondary = new MediatorClient("http://localhost:8072/mediator-ws/endpoint");
+						System.out.println("Updating Secondary Status - buyCart() ... ");
+						secondary.updateShopHistory(view);
+					} catch (MediatorClientException e) {
+						// TODO Auto-generated catch block
+						System.err.println("Caught exception:" + e);
+					}
 				}
 				
 				return view;
