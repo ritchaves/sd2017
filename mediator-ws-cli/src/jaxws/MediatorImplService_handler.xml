@@ -1,6 +1,6 @@
 <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
 	<handler-chain>
-		<handler>
+		<!--handler>
 			<handler-class>org.komparator.security.handler.LoggingHandler</handler-class>
 		</handler>
 		<handler>
@@ -11,6 +11,6 @@
 		</handler>
 		<handler>
 			<handler-class>org.komparator.security.handler.LoggingHandler</handler-class>
-		</handler>
+		</handler-->
 	</handler-chain>
 </handler-chains>   
