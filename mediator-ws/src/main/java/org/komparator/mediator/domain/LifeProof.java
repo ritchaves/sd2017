@@ -67,6 +67,7 @@ public class LifeProof extends Thread {
 							uddiNaming = new UDDINaming(uddiURL);
 							uddiNaming.unbind(wsName);
 							uddiNaming.rebind(wsName, secundaryURL);
+							status = false;
 						} catch (UDDINamingException e) {
 							System.err.println("Caught exception:" + e);
 						}
