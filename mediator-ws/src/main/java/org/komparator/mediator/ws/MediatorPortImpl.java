@@ -176,7 +176,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	@Override
 	public void addToCart(String cartId, ItemIdView itemId, int itemQty) throws InvalidCartId_Exception,
 			InvalidItemId_Exception, InvalidQuantity_Exception, NotEnoughItems_Exception {
-		
+
 		//Cart Check:
 		if (cartId == null)
 			throwInvalidCartId("Cart Identifier cannot be null!");
@@ -215,13 +215,14 @@ public class MediatorPortImpl implements MediatorPortType{
 		if (itemQty <= 0)
 			throwInvalidQuantity("Product quantity must be positive number!");
 		
-		
 		UDDINaming uddinn = endpointManager.getUddiNaming();
 		try {
 			
 			String url = uddinn.lookup(supId);
+			
 			SupplierClient S = null;
 			S = new SupplierClient(url);
+		
 			
 			try {
 				
@@ -254,12 +255,14 @@ public class MediatorPortImpl implements MediatorPortType{
 				Item item = new Item(productId, desc, itemQty, supPrice, supId);
 				
 				//Add to Cart
+				
 				c.addProduct(item);
 				
 				CartView cv = new CartView();
 				CartItemView civ = new CartItemView();
 				ItemView iv = new ItemView();
 				ItemIdView iiv = new ItemIdView();
+				
 				
 				iiv.setProductId(productId);
 				iiv.setSupplierId(supId);
@@ -269,8 +272,8 @@ public class MediatorPortImpl implements MediatorPortType{
 				civ.setItem(iv);
 				civ.setQuantity(itemQty);
 				cv.setCartId(cartId);
-				cv.items.add(civ);
 				
+				cv.getItems().add(civ);
 				MediatorClient secondary;
 				try {
 					secondary = new MediatorClient("http://localhost:8072/mediator-ws/endpoint");
@@ -292,7 +295,6 @@ public class MediatorPortImpl implements MediatorPortType{
 
 	@Override
 	public void updateCart(CartView cv) {
-	
 		String cId = cv.getCartId();
 		Cart cart = Mediator.getInstance().getCart(cId);
 		
@@ -322,7 +324,6 @@ public class MediatorPortImpl implements MediatorPortType{
 					iv.getItemId().getSupplierId());
 			dropped.add(i);
 		}
-		
 		Mediator.getInstance().addPurchase(srv.getId(), srv.getTotalPrice(), srv.getResult().toString(), purchased, dropped);
 	}
 	
