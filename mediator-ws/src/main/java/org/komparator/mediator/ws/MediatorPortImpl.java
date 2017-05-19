@@ -440,6 +440,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	
 	@Override
 	public String ping(String name) {
+		
 		UDDINaming uddinn = endpointManager.getUddiNaming();
 		List<String> availableSupplierswsURL = null;
 		try {

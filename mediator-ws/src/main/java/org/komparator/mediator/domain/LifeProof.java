@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.komparator.mediator.ws.MediatorEndpointManager;
 import org.komparator.mediator.ws.MediatorPortImpl;
 import org.komparator.mediator.ws.cli.*;
 
@@ -22,12 +23,14 @@ public class LifeProof extends Thread {
 	boolean status = true;
 	
 	MediatorClient secondary;
+	MediatorEndpointManager end;
 	UDDINaming uddiNaming;
 	String secundaryURL = "http://localhost:8072/mediator-ws/endpoint";
 	
-	public LifeProof(String wsURL, String uddi, String nameWs) {
+	public LifeProof(String wsURL, String uddi, String nameWs, MediatorEndpointManager endpoint) {
 		mediatorURL = wsURL;
 		uddiURL = uddi;
+		end = endpoint;
 		wsName = nameWs;
 		try {
 			secondary = new MediatorClient(secundaryURL);
@@ -64,6 +67,7 @@ public class LifeProof extends Thread {
 							uddiNaming.unbind(wsName);
 							System.out.printf("Publishing '%s' to UDDI at %s%n", wsName, uddiURL);
 							uddiNaming.rebind(wsName, secundaryURL);
+							end.setUddiNaming(uddiNaming);
 							status = false;
 						} catch (UDDINamingException e) {
 							System.err.println("Caught exception:" + e);

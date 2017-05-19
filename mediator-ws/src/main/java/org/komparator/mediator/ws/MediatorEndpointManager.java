@@ -56,6 +56,10 @@ public class MediatorEndpointManager {
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
+	
+	public void setUddiNaming(UDDINaming uddi) {
+		this.uddiNaming = uddi;
+	}
 
 	/** constructor with provided UDDI location, WS name, and WS URL */
 	public MediatorEndpointManager(String uddiURL, String wsName, String wsURL) {

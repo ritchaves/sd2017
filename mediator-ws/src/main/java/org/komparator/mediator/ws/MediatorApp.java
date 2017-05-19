@@ -31,7 +31,7 @@ public class MediatorApp {
 			
 		}
 
-		LifeProof lp = new LifeProof(wsURL, uddiURL, wsName); //FIXME this???
+		LifeProof lp = new LifeProof(wsURL, uddiURL, wsName, endpoint); //FIXME this???
 		try {
 			
 			if(wsURL.contains("8071")) {	
