@@ -13,12 +13,12 @@ import org.komparator.mediator.ws.cli.*;
 
 
 public class LifeProof extends Thread { 
-	private static final int DEAD_TIME = 30;
+	private static final int PRIMARY_WAIT = 5000;
+	private static final int SECONDARY_WAIT = 10000;
+	private static final int DEAD_TIME = 20;
 	String mediatorURL;
 	String uddiURL;
 	String wsName;
-	int value = 5000;
-	int value2 = 50000;
 	boolean status = true;
 	
 	MediatorClient secondary;
@@ -32,8 +32,7 @@ public class LifeProof extends Thread {
 		try {
 			secondary = new MediatorClient(secundaryURL);
 		} catch (MediatorClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Caught exception while trying to connect to Secondary Mediator:" + e);
 		}
 	}
 
@@ -41,20 +40,17 @@ public class LifeProof extends Thread {
 		while(status) {
 			if(mediatorURL.contains("8071")) {
 				try {
-			         sleep(5000);
+			         sleep(PRIMARY_WAIT);
 				     System.out.println("I'm alive! Proving it!");
 				     secondary.imAlive();	  
 			    } catch (Exception e) {
 					System.err.println("Caught exception:" + e); }
 			} else {
-				//verificar o quão antigo é o ultimo imalive e se ultrapassar um dado intervalo de tempo
-				//FIXME - fixed?
-				//System.out.println("second mediator?");
+				
 				try {
-					sleep(10000);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					sleep(SECONDARY_WAIT);
+				} catch (InterruptedException e) {
+					System.err.println("Caught exception:" + e);
 				}
 				if (!Mediator.getInstance().getLastAlive().equals(null)) {
 					LocalDateTime lastAlive = Mediator.getInstance().getLastAlive();
@@ -66,6 +62,7 @@ public class LifeProof extends Thread {
 							System.out.println(">Step aside! Mediator 2.0 taking over!");
 							uddiNaming = new UDDINaming(uddiURL);
 							uddiNaming.unbind(wsName);
+							System.out.printf("Publishing '%s' to UDDI at %s%n", wsName, uddiURL);
 							uddiNaming.rebind(wsName, secundaryURL);
 							status = false;
 						} catch (UDDINamingException e) {
