@@ -31,6 +31,7 @@ public class MediatorApp {
 			
 		}
 
+		LifeProof lp = new LifeProof(wsURL, uddiURL, wsName); //FIXME this???
 		try {
 			
 			if(wsURL.contains("8071")) {	
@@ -41,18 +42,15 @@ public class MediatorApp {
 				System.out.println(">Secondary Mediator at your service!");
 				endpoint.startSecondary();
 			}
-			System.out.println(wsURL);
-			//I was here 
-			LifeProof lp = new LifeProof(wsURL, uddiURL, wsName); //FIXME this???
-			lp.run();
-		
-			System.out.println("second?");
+			
+			lp.start();
 			endpoint.awaitConnections();
 		
 			
-			
 		} finally {
+			lp.shutdown();
 			endpoint.stop();
+			
 		}
 
 	}

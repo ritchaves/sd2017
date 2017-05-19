@@ -44,8 +44,6 @@ public class LifeProof extends Thread {
 			         sleep(5000);
 				     System.out.println("I'm alive! Proving it!");
 				     secondary.imAlive();	  
-			         LocalDateTime lastAlive = Mediator.getInstance().getLastAlive();
-	    			 System.out.println("LastAlive Proof: " + lastAlive);
 			    } catch (Exception e) {
 					System.err.println("Caught exception:" + e); }
 			} else {
@@ -69,7 +67,6 @@ public class LifeProof extends Thread {
 							uddiNaming = new UDDINaming(uddiURL);
 							uddiNaming.unbind(wsName);
 							uddiNaming.rebind(wsName, secundaryURL);
-							status = false;
 						} catch (UDDINamingException e) {
 							System.err.println("Caught exception:" + e);
 						}
@@ -77,6 +74,10 @@ public class LifeProof extends Thread {
 				}
 			}
 		}
+	}
+	
+	public void shutdown() {
+		this.status = false;
 	}
 }
 	
