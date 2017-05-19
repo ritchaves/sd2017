@@ -25,7 +25,7 @@ public class Mediator {
 	
 	private Map<String, Purchase> purchases = new ConcurrentHashMap<>();
 	
-	private List<LocalDateTime> aliveTSlist = new ArrayList<LocalDateTime>();
+	private LocalDateTime aliveTS = null;
 	
 	// Singleton -------------------------------------------------------------
 
@@ -48,16 +48,13 @@ public class Mediator {
 	
 	//Returns the last timestamp saved
 	public LocalDateTime getLastAlive() {
-		return aliveTSlist.get(aliveTSlist.size()-1);
+		return aliveTS;
 	}
 	
 	public void setLastAlive() {
-		LocalDateTime now = LocalDateTime.now();
-		aliveTSlist.add(now);
+		aliveTS = LocalDateTime.now();
 	}
-	public Boolean aliveListEmpty(){
-		return aliveTSlist.isEmpty();
-	}
+	
 		
 		
 	// product ---------------------------------------------------------------

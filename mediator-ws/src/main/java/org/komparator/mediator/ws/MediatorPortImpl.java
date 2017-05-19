@@ -56,7 +56,7 @@ public class MediatorPortImpl implements MediatorPortType{
 	@Override
 	@Oneway
 	public void imAlive() {
-		
+		System.out.println("WHYYYYYYYYYYYYYYYYYYYYYYYYYY");
 		String med = endpointManager.getWSUrl();
 		if(med.contains("8071")) {
 			return;

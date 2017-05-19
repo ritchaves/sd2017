@@ -28,20 +28,28 @@ public class MediatorApp {
 			wsURL = args[2];
 			endpoint = new MediatorEndpointManager(uddiURL, wsName, wsURL);
 			endpoint.setVerbose(true);
+			
 		}
 
 		try {
-			if(wsURL.contains("8071")) {
+			
+			if(wsURL.contains("8071")) {	
 				System.out.println(">Primary Mediator at your service!");
 				endpoint.start();
 			}		
-			else System.out.println(">Secondary Mediator at your service!");
-			
+			else {
+				System.out.println(">Secondary Mediator at your service!");
+				endpoint.startSecondary();
+			}
+			System.out.println(wsURL);
 			//I was here 
-			
-			endpoint.awaitConnections();
 			LifeProof lp = new LifeProof(wsURL, uddiURL, wsName); //FIXME this???
 			lp.run();
+		
+			System.out.println("second?");
+			endpoint.awaitConnections();
+		
+			
 			
 		} finally {
 			endpoint.stop();
